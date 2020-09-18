@@ -14,3 +14,16 @@ services:
             POSTGRES_DB: brannigan
         ports:
             - 5432:5432
+    
+    backend:
+        build: 
+            context: ./brannigans-chess-backend
+            dockerfile: ./Dockerfile
+        environment:
+            BRANNIGANS_CHESS_DB_URL: jdbc:postgresql://database:5432/brannigan
+        depends_on: 
+            - database
+        ports:
+            - 8080:8080
+        expose: 
+            - 8080
