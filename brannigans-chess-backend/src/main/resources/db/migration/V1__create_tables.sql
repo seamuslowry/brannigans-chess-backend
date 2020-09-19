@@ -8,8 +8,8 @@ CREATE TABLE IF NOT EXISTS player(
 CREATE TABLE IF NOT EXISTS game(
     id integer PRIMARY KEY,
     uuid VARCHAR(36) NOT NULL,
-    white_player_id integer NOT NULL,
-    black_player_id integer NOT NULL,
+    white_player_id integer,
+    black_player_id integer,
     winner_id integer,
     FOREIGN KEY (white_player_id) REFERENCES player(id),
     FOREIGN KEY (black_player_id) REFERENCES player(id),
@@ -21,8 +21,8 @@ CREATE TABLE IF NOT EXISTS piece(
     type integer NOT NULL,
     color VARCHAR(5) NOT NULL,
     taken boolean NOT NULL default false,
-    pos_x integer NOT NULL,
-    pos_y integer NOT NULL,
+    pos_x integer,
+    pos_y integer,
     game_id integer NOT NULL,
     FOREIGN KEY (game_id) REFERENCES game(id)
 );
