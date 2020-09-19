@@ -10,8 +10,8 @@ class Piece (
     val color: PieceColor,
     @ManyToOne
     val game: Game,
-    var row: Int? = null,
-    var col: Int? = null,
+    var positionRow: Int? = null,
+    var positionCol: Int? = null,
     var taken: Boolean = false,
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

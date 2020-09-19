@@ -21,8 +21,8 @@ CREATE TABLE IF NOT EXISTS piece(
     type integer NOT NULL,
     color VARCHAR(5) NOT NULL,
     taken boolean NOT NULL default false,
-    row integer,
-    col integer,
+    position_row integer,
+    position_col integer,
     game_id integer NOT NULL,
     FOREIGN KEY (game_id) REFERENCES game(id)
 );
