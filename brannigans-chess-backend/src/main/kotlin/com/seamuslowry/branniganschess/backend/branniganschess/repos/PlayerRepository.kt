@@ -1,8 +1,9 @@
 package com.seamuslowry.branniganschess.backend.branniganschess.repos
 
-import com.seamuslowry.branniganschess.backend.branniganschess.models.Move
 import com.seamuslowry.branniganschess.backend.branniganschess.models.Player
 import org.springframework.data.jpa.repository.JpaRepository
+import org.springframework.stereotype.Repository
 
-interface PlayerInterface: JpaRepository<Player, Long> {
+@Repository
+interface PlayerRepository: JpaRepository<Player, Long> {
 }

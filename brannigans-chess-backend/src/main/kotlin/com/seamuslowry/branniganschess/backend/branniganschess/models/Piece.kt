@@ -3,20 +3,17 @@ package com.seamuslowry.branniganschess.backend.branniganschess.models
 import javax.persistence.*
 
 @Entity
-class Piece {
-    @Id
-    @GeneratedValue
-    private var id: Long? = null
-
+class Piece (
     @Enumerated(EnumType.ORDINAL)
-    private val type: PieceType = PieceType.QUEEN;
-
+    val type: PieceType,
     @Enumerated(EnumType.STRING)
-    private val color: PieceColor = PieceColor.WHITE;
-
-    private var taken: Boolean = false;
-
-    private var posX: Number? = null;
-
-    private var posY: Number? = null;
-}
+    val color: PieceColor,
+    @ManyToOne
+    val game: Game,
+    var row: Int? = null,
+    var col: Int? = null,
+    var taken: Boolean = false,
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    var id: Long? = null
+) {}

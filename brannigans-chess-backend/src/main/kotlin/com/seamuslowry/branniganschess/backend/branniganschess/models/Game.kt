@@ -1,24 +1,17 @@
 package com.seamuslowry.branniganschess.backend.branniganschess.models
 
-import javax.persistence.Entity
-import javax.persistence.GeneratedValue
-import javax.persistence.Id
-import javax.persistence.ManyToOne
+import javax.persistence.*
 
 @Entity
-class Game {
-    @Id
-    @GeneratedValue
-    private var id: Long? = null
-
-    private var uuid: String? = null
-
-    @ManyToOne
-    private var whitePlayer: Player? = null;
-
-    @ManyToOne
-    private var blackPlayer: Player? = null;
-
-    @ManyToOne
-    private var winner: Player? = null;
-}
+class Game (
+        var uuid: String = "",
+        @ManyToOne
+        var whitePlayer: Player? = null,
+        @ManyToOne
+        var blackPlayer: Player? = null,
+        @ManyToOne
+        var winner: Player? = null,
+        @Id
+        @GeneratedValue(strategy = GenerationType.IDENTITY)
+        var id: Long = -1
+) {}

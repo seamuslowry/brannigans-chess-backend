@@ -1,8 +1,10 @@
 package com.seamuslowry.branniganschess.backend.branniganschess.repos
 
+import com.seamuslowry.branniganschess.backend.branniganschess.models.Game
 import com.seamuslowry.branniganschess.backend.branniganschess.models.Move
-import com.seamuslowry.branniganschess.backend.branniganschess.models.Piece
 import org.springframework.data.jpa.repository.JpaRepository
+import org.springframework.stereotype.Repository
 
-interface PieceInterface: JpaRepository<Piece, Long> {
+@Repository
+interface GameRepository: JpaRepository<Game, Long> {
 }
