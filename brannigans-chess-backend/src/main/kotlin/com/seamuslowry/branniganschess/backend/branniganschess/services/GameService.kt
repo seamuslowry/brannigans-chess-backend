@@ -1,4 +1,4 @@
-package com.seamuslowry.branniganschess.backend.branniganschess
+package com.seamuslowry.branniganschess.backend.branniganschess.services
 
 import com.seamuslowry.branniganschess.backend.branniganschess.models.Game
 import com.seamuslowry.branniganschess.backend.branniganschess.models.Piece
