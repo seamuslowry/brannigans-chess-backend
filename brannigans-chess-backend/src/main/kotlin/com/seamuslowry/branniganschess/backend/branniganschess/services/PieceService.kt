@@ -16,7 +16,7 @@ class PieceService (
 ) {
     fun createPiece(p: Piece): Piece = pieceRepository.save(p)
 
-    fun findAllBy(gameId: Long, color: PieceColor?, taken: Boolean?): Iterable<Piece> {
+    fun findAllBy(gameId: Long, color: PieceColor? = null, taken: Boolean? = null): Iterable<Piece> {
         var spec: Specification<Piece> = Specification.where(inGame(gameId))!!
 
         color?.let { spec = spec.and(isColor(it))!! }
@@ -36,7 +36,7 @@ class PieceService (
     private fun isColor(color: PieceColor): Specification<Piece> = Specification {
         root,
         _,
-        criteriaBuilder -> criteriaBuilder.equal(root.get<PieceColor>("color"), color.toString())
+        criteriaBuilder -> criteriaBuilder.equal(root.get<PieceColor>("color"), color)
     }
 
     private fun isTaken(taken: Boolean): Specification<Piece> = Specification {

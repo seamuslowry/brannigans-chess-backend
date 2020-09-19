@@ -1,5 +1,6 @@
 package com.seamuslowry.branniganschess.backend.branniganschess.models
 
+import com.fasterxml.jackson.annotation.JsonIgnore
 import javax.persistence.*
 
 @Entity
@@ -9,6 +10,7 @@ class Piece (
     @Enumerated(EnumType.STRING)
     val color: PieceColor,
     @ManyToOne
+    @JsonIgnore
     val game: Game,
     var positionRow: Int? = null,
     var positionCol: Int? = null,

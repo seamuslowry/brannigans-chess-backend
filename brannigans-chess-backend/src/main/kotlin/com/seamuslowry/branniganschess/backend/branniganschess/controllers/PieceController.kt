@@ -6,20 +6,21 @@ import com.seamuslowry.branniganschess.backend.branniganschess.repos.MoveReposit
 import com.seamuslowry.branniganschess.backend.branniganschess.repos.PieceRepository
 import com.seamuslowry.branniganschess.backend.branniganschess.repos.PlayerRepository
 import com.seamuslowry.branniganschess.backend.branniganschess.services.GameService
+import com.seamuslowry.branniganschess.backend.branniganschess.services.PieceService
 import org.springframework.http.ResponseEntity
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 
 @RestController
-@RequestMapping("games")
-class GameController(
-        private val gameService: GameService
+@RequestMapping("pieces")
+class PieceController(
+        private val pieceService: PieceService
 ) {
 
-    @PostMapping("/create")
-    fun createGame(): ResponseEntity<Game> {
-        return ResponseEntity.ok(gameService.createGame())
+    @GetMapping("/{gameId}")
+    fun getPieces(@PathVariable gameId: Long,
+                  @RequestParam(required = false) color: PieceColor?,
+                  @RequestParam(required = false) taken: Boolean?)
+            : ResponseEntity<Iterable<Piece>> {
+        return ResponseEntity.ok(pieceService.findAllBy(gameId, color, taken))
     }
 }
