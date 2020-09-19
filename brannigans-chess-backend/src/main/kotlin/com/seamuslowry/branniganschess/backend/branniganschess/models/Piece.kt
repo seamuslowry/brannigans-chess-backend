@@ -2,23 +2,8 @@ package com.seamuslowry.branniganschess.backend.branniganschess.models
 
 import javax.persistence.*
 
-
-enum class PieceType {
-    KNIGHT,
-    BISHOP,
-    PAWN,
-    ROOK,
-    QUEEN,
-    KING
-}
-
-enum class PieceColor {
-    BLACK,
-    WHITE
-}
-
-@MappedSuperclass
-abstract class Piece {
+@Entity
+class Piece {
     @Id
     @GeneratedValue
     private var id: Long? = null
