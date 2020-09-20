@@ -76,6 +76,6 @@ jobs:
       uses: aws-actions/amazon-ecs-deploy-task-definition@v1
       with:
         task-definition: ${{ steps.task-def.outputs.task-definition }}
-        service: brannigans-chess-service-dev
+        service: brannigans-chess-backend-dev
         cluster: brannigans-chess-cluster
         wait-for-service-stability: true
