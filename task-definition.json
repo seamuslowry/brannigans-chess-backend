@@ -33,11 +33,11 @@
       "workingDirectory": null,
       "secrets": [
         {
-          "valueFrom": "arn:aws:secretsmanager:us-east-2:085076848110:secret:brannigans-chess-db-dev-hVl3WN",
+          "valueFrom": "arn:aws:secretsmanager:us-east-2:085076848110:secret:brannigans-chess-db-url-FO26ml",
           "name": "BRANNIGANS_CHESS_DB_URL"
         },
         {
-          "valueFrom": "arn:aws:secretsmanager:us-east-2:085076848110:secret:brannigans-chess-db-dev-hVl3WN",
+          "valueFrom": "arn:aws:secretsmanager:us-east-2:085076848110:secret:brannigans-chess-db-password-3KZu8W",
           "name": "BRANNIGANS_CHESS_DB_PASSWORD"
         }
       ],
