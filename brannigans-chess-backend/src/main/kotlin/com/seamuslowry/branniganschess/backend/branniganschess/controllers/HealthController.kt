@@ -19,7 +19,7 @@ class HealthController(
 ) {
 
     @GetMapping("/")
-    fun createGame(): ResponseEntity<String> {
+    fun checkHealth(): ResponseEntity<String> {
         return ResponseEntity.ok("healthy")
     }
 }
