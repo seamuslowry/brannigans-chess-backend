@@ -3,7 +3,8 @@ name: Docker Image CI
 on:
   push:
     branches:
-      !chore/exclude_redundant_action
+      - !chore/exclude_redundant_action
+      - !main
 
 jobs:
 
