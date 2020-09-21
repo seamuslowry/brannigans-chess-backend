@@ -26,7 +26,7 @@
 on:
   push:
     branches:
-      chore/dev_deploy
+      develop
 
 name: Deploy to Amazon ECS
 
