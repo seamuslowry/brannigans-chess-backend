@@ -20,6 +20,6 @@ class HealthController(
 
     @GetMapping("/")
     fun checkHealth(): ResponseEntity<String> {
-        return ResponseEntity.ok("healthy")
+        return ResponseEntity.ok("Healthy - OK")
     }
 }
