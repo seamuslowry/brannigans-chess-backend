@@ -4,6 +4,7 @@ import com.seamuslowry.branniganschess.backend.branniganschess.models.Game
 import com.seamuslowry.branniganschess.backend.branniganschess.models.Piece
 import com.seamuslowry.branniganschess.backend.branniganschess.models.PieceColor
 import com.seamuslowry.branniganschess.backend.branniganschess.repos.PieceRepository
+import com.seamuslowry.branniganschess.backend.branniganschess.utils.Utils
 import org.springframework.data.jpa.domain.Specification
 import org.springframework.stereotype.Service
 
@@ -41,9 +42,7 @@ class PieceService (
     fun getPiecesAsBoard(gameId: Long): Array<Array<Piece?>> {
         val activePieces = findAllBy(gameId, taken = false)
 
-        val array: Array<Array<Piece?>> = Array(8) {
-            arrayOfNulls<Piece?>(8)
-        }
+        val array: Array<Array<Piece?>> = Utils.getEmptyBoard()
 
         for (piece in activePieces) {
             array[piece.positionRow ?: continue][piece.positionCol ?: continue] = piece;
