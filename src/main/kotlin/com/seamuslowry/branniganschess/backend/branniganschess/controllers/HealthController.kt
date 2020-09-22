@@ -14,11 +14,9 @@ import org.springframework.web.bind.annotation.RestController
 
 @RestController
 @RequestMapping("health")
-class HealthController(
-        private val gameService: GameService
-) {
+class HealthController {
 
-    @GetMapping("/")
+    @GetMapping("/", "")
     fun checkHealth(): ResponseEntity<String> {
         return ResponseEntity.ok("Healthy - OK")
     }
