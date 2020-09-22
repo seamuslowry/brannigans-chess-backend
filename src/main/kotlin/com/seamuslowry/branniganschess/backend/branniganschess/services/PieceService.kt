@@ -23,6 +23,20 @@ class PieceService (
         return pieceRepository.findAll(spec)
     }
 
+    fun getPiecesAsBoard(gameId: Long): Array<Array<Piece?>> {
+        val activePieces = findAllBy(gameId, taken = false)
+
+        val array: Array<Array<Piece?>> = Array(8) {
+            arrayOfNulls<Piece?>(8)
+        }
+
+        for (piece in activePieces) {
+            array[piece.positionRow ?: continue][piece.positionCol ?: continue] = piece;
+        }
+
+        return array;
+    }
+
 
     private fun inGame(id: Long): Specification<Piece> = Specification {
         root,

@@ -9,6 +9,7 @@ import com.seamuslowry.branniganschess.backend.branniganschess.repos.PieceReposi
 import io.mockk.every
 import io.mockk.verify
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
@@ -50,5 +51,26 @@ class PieceServiceTest {
 
         verify(exactly = 1) { pieceRepository.findAll(any<Specification<Piece>>()) }
         assertEquals(1 , foundPieces.count())
+    }
+
+    @Test
+    fun `returns active pieces as a 2D array`() {
+        val game = Game("2D Piece Game")
+        val pieces = listOf<Piece>(
+                Piece(PieceType.PAWN, PieceColor.BLACK, game, 7, 3),
+                Piece(PieceType.PAWN, PieceColor.BLACK, game, 0, 3),
+                Piece(PieceType.PAWN, PieceColor.BLACK, game, 1, 0),
+                Piece(PieceType.PAWN, PieceColor.BLACK, game, 4, 4)
+        )
+
+        every { pieceRepository.findAll(any<Specification<Piece>>()) } returns pieces
+
+        val board = service.getPiecesAsBoard(1)
+
+        verify(exactly = 1) { pieceRepository.findAll(any<Specification<Piece>>()) }
+
+        for (piece in pieces) {
+            assertNotNull(board[piece.positionRow!!][piece.positionCol!!])
+        }
     }
 }
