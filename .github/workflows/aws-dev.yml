@@ -26,7 +26,7 @@
 on:
   push:
     branches:
-      chore/docker_tag_prefix
+      develop
 
 name: Deploy to Amazon ECS
 
