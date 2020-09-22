@@ -1,9 +1,8 @@
 package com.seamuslowry.branniganschess.backend.branniganschess.services
 
-import com.seamuslowry.branniganschess.backend.branniganschess.models.Game
-import com.seamuslowry.branniganschess.backend.branniganschess.models.Piece
-import com.seamuslowry.branniganschess.backend.branniganschess.models.PieceColor
-import com.seamuslowry.branniganschess.backend.branniganschess.models.PieceType
+import com.seamuslowry.branniganschess.backend.branniganschess.dtos.ChessRuleException
+import com.seamuslowry.branniganschess.backend.branniganschess.dtos.MoveRequest
+import com.seamuslowry.branniganschess.backend.branniganschess.models.*
 import com.seamuslowry.branniganschess.backend.branniganschess.repos.GameRepository
 import org.springframework.stereotype.Service
 import java.util.*
@@ -54,5 +53,9 @@ class GameService (
         pieceService.createPiece(Piece(PieceType.PAWN, PieceColor.BLACK, newGame, 7, 7))
 
         return newGame
+    }
+
+    fun move(gameId: Long, moveRequest: MoveRequest): Move {
+        throw ChessRuleException("Kiff, what have I told you about asking for things I can't do")
     }
 }

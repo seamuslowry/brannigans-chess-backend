@@ -1,6 +1,8 @@
 package com.seamuslowry.branniganschess.backend.branniganschess.services
 
 import com.ninjasquad.springmockk.MockkBean
+import com.seamuslowry.branniganschess.backend.branniganschess.dtos.ChessRuleException
+import com.seamuslowry.branniganschess.backend.branniganschess.dtos.MoveRequest
 import com.seamuslowry.branniganschess.backend.branniganschess.models.Game
 import com.seamuslowry.branniganschess.backend.branniganschess.models.Piece
 import com.seamuslowry.branniganschess.backend.branniganschess.models.PieceColor
@@ -10,6 +12,7 @@ import io.mockk.every
 import io.mockk.verify
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
@@ -41,5 +44,12 @@ class GameServiceTest {
         verify(exactly = 1) { gameRepository.save(any<Game>()) }
         verify(exactly = 32) { pieceService.createPiece(any<Piece>()) }
         assertEquals(game.uuid , newGame.uuid)
+    }
+
+    @Test
+    fun `throws an exception an a move`() {
+        assertThrows<ChessRuleException> {
+            service.move(1, MoveRequest(0,0,0,0))
+        }
     }
 }
