@@ -4,7 +4,8 @@
 
 ## Running the Project
 - This project is best run from the [core repo](https://github.com/seamuslowry/brannigans-chess)
-- Run `docker-compose up`
+- Build the container with `docker-compose build backend`
+- Run `docker-compose up` to bring up the service
 - You should now see the service exposed on `localhost:8080`. Swagger for testing can be used on `localhost:8080/swagger-ui.html`
 
 ## Goal
