@@ -13,6 +13,21 @@ class PieceService (
 ) {
     fun createPiece(p: Piece): Piece = pieceRepository.save(p)
 
+    fun updatePiece(p: Piece): Piece = pieceRepository.save(p)
+
+    fun takePiece(p: Piece): Piece {
+        p.taken = true
+        p.positionRow = null
+        p.positionCol = null
+        return updatePiece(p)
+    }
+
+    fun movePiece(p: Piece, dstRow: Int, dstCol: Int): Piece {
+        p.positionCol = dstCol
+        p.positionRow = dstRow
+        return updatePiece(p)
+    }
+
     fun findAllBy(gameId: Long, color: PieceColor? = null, taken: Boolean? = null): Iterable<Piece> {
         var spec: Specification<Piece> = Specification.where(inGame(gameId))!!
 

@@ -8,8 +8,7 @@ import com.seamuslowry.branniganschess.backend.branniganschess.models.PieceType
 import com.seamuslowry.branniganschess.backend.branniganschess.repos.PieceRepository
 import io.mockk.every
 import io.mockk.verify
-import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertNotNull
+import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
@@ -72,5 +71,38 @@ class PieceServiceTest {
         for (piece in pieces) {
             assertNotNull(board[piece.positionRow!!][piece.positionCol!!])
         }
+    }
+
+    @Test
+    fun `takes a piece`() {
+        val game = Game("2D Piece Game")
+        val piece = Piece(PieceType.PAWN, PieceColor.BLACK, game, 4, 4)
+
+        every { pieceRepository.save(any<Piece>()) } answers {firstArg()}
+
+        val takenPiece = service.takePiece(piece)
+
+        verify(exactly = 1) { pieceRepository.save(any<Piece>()) }
+
+        assertTrue(takenPiece.taken)
+        assertNull(takenPiece.positionCol)
+        assertNull(takenPiece.positionRow)
+    }
+
+    @Test
+    fun `moves a piece`() {
+        val game = Game("2D Piece Game")
+        val piece = Piece(PieceType.PAWN, PieceColor.BLACK, game, 4, 4)
+        val newRow = 5
+        val newCol = 6
+
+        every { pieceRepository.save(any<Piece>()) } answers {firstArg()}
+
+        val movedPiece = service.movePiece(piece, newRow, newCol)
+
+        verify(exactly = 1) { pieceRepository.save(any<Piece>()) }
+
+        assertEquals(newCol, movedPiece.positionCol)
+        assertEquals(newRow, movedPiece.positionRow)
     }
 }
