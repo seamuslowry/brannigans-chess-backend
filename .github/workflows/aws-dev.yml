@@ -32,7 +32,7 @@ name: Deploy to Amazon ECS
 
 jobs:
   deploy-dev:
-    name: Deploy
+    name: Dev Deploy
     runs-on: ubuntu-latest
 
     steps:
