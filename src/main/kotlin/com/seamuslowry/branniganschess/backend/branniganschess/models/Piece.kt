@@ -11,7 +11,10 @@ class Piece (
     val color: PieceColor,
     @ManyToOne
     @JsonIgnore
-    val game: Game,
+    // nullable because of JsonIgnore
+    // do NOT want to send it up to the client
+    // cannot be saved as null
+    val game: Game?,
     var positionRow: Int? = null,
     var positionCol: Int? = null,
     var taken: Boolean = false,
