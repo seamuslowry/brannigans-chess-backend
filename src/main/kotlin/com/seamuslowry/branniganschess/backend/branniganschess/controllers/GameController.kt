@@ -7,10 +7,7 @@ import com.seamuslowry.branniganschess.backend.branniganschess.repos.PieceReposi
 import com.seamuslowry.branniganschess.backend.branniganschess.repos.PlayerRepository
 import com.seamuslowry.branniganschess.backend.branniganschess.services.GameService
 import org.springframework.http.ResponseEntity
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping("games")
@@ -21,5 +18,11 @@ class GameController(
     @PostMapping("/create")
     fun createGame(): ResponseEntity<Game> {
         return ResponseEntity.ok(gameService.createGame())
+    }
+
+    @GetMapping("/", "")
+    fun getGames(@RequestParam(required = false) active: Boolean?)
+            : ResponseEntity<Iterable<Game>> {
+        return ResponseEntity.ok(gameService.findAllBy(active))
     }
 }
