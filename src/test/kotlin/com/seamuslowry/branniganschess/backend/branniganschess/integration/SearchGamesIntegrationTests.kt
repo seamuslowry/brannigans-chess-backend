@@ -63,7 +63,7 @@ class SearchGamesIntegrationTests(
         wonGame.winner = winner
         gameRepository.save(wonGame)
 
-        val entity = restTemplate.getForEntity("/games&size=${gameRepository.count()}", Iterable::class.java)
+        val entity = restTemplate.getForEntity("/games?size=${gameRepository.count()}", Iterable::class.java)
 
         Assertions.assertEquals(HttpStatus.OK, entity.statusCode)
         Assertions.assertTrue(entity.body?.toString().orEmpty().contains("id=${activeGame.id}"))
