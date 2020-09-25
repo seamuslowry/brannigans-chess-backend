@@ -2,6 +2,9 @@ package com.seamuslowry.branniganschess.backend.branniganschess.controllers
 
 import com.ninjasquad.springmockk.MockkBean
 import com.seamuslowry.branniganschess.backend.branniganschess.models.Game
+import com.seamuslowry.branniganschess.backend.branniganschess.models.Piece
+import com.seamuslowry.branniganschess.backend.branniganschess.models.PieceColor
+import com.seamuslowry.branniganschess.backend.branniganschess.models.PieceType
 import com.seamuslowry.branniganschess.backend.branniganschess.services.GameService
 import io.mockk.every
 import org.junit.jupiter.api.Test
@@ -12,6 +15,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
 import org.springframework.http.MediaType
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.test.web.servlet.MockMvc
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.*
 
@@ -31,5 +35,15 @@ class GameControllerTest(@Autowired val mockMvc: MockMvc) {
                 .andExpect(status().isOk)
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("\$.uuid").value(newGame.uuid))
+    }
+
+    @Test
+    fun `Searches for games`() {
+        val game = Game("Game Controller Search Game")
+        every { gameService.findAllBy(any<Boolean>()) } returns listOf(game)
+        mockMvc.perform(MockMvcRequestBuilders.get("/games?active=${game.winner != null}").accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk)
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("\$").isArray)
     }
 }
