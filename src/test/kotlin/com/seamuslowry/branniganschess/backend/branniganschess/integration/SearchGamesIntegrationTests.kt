@@ -20,12 +20,10 @@ import org.springframework.http.HttpStatus
 class SearchGamesIntegrationTests(
         @Autowired val restTemplate: TestRestTemplate,
         @Autowired val playerRepository: PlayerRepository,
-        @Autowired val gameRepository: GameRepository,
-        @Autowired val gameService: GameService
+        @Autowired val gameRepository: GameRepository
 ) {
     @Test
     fun `Finds active games`() {
-        gameRepository.deleteAll()
         val activeGame = gameRepository.save(Game("Piece Search I-Test Active Game One"))
 
         val wonGame = gameRepository.save(Game("Piece Search I-Test Game Two"))
@@ -36,14 +34,13 @@ class SearchGamesIntegrationTests(
         val entity = restTemplate.getForEntity("/games?active=true", Iterable::class.java)
 
         Assertions.assertEquals(HttpStatus.OK, entity.statusCode)
-        Assertions.assertEquals(1, entity.body?.count())
-        Assertions.assertTrue(entity.body?.first().toString().contains("id=${activeGame.id}"))
+        Assertions.assertTrue(entity.body?.toString().orEmpty().contains("id=${activeGame.id}"))
+        Assertions.assertFalse(entity.body?.toString().orEmpty().contains("id=${wonGame.id}"))
     }
 
     @Test
     fun `Finds won games`() {
-        gameRepository.deleteAll()
-        gameRepository.save(Game("Piece Search I-Test Active Game One"))
+        val activeGame = gameRepository.save(Game("Piece Search I-Test Active Game One"))
 
         var wonGame = gameRepository.save(Game("Piece Search I-Test Game Two"))
         val winner = playerRepository.save(Player())
@@ -53,14 +50,13 @@ class SearchGamesIntegrationTests(
         val entity = restTemplate.getForEntity("/games?active=false", Iterable::class.java)
 
         Assertions.assertEquals(HttpStatus.OK, entity.statusCode)
-        Assertions.assertEquals(1, entity.body?.count())
-        Assertions.assertTrue(entity.body?.first().toString().contains("id=${wonGame.id}"))
+        Assertions.assertFalse(entity.body?.toString().orEmpty().contains("id=${activeGame.id}"))
+        Assertions.assertTrue(entity.body?.toString().orEmpty().contains("id=${wonGame.id}"))
     }
 
     @Test
     fun `Finds all games`() {
-        gameRepository.deleteAll()
-        gameRepository.save(Game("Piece Search I-Test Active Game One"))
+        val activeGame = gameRepository.save(Game("Piece Search I-Test Active Game One"))
 
         val wonGame = gameRepository.save(Game("Piece Search I-Test Game Two"))
         val winner = playerRepository.save(Player())
@@ -70,6 +66,7 @@ class SearchGamesIntegrationTests(
         val entity = restTemplate.getForEntity("/games", Iterable::class.java)
 
         Assertions.assertEquals(HttpStatus.OK, entity.statusCode)
-        Assertions.assertEquals(2, entity.body?.count())
+        Assertions.assertTrue(entity.body?.toString().orEmpty().contains("id=${activeGame.id}"))
+        Assertions.assertTrue(entity.body?.toString().orEmpty().contains("id=${wonGame.id}"))
     }
 }
