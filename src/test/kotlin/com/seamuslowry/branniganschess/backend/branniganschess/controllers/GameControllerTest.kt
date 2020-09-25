@@ -2,9 +2,6 @@ package com.seamuslowry.branniganschess.backend.branniganschess.controllers
 
 import com.ninjasquad.springmockk.MockkBean
 import com.seamuslowry.branniganschess.backend.branniganschess.models.Game
-import com.seamuslowry.branniganschess.backend.branniganschess.models.Piece
-import com.seamuslowry.branniganschess.backend.branniganschess.models.PieceColor
-import com.seamuslowry.branniganschess.backend.branniganschess.models.PieceType
 import com.seamuslowry.branniganschess.backend.branniganschess.services.GameService
 import io.mockk.every
 import org.junit.jupiter.api.Test
@@ -12,6 +9,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
+import org.springframework.data.domain.Pageable
 import org.springframework.http.MediaType
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.test.web.servlet.MockMvc
@@ -40,7 +38,7 @@ class GameControllerTest(@Autowired val mockMvc: MockMvc) {
     @Test
     fun `Searches for games`() {
         val game = Game("Game Controller Search Game")
-        every { gameService.findAllBy(any<Boolean>()) } returns listOf(game)
+        every { gameService.findAllBy(any<Boolean>(), any<Pageable>()) } returns listOf(game)
         mockMvc.perform(MockMvcRequestBuilders.get("/games?active=${game.winner != null}").accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk)
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
