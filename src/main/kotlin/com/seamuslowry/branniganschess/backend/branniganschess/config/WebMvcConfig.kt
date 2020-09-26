@@ -10,7 +10,7 @@ class WebMvcConfig(
         @Value("\${cors.allowed-origin}") private val allowedOrigin: String
 ): WebMvcConfigurer {
     override fun addCorsMappings(registry: CorsRegistry) {
-        registry.addMapping("/**").allowedOrigins(allowedOrigin)
+        registry.addMapping("/**").allowedOrigins(*allowedOrigin.split(",").toTypedArray())
         super.addCorsMappings(registry)
     }
 }
