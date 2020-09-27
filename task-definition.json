@@ -28,7 +28,7 @@
       "environment": [
         {
           "name": "CHESS_ACCESS_CONTROL_ALLOW_ORIGIN",
-          "value": "https://www.branniganschess.com,https://branniganschess.com,https://backend.branniganschess.com/"
+          "value": "https://www.branniganschess.com,https://branniganschess.com,https://backend.branniganschess.com"
         }
       ],
       "resourceRequirements": null,
