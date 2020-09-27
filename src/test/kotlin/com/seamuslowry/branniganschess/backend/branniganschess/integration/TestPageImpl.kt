@@ -13,4 +13,4 @@ class TestPageImpl<T> @JsonCreator(mode = JsonCreator.Mode.PROPERTIES) construct
     : PageImpl<T>(content,
         PageRequest.of(pageable.asInt(0), pageable.asInt(10)),
         totalElements!!
-) {}
+)
