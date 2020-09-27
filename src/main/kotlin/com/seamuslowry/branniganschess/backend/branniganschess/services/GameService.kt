@@ -4,6 +4,9 @@ import com.seamuslowry.branniganschess.backend.branniganschess.dtos.ChessRuleExc
 import com.seamuslowry.branniganschess.backend.branniganschess.dtos.MoveRequest
 import com.seamuslowry.branniganschess.backend.branniganschess.models.*
 import com.seamuslowry.branniganschess.backend.branniganschess.repos.GameRepository
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
+import org.springframework.data.jpa.domain.Specification
 import org.springframework.stereotype.Service
 import java.util.*
 
@@ -56,6 +59,14 @@ class GameService (
         return newGame
     }
 
+    fun findAllBy(active: Boolean?, pageable: Pageable): Page<Game> {
+        var spec: Specification<Game> = Specification.where(null)!!
+
+        active?.let { spec = if (active) spec.and(isActive())!! else spec.and(isWon())!! }
+
+        return gameRepository.findAll(spec, pageable)
+    }
+
     fun move(gameId: Long, moveRequest: MoveRequest): Move {
         val activePieces = pieceService.getPiecesAsBoard(gameId);
         val (srcRow, srcCol, dstRow, dstCol) = moveRequest
@@ -84,5 +95,17 @@ class GameService (
 
     private fun tileOnBoard(row: Int, col: Int): Boolean {
         return row in 0..7 && col in 0..7
+    }
+
+    private fun isActive(): Specification<Game> = Specification {
+        root,
+        _,
+        criteriaBuilder -> criteriaBuilder.isNull(root.get<Player>("winner"))
+    }
+
+    private fun isWon(): Specification<Game> = Specification {
+        root,
+        _,
+        criteriaBuilder -> criteriaBuilder.isNotNull(root.get<Player>("winner"))
     }
 }

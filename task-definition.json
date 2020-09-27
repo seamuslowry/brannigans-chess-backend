@@ -25,7 +25,12 @@
       "command": null,
       "linuxParameters": null,
       "cpu": 1024,
-      "environment": [],
+      "environment": [
+        {
+          "name": "CHESS_ACCESS_CONTROL_ALLOW_ORIGIN",
+          "value": "https://www.branniganschess.com,https://branniganschess.com"
+        }
+      ],
       "resourceRequirements": null,
       "ulimits": null,
       "dnsServers": null,

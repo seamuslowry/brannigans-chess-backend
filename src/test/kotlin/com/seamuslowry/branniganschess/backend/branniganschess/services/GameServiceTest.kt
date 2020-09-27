@@ -19,6 +19,10 @@ import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.PageImpl
+import org.springframework.data.domain.Pageable
+import org.springframework.data.jpa.domain.Specification
 import org.springframework.test.context.junit.jupiter.SpringExtension
 
 
@@ -54,6 +58,17 @@ class GameServiceTest {
         verify(exactly = 1) { gameRepository.save(any<Game>()) }
         verify(exactly = 32) { pieceService.createPiece(any()) }
         assertEquals(game.uuid , newGame.uuid)
+    }
+
+    @Test
+    fun `searches for games`() {
+        val game = Game("Search Game")
+        every { gameRepository.findAll(any<Specification<Game>>(), any<Pageable>()) } returns PageImpl(listOf(game))
+
+        val foundPieces = service.findAllBy(true, Pageable.unpaged())
+
+        verify(exactly = 1) { gameRepository.findAll(any<Specification<Game>>(), any<Pageable>()) }
+        assertEquals(1 , foundPieces.count())
     }
 
     @Test

@@ -1,16 +1,13 @@
 package com.seamuslowry.branniganschess.backend.branniganschess.controllers
 
 import com.seamuslowry.branniganschess.backend.branniganschess.models.*
-import com.seamuslowry.branniganschess.backend.branniganschess.repos.GameRepository
-import com.seamuslowry.branniganschess.backend.branniganschess.repos.MoveRepository
-import com.seamuslowry.branniganschess.backend.branniganschess.repos.PieceRepository
-import com.seamuslowry.branniganschess.backend.branniganschess.repos.PlayerRepository
 import com.seamuslowry.branniganschess.backend.branniganschess.services.GameService
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
+import org.springframework.data.domain.Sort
+import org.springframework.data.web.PageableDefault
 import org.springframework.http.ResponseEntity
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping("games")
@@ -19,7 +16,10 @@ class GameController(
 ) {
 
     @PostMapping("/create")
-    fun createGame(): ResponseEntity<Game> {
-        return ResponseEntity.ok(gameService.createGame())
-    }
+    fun createGame(): ResponseEntity<Game> = ResponseEntity.ok(gameService.createGame())
+
+    @GetMapping("/", "")
+    fun getGames(@RequestParam(required = false) active: Boolean?,
+                 @PageableDefault(size = 10, sort = ["id"], direction = Sort.Direction.DESC) pageable: Pageable
+    ): ResponseEntity<Page<Game>> = ResponseEntity.ok(gameService.findAllBy(active, pageable))
 }
