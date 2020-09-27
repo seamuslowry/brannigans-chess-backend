@@ -2,6 +2,7 @@ package com.seamuslowry.branniganschess.backend.branniganschess.controllers
 
 import com.seamuslowry.branniganschess.backend.branniganschess.models.*
 import com.seamuslowry.branniganschess.backend.branniganschess.services.GameService
+import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.domain.Sort
 import org.springframework.data.web.PageableDefault
@@ -20,5 +21,5 @@ class GameController(
     @GetMapping("/", "")
     fun getGames(@RequestParam(required = false) active: Boolean?,
                  @PageableDefault(size = 10, sort = ["id"], direction = Sort.Direction.DESC) pageable: Pageable
-    ): ResponseEntity<Iterable<Game>> = ResponseEntity.ok(gameService.findAllBy(active, pageable))
+    ): ResponseEntity<Page<Game>> = ResponseEntity.ok(gameService.findAllBy(active, pageable))
 }

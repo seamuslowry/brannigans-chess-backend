@@ -4,6 +4,7 @@ import com.seamuslowry.branniganschess.backend.branniganschess.dtos.ChessRuleExc
 import com.seamuslowry.branniganschess.backend.branniganschess.dtos.MoveRequest
 import com.seamuslowry.branniganschess.backend.branniganschess.models.*
 import com.seamuslowry.branniganschess.backend.branniganschess.repos.GameRepository
+import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.domain.Specification
 import org.springframework.stereotype.Service
@@ -58,12 +59,12 @@ class GameService (
         return newGame
     }
 
-    fun findAllBy(active: Boolean?, pageable: Pageable): Iterable<Game> {
+    fun findAllBy(active: Boolean?, pageable: Pageable): Page<Game> {
         var spec: Specification<Game> = Specification.where(null)!!
 
         active?.let { spec = if (active) spec.and(isActive())!! else spec.and(isWon())!! }
 
-        return gameRepository.findAll(spec, pageable).content
+        return gameRepository.findAll(spec, pageable)
     }
 
     fun move(gameId: Long, moveRequest: MoveRequest): Move {

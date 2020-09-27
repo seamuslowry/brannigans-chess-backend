@@ -13,6 +13,8 @@ import org.junit.jupiter.api.TestInstance
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.web.client.TestRestTemplate
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.PageImpl
 import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
 
@@ -31,11 +33,11 @@ class SearchGamesIntegrationTests(
         wonGame.winner = winner
         gameRepository.save(wonGame)
 
-        val entity = restTemplate.getForEntity("/games?active=true&size=${gameRepository.count()}", Iterable::class.java)
+        val entity = restTemplate.getForEntity("/games?active=true&size=${gameRepository.count()}", TestPageImpl::class.java)
 
         Assertions.assertEquals(HttpStatus.OK, entity.statusCode)
-        Assertions.assertTrue(entity.body?.toString().orEmpty().contains("id=${activeGame.id}"))
-        Assertions.assertFalse(entity.body?.toString().orEmpty().contains("id=${wonGame.id}"))
+        Assertions.assertTrue(entity.body?.content.toString().contains("id=${activeGame.id}"))
+        Assertions.assertFalse(entity.body?.content.toString().contains("id=${wonGame.id}"))
     }
 
     @Test
@@ -47,11 +49,11 @@ class SearchGamesIntegrationTests(
         wonGame.winner = winner
         wonGame = gameRepository.save(wonGame)
 
-        val entity = restTemplate.getForEntity("/games?active=false&size=${gameRepository.count()}", Iterable::class.java)
+        val entity = restTemplate.getForEntity("/games?active=false&size=${gameRepository.count()}", TestPageImpl::class.java)
 
         Assertions.assertEquals(HttpStatus.OK, entity.statusCode)
-        Assertions.assertFalse(entity.body?.toString().orEmpty().contains("id=${activeGame.id}"))
-        Assertions.assertTrue(entity.body?.toString().orEmpty().contains("id=${wonGame.id}"))
+        Assertions.assertFalse(entity.body?.content.toString().contains("id=${activeGame.id}"))
+        Assertions.assertTrue(entity.body?.content.toString().contains("id=${wonGame.id}"))
     }
 
     @Test
@@ -63,10 +65,10 @@ class SearchGamesIntegrationTests(
         wonGame.winner = winner
         gameRepository.save(wonGame)
 
-        val entity = restTemplate.getForEntity("/games?size=${gameRepository.count()}", Iterable::class.java)
+        val entity = restTemplate.getForEntity("/games?size=${gameRepository.count()}", TestPageImpl::class.java)
 
         Assertions.assertEquals(HttpStatus.OK, entity.statusCode)
-        Assertions.assertTrue(entity.body?.toString().orEmpty().contains("id=${activeGame.id}"))
-        Assertions.assertTrue(entity.body?.toString().orEmpty().contains("id=${wonGame.id}"))
+        Assertions.assertTrue(entity.body?.content.toString().contains("id=${activeGame.id}"))
+        Assertions.assertTrue(entity.body?.content.toString().contains("id=${wonGame.id}"))
     }
 }
