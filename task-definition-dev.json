@@ -29,6 +29,10 @@
           {
             "name": "CHESS_ACCESS_CONTROL_ALLOW_ORIGIN",
             "value": "https://dev.branniganschess.com,https://backend-dev.branniganschess.com"
+          },
+          {
+            "name": "SPRING_PROFILES_ACTIVE",
+            "value": "clean"
           }
         ],
         "resourceRequirements": null,
