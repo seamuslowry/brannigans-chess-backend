@@ -2,12 +2,11 @@ package com.seamuslowry.branniganschess.backend.branniganschess.services
 
 import com.ninjasquad.springmockk.MockkBean
 import com.seamuslowry.branniganschess.backend.branniganschess.models.*
+import com.seamuslowry.branniganschess.backend.branniganschess.models.pieces.Pawn
 import com.seamuslowry.branniganschess.backend.branniganschess.repos.MoveRepository
-import com.seamuslowry.branniganschess.backend.branniganschess.repos.PieceRepository
 import io.mockk.every
 import io.mockk.verify
 import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
@@ -29,8 +28,8 @@ class MoveServiceTest {
 
     @Test
     fun `creates a move`() {
-        val game = Game("Piece Game")
-        val piece = Piece(PieceType.PAWN, PieceColor.BLACK, game, 0, 0)
+        val game = Game("Create Move Game")
+        val piece = Pawn( PieceColor.BLACK, game, 0, 0)
         val move = Move(
                 piece,
                 0,
@@ -44,5 +43,18 @@ class MoveServiceTest {
 
         verify(exactly = 1) { moveRepository.save(any<Move>()) }
         assertEquals(move , newMove)
+    }
+
+    @Test
+    fun `searches for a move`() {
+        val game = Game("Search Move Game")
+        val piece = Pawn( PieceColor.BLACK, game, 0, 0)
+        val move = Move(piece, 0,0,0,0)
+        every { moveRepository.findAll(any<Specification<Move>>()) } returns listOf(move)
+
+        val foundPieces = service.findAllBy(1, piece.color)
+
+        verify(exactly = 1) { moveRepository.findAll(any<Specification<Move>>()) }
+        assertEquals(1 , foundPieces.count())
     }
 }

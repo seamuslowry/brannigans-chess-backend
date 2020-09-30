@@ -4,7 +4,7 @@ import com.ninjasquad.springmockk.MockkBean
 import com.seamuslowry.branniganschess.backend.branniganschess.models.Game
 import com.seamuslowry.branniganschess.backend.branniganschess.models.Piece
 import com.seamuslowry.branniganschess.backend.branniganschess.models.PieceColor
-import com.seamuslowry.branniganschess.backend.branniganschess.models.PieceType
+import com.seamuslowry.branniganschess.backend.branniganschess.models.pieces.Pawn
 import com.seamuslowry.branniganschess.backend.branniganschess.repos.PieceRepository
 import io.mockk.every
 import io.mockk.verify
@@ -31,7 +31,7 @@ class PieceServiceTest {
     @Test
     fun `creates a piece`() {
         val game = Game("Piece Game")
-        val piece = Piece(PieceType.PAWN, PieceColor.BLACK, game, 0, 0)
+        val piece = Pawn( PieceColor.BLACK, game, 0, 0)
         every { pieceRepository.save(any<Piece>()) } returns piece
 
         val newPiece = service.createPiece(piece)
@@ -43,7 +43,7 @@ class PieceServiceTest {
     @Test
     fun `searches for a piece`() {
         val game = Game("Piece Game")
-        val piece = Piece(PieceType.PAWN, PieceColor.BLACK, game, 0, 0)
+        val piece = Pawn( PieceColor.BLACK, game, 0, 0)
         every { pieceRepository.findAll(any<Specification<Piece>>()) } returns listOf(piece)
 
         val foundPieces = service.findAllBy(1, piece.color, piece.taken)
@@ -56,10 +56,10 @@ class PieceServiceTest {
     fun `returns active pieces as a 2D array`() {
         val game = Game("2D Piece Game")
         val pieces = listOf<Piece>(
-                Piece(PieceType.PAWN, PieceColor.BLACK, game, 7, 3),
-                Piece(PieceType.PAWN, PieceColor.BLACK, game, 0, 3),
-                Piece(PieceType.PAWN, PieceColor.BLACK, game, 1, 0),
-                Piece(PieceType.PAWN, PieceColor.BLACK, game, 4, 4)
+                Pawn( PieceColor.BLACK, game, 7, 3),
+                Pawn( PieceColor.BLACK, game, 0, 3),
+                Pawn( PieceColor.BLACK, game, 1, 0),
+                Pawn( PieceColor.BLACK, game, 4, 4)
         )
 
         every { pieceRepository.findAll(any<Specification<Piece>>()) } returns pieces
@@ -76,7 +76,7 @@ class PieceServiceTest {
     @Test
     fun `takes a piece`() {
         val game = Game("2D Piece Game")
-        val piece = Piece(PieceType.PAWN, PieceColor.BLACK, game, 4, 4)
+        val piece = Pawn( PieceColor.BLACK, game, 4, 4)
 
         every { pieceRepository.save(any<Piece>()) } answers {firstArg()}
 
@@ -92,7 +92,7 @@ class PieceServiceTest {
     @Test
     fun `moves a piece`() {
         val game = Game("2D Piece Game")
-        val piece = Piece(PieceType.PAWN, PieceColor.BLACK, game, 4, 4)
+        val piece = Pawn( PieceColor.BLACK, game, 4, 4)
         val newRow = 5
         val newCol = 6
 

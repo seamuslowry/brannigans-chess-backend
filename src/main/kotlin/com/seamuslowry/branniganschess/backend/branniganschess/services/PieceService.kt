@@ -45,10 +45,10 @@ class PieceService (
         val array: Array<Array<Piece?>> = Utils.getEmptyBoard()
 
         for (piece in activePieces) {
-            array[piece.positionRow ?: continue][piece.positionCol ?: continue] = piece;
+            array[piece.positionRow ?: continue][piece.positionCol ?: continue] = piece
         }
 
-        return array;
+        return array
     }
 
 

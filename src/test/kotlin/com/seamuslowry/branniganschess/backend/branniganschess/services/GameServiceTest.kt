@@ -4,9 +4,9 @@ import com.ninjasquad.springmockk.MockkBean
 import com.seamuslowry.branniganschess.backend.branniganschess.dtos.ChessRuleException
 import com.seamuslowry.branniganschess.backend.branniganschess.dtos.MoveRequest
 import com.seamuslowry.branniganschess.backend.branniganschess.models.Game
-import com.seamuslowry.branniganschess.backend.branniganschess.models.Piece
 import com.seamuslowry.branniganschess.backend.branniganschess.models.PieceColor
-import com.seamuslowry.branniganschess.backend.branniganschess.models.PieceType
+import com.seamuslowry.branniganschess.backend.branniganschess.models.pieces.Pawn
+import com.seamuslowry.branniganschess.backend.branniganschess.models.pieces.Rook
 import com.seamuslowry.branniganschess.backend.branniganschess.repos.GameRepository
 import com.seamuslowry.branniganschess.backend.branniganschess.utils.Utils
 import io.mockk.every
@@ -19,7 +19,6 @@ import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
-import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.domain.Specification
@@ -49,7 +48,7 @@ class GameServiceTest {
     @Test
     fun `creates a game with all the pieces`() {
         val game = Game("New Game")
-        val piece = Piece(PieceType.PAWN, PieceColor.BLACK, game, 0, 0)
+        val piece = Pawn(PieceColor.BLACK, game, 0, 0)
         every { gameRepository.save(any<Game>()) } returns game
         every { pieceService.createPiece(any()) } returns piece
 
@@ -145,7 +144,7 @@ class GameServiceTest {
     fun `moves a piece`() {
         val gameBoard = Utils.getEmptyBoard()
         val game = Game("Moving Board")
-        gameBoard[0][0] = Piece(PieceType.PAWN,PieceColor.BLACK, game, 0, 0)
+        gameBoard[0][0] = Pawn(PieceColor.BLACK, game, 0, 0)
 
         every { pieceService.getPiecesAsBoard(any()) } returns gameBoard
         every { pieceService.movePiece(any(), any(), any()) } answers {firstArg()}
@@ -159,8 +158,8 @@ class GameServiceTest {
     fun `takes a piece on a move`() {
         val gameBoard = Utils.getEmptyBoard()
         val game = Game("Moving Board")
-        gameBoard[0][0] = Piece(PieceType.ROOK,PieceColor.WHITE, game, 0, 0)
-        gameBoard[1][0] = Piece(PieceType.PAWN,PieceColor.BLACK, game, 1, 0)
+        gameBoard[0][0] = Rook(PieceColor.WHITE, game, 0, 0)
+        gameBoard[1][0] = Pawn(PieceColor.BLACK, game, 1, 0)
 
         every { pieceService.getPiecesAsBoard(any()) } returns gameBoard
         every { pieceService.movePiece(any(), any(), any()) } answers {firstArg()}

@@ -2,9 +2,8 @@ package com.seamuslowry.branniganschess.backend.branniganschess.controllers
 
 import com.ninjasquad.springmockk.MockkBean
 import com.seamuslowry.branniganschess.backend.branniganschess.models.Game
-import com.seamuslowry.branniganschess.backend.branniganschess.models.Piece
 import com.seamuslowry.branniganschess.backend.branniganschess.models.PieceColor
-import com.seamuslowry.branniganschess.backend.branniganschess.models.PieceType
+import com.seamuslowry.branniganschess.backend.branniganschess.models.pieces.Pawn
 import com.seamuslowry.branniganschess.backend.branniganschess.services.PieceService
 import io.mockk.every
 import org.junit.jupiter.api.Test
@@ -30,7 +29,7 @@ class PieceControllerTest(@Autowired val mockMvc: MockMvc) {
     fun `Searches for pieces`() {
         val game = Game("Piece Controller Test Game")
         game.id = 1
-        val piece = Piece(PieceType.PAWN, PieceColor.BLACK, game)
+        val piece = Pawn(PieceColor.BLACK, game)
         every { pieceService.findAllBy(game.id, piece.color, piece.taken) } returns listOf(piece)
         mockMvc.perform(get("/pieces/${game.id}?color=${piece.color}&taken=${piece.taken}").accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk)
