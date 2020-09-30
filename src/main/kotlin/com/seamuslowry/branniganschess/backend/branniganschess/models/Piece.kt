@@ -24,19 +24,19 @@ import javax.persistence.*
 abstract class Piece (
     @Enumerated(EnumType.STRING)
     @Column(name="type", insertable = false, updatable = false)
-    val type: PieceType,
+    open val type: PieceType,
     @Enumerated(EnumType.STRING)
-    val color: PieceColor,
+    open val color: PieceColor,
     @ManyToOne
     @JsonIgnore
     // nullable because of JsonIgnore
     // do NOT want to send it up to the client
     // cannot be saved as null
-    val game: Game?,
-    var positionRow: Int? = null,
-    var positionCol: Int? = null,
-    var taken: Boolean = false,
+    open val game: Game?,
+    open var positionRow: Int? = null,
+    open var positionCol: Int? = null,
+    open var taken: Boolean = false,
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    var id: Long? = null
+    open var id: Long? = null
 ) {}
