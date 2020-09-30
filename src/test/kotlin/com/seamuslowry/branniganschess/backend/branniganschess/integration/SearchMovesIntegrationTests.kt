@@ -26,9 +26,12 @@ class SearchMovesIntegrationTests(
         @Autowired val gameService: GameService
 ) {
     @Test
-    fun `Finds moves from a specific game`() {
+    fun `Finds all moves from a specific game`() {
         val game = gameService.createGame();
-        val move = gameService.move(game.id, MoveRequest(6,0, 5, 0))
+        // move white pawn up one
+        val whiteMove = gameService.move(game.id, MoveRequest(6,0, 5, 0))
+        // move black pawn one
+        val blackMove = gameService.move(game.id, MoveRequest(1,0, 2, 0))
 
         val noMatchGame = gameService.createGame();
         // move white pawn up one
@@ -37,8 +40,9 @@ class SearchMovesIntegrationTests(
         val entity = restTemplate.getForEntity("/moves/${game.id}", Iterable::class.java)
 
         Assertions.assertEquals(HttpStatus.OK, entity.statusCode)
-        Assertions.assertEquals(1, entity.body?.count())
-        Assertions.assertTrue(entity.body?.first().toString().contains("id=${move.id}"))
+        Assertions.assertEquals(2, entity.body?.count())
+        Assertions.assertTrue(entity.body?.toString().orEmpty().contains("id=${whiteMove.id}"))
+        Assertions.assertTrue(entity.body?.toString().orEmpty().contains("id=${blackMove.id}"))
     }
 
     @Test
