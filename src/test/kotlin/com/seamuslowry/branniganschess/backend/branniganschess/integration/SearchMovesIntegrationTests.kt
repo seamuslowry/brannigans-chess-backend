@@ -1,23 +1,12 @@
 package com.seamuslowry.branniganschess.backend.branniganschess.integration
 
 import com.seamuslowry.branniganschess.backend.branniganschess.dtos.MoveRequest
-import com.seamuslowry.branniganschess.backend.branniganschess.models.Game
-import com.seamuslowry.branniganschess.backend.branniganschess.models.Piece
-import com.seamuslowry.branniganschess.backend.branniganschess.models.PieceColor
-import com.seamuslowry.branniganschess.backend.branniganschess.models.PieceType
-import com.seamuslowry.branniganschess.backend.branniganschess.repos.GameRepository
-import com.seamuslowry.branniganschess.backend.branniganschess.repos.PieceRepository
 import com.seamuslowry.branniganschess.backend.branniganschess.services.GameService
-import com.seamuslowry.branniganschess.backend.branniganschess.services.MoveService
-import com.seamuslowry.branniganschess.backend.branniganschess.services.PieceService
 import org.junit.jupiter.api.Assertions
-import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.TestInstance
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.web.client.TestRestTemplate
-import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -27,13 +16,13 @@ class SearchMovesIntegrationTests(
 ) {
     @Test
     fun `Finds all moves from a specific game`() {
-        val game = gameService.createGame();
+        val game = gameService.createGame()
         // move white pawn up one
         val whiteMove = gameService.move(game.id, MoveRequest(6,0, 5, 0))
         // move black pawn one
         val blackMove = gameService.move(game.id, MoveRequest(1,0, 2, 0))
 
-        val noMatchGame = gameService.createGame();
+        val noMatchGame = gameService.createGame()
         // move white pawn up one
         gameService.move(noMatchGame.id, MoveRequest(6,0, 5, 0))
 
@@ -47,7 +36,7 @@ class SearchMovesIntegrationTests(
 
     @Test
     fun `Finds moves of a specific color from a game`() {
-        val game = gameService.createGame();
+        val game = gameService.createGame()
         // move white pawn one
         gameService.move(game.id, MoveRequest(6,0, 5, 0))
         // move black pawn one

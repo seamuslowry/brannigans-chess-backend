@@ -4,9 +4,9 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.ninjasquad.springmockk.MockkBean
 import com.seamuslowry.branniganschess.backend.branniganschess.dtos.MoveRequest
 import com.seamuslowry.branniganschess.backend.branniganschess.models.*
+import com.seamuslowry.branniganschess.backend.branniganschess.models.pieces.Pawn
 import com.seamuslowry.branniganschess.backend.branniganschess.services.GameService
 import com.seamuslowry.branniganschess.backend.branniganschess.services.MoveService
-import com.seamuslowry.branniganschess.backend.branniganschess.services.PieceService
 import io.mockk.every
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -33,7 +33,7 @@ class MoveControllerTest(@Autowired val mockMvc: MockMvc) {
 
     @Test
     fun `Handles a move request`() {
-        val piece = Piece(PieceType.PAWN, PieceColor.BLACK, Game("move piece game"))
+        val piece = Pawn(PieceColor.BLACK, Game("move piece game"))
         val move =  Move(piece, 0,0,0,0)
 
         val moveRequest = ObjectMapper().writeValueAsString(MoveRequest(0,0,0,0))
@@ -49,7 +49,7 @@ class MoveControllerTest(@Autowired val mockMvc: MockMvc) {
     fun `Searches for moves`() {
         val game = Game("Move Controller Test Game")
         game.id = 1
-        val piece = Piece(PieceType.PAWN, PieceColor.BLACK, game)
+        val piece = Pawn(PieceColor.BLACK, game)
         val move = Move(piece, 0,0,0,0)
         every { moveService.findAllBy(game.id, piece.color) } returns listOf(move)
         mockMvc.perform(MockMvcRequestBuilders.get("/moves/${game.id}?color=${piece.color}").accept(MediaType.APPLICATION_JSON))

@@ -2,20 +2,12 @@ package com.seamuslowry.branniganschess.backend.branniganschess.integration
 
 import com.seamuslowry.branniganschess.backend.branniganschess.models.*
 import com.seamuslowry.branniganschess.backend.branniganschess.repos.GameRepository
-import com.seamuslowry.branniganschess.backend.branniganschess.repos.PieceRepository
 import com.seamuslowry.branniganschess.backend.branniganschess.repos.PlayerRepository
-import com.seamuslowry.branniganschess.backend.branniganschess.services.GameService
-import com.seamuslowry.branniganschess.backend.branniganschess.services.PieceService
 import org.junit.jupiter.api.Assertions
-import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.TestInstance
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.web.client.TestRestTemplate
-import org.springframework.data.domain.Page
-import org.springframework.data.domain.PageImpl
-import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
