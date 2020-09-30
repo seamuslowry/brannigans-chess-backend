@@ -29,7 +29,7 @@ class MoveServiceTest {
 
     @Test
     fun `creates a move`() {
-        val game = Game("Piece Game")
+        val game = Game("Create Move Game")
         val piece = Piece(PieceType.PAWN, PieceColor.BLACK, game, 0, 0)
         val move = Move(
                 piece,
@@ -44,5 +44,18 @@ class MoveServiceTest {
 
         verify(exactly = 1) { moveRepository.save(any<Move>()) }
         assertEquals(move , newMove)
+    }
+
+    @Test
+    fun `searches for a move`() {
+        val game = Game("Search Move Game")
+        val piece = Piece(PieceType.PAWN, PieceColor.BLACK, game, 0, 0)
+        val move = Move(piece, 0,0,0,0)
+        every { moveRepository.findAll(any<Specification<Move>>()) } returns listOf(move)
+
+        val foundPieces = service.findAllBy(1, piece.color)
+
+        verify(exactly = 1) { moveRepository.findAll(any<Specification<Move>>()) }
+        assertEquals(1 , foundPieces.count())
     }
 }

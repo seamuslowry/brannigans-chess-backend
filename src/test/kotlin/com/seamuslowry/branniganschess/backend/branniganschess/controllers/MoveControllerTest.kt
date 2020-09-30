@@ -5,6 +5,8 @@ import com.ninjasquad.springmockk.MockkBean
 import com.seamuslowry.branniganschess.backend.branniganschess.dtos.MoveRequest
 import com.seamuslowry.branniganschess.backend.branniganschess.models.*
 import com.seamuslowry.branniganschess.backend.branniganschess.services.GameService
+import com.seamuslowry.branniganschess.backend.branniganschess.services.MoveService
+import com.seamuslowry.branniganschess.backend.branniganschess.services.PieceService
 import io.mockk.every
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -14,6 +16,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
 import org.springframework.http.MediaType
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.test.web.servlet.MockMvc
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.*
 
@@ -25,6 +28,9 @@ class MoveControllerTest(@Autowired val mockMvc: MockMvc) {
     @MockkBean
     private lateinit var gameService: GameService
 
+    @MockkBean
+    private lateinit var moveService: MoveService
+
     @Test
     fun `Handles a move request`() {
         val piece = Piece(PieceType.PAWN, PieceColor.BLACK, Game("move piece game"))
@@ -32,10 +38,23 @@ class MoveControllerTest(@Autowired val mockMvc: MockMvc) {
 
         val moveRequest = ObjectMapper().writeValueAsString(MoveRequest(0,0,0,0))
 
-        every { gameService.move(any<Long>(), any<MoveRequest>()) } returns move
+        every { gameService.move(any(), any()) } returns move
         mockMvc.perform(post("/moves/1")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(moveRequest)
         ).andExpect(status().isOk)
+    }
+
+    @Test
+    fun `Searches for moves`() {
+        val game = Game("Move Controller Test Game")
+        game.id = 1
+        val piece = Piece(PieceType.PAWN, PieceColor.BLACK, game)
+        val move = Move(piece, 0,0,0,0)
+        every { moveService.findAllBy(game.id, piece.color) } returns listOf(move)
+        mockMvc.perform(MockMvcRequestBuilders.get("/moves/${game.id}?color=${piece.color}").accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk)
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("\$").isArray)
     }
 }
