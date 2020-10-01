@@ -22,7 +22,7 @@ class GameController(
     @ApiOperation("Creates a game", response = Game::class)
     @ApiResponses(
             ApiResponse(code = 200, message =  "The game was created."),
-            ApiResponse(code = 500, message =  "There was a problem with the server.")
+            ApiResponse(code = 500, message =  "There was a problem with the service.")
     )
     fun createGame(): ResponseEntity<Game> = ResponseEntity.ok(gameService.createGame())
 
@@ -30,7 +30,7 @@ class GameController(
     @ApiOperation("Retrieves a page of games")
     @ApiResponses(
             ApiResponse(code = 200, message =  "Successfully retrieved the page of games."),
-            ApiResponse(code = 500, message =  "There was a problem with the server.")
+            ApiResponse(code = 500, message =  "There was a problem with the service.")
     )
     fun getGames(@RequestParam(required = false) active: Boolean?,
                  @PageableDefault(size = 10, sort = ["id"], direction = Sort.Direction.DESC) pageable: Pageable

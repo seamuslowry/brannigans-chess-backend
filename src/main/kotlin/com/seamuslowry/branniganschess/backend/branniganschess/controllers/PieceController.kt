@@ -24,7 +24,7 @@ class PieceController(
     @ApiResponses(
             ApiResponse(code = 200, message =  "Successfully retrieved the list of pieces."),
             ApiResponse(code = 404, message =  "The game does not exist."),
-            ApiResponse(code = 500, message =  "There was a problem with the server.")
+            ApiResponse(code = 500, message =  "There was a problem with the service.")
     )
     fun getPieces(@PathVariable gameId: Long,
                   @RequestParam(required = false) color: PieceColor?,

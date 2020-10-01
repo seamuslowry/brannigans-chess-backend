@@ -23,7 +23,7 @@ class HealthController {
     @ApiOperation("Returns that the service is healthy", response = String::class)
     @ApiResponses(
             ApiResponse(code = 200, message =  "The service is up and healthy."),
-            ApiResponse(code = 500, message =  "There was a problem with the server.")
+            ApiResponse(code = 500, message =  "There was a problem with the service.")
     )
     fun checkHealth(): ResponseEntity<String> {
         return ResponseEntity.ok("Healthy - OK")

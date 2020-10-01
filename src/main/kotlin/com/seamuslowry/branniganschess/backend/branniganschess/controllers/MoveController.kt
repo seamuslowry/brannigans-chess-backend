@@ -25,7 +25,7 @@ class MoveController (
             ApiResponse(code = 200, message =  "The piece was successfully moved."),
             ApiResponse(code = 400, message =  "The requested move is not a valid chess move."),
             ApiResponse(code = 404, message =  "The game does not exist."),
-            ApiResponse(code = 500, message =  "There was a problem with the server.")
+            ApiResponse(code = 500, message =  "There was a problem with the service.")
     )
     fun move(@PathVariable gameId: Long,
              @RequestBody moveRequest: MoveRequest): ResponseEntity<Move> =
@@ -36,7 +36,7 @@ class MoveController (
     @ApiResponses(
             ApiResponse(code = 200, message =  "Successfully retrieved the list of games."),
             ApiResponse(code = 404, message =  "The game does not exist."),
-            ApiResponse(code = 500, message =  "There was a problem with the server.")
+            ApiResponse(code = 500, message =  "There was a problem with the service.")
     )
     fun getMoves(@PathVariable gameId: Long,
                   @RequestParam(required = false) color: PieceColor?)
