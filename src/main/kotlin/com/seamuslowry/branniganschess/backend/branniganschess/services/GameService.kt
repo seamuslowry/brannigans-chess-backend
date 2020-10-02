@@ -69,7 +69,7 @@ class GameService (
     }
 
     fun move(gameId: Long, moveRequest: MoveRequest): Move {
-        val activePieces = pieceService.getPiecesAsBoard(gameId);
+        val activePieces = pieceService.getPiecesAsBoard(gameId)
         val (srcRow, srcCol, dstRow, dstCol) = moveRequest
 
         if (srcRow == dstRow && srcCol == dstCol) throw ChessRuleException("Kiff, you fool! You're moving a piece right back where it was!")
@@ -78,6 +78,15 @@ class GameService (
 
         var movingPiece = activePieces[srcRow][srcCol] ?: throw ChessRuleException("Kiff, what have I told you about moving a piece from an empty tile?")
         var targetPiece = activePieces[dstRow][dstCol]
+
+        if (targetPiece?.color == movingPiece.color) throw ChessRuleException("Kiff, I get you're frustrated, but we can't kill our own men... anymore...")
+
+        val dst = Position(dstRow, dstCol);
+        val plausibleMove = if (targetPiece === null) movingPiece.canMove(dst) else movingPiece.canCapture(dst)
+        if (!plausibleMove) throw ChessRuleException("Kiff, I don't think that piece moves like that.")
+
+        val requiredEmpty = movingPiece.requiresEmpty(dst)
+        if(requiredEmpty.any { activePieces[it.row][it.col] != null }) throw ChessRuleException("Kiff, that piece is being blocked by another.")
 
         targetPiece = targetPiece?.let {
             pieceService.takePiece(it)

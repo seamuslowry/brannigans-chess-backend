@@ -51,11 +51,11 @@ class MoveIntegrationTests(
         val board = pieceService.getPiecesAsBoard(game.id)
 
         // set up a valid test by performing an invalid move through the service
-        pieceService.movePiece(board[0][0]!!, 4,0)
+        pieceService.movePiece(board[1][0]!!, 5,0)
 
         val response = restTemplate.postForEntity(
                 "/moves/${game.id}",
-                MoveRequest(4,0,6,0),
+                MoveRequest(5,0,6,1),
                 Move::class.java
         )
 
