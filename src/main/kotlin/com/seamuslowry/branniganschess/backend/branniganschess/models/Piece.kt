@@ -39,4 +39,8 @@ abstract class Piece (
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     open var id: Long? = null
-) {}
+) {
+    open fun plausiblePositions(): Set<Position> = plausibleMoves().plus(plausibleCaptures())
+    abstract fun plausibleMoves(): Set<Position>
+    abstract fun plausibleCaptures(): Set<Position>
+}

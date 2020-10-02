@@ -1,9 +1,6 @@
 package com.seamuslowry.branniganschess.backend.branniganschess.models.pieces
 
-import com.seamuslowry.branniganschess.backend.branniganschess.models.Game
-import com.seamuslowry.branniganschess.backend.branniganschess.models.Piece
-import com.seamuslowry.branniganschess.backend.branniganschess.models.PieceColor
-import com.seamuslowry.branniganschess.backend.branniganschess.models.PieceType
+import com.seamuslowry.branniganschess.backend.branniganschess.models.*
 import javax.persistence.DiscriminatorValue
 import javax.persistence.Entity
 
@@ -16,4 +13,12 @@ class Rook(
         positionCol: Int? = null,
         taken: Boolean = false,
         id: Long? = null
-): Piece(PieceType.ROOK, color, game, positionRow, positionCol, taken, id) {}
+): Piece(PieceType.ROOK, color, game, positionRow, positionCol, taken, id) {
+    override fun plausibleCaptures(): Set<Position> {
+        return HashSet()
+    }
+
+    override fun plausibleMoves(): Set<Position> {
+        return HashSet()
+    }
+}
