@@ -173,6 +173,23 @@ class GameServiceTest {
     }
 
     @Test
+    fun `throws an exception when trying to take a piece of the same color`() {
+        val gameBoard = Utils.getEmptyBoard()
+        val game = Game("Moving Board")
+        val pawn = Pawn(PieceColor.BLACK, game, 1, 0)
+        val targetPawn = Pawn(PieceColor.BLACK, game, 2, 1)
+        gameBoard[1][0] = pawn
+        gameBoard[2][1] = targetPawn
+
+        every { pieceService.getPiecesAsBoard(any()) } returns gameBoard
+        every { pieceService.movePiece(any(), any(), any()) } answers {firstArg()}
+
+        assertThrows<ChessRuleException> {
+            service.move(1, MoveRequest(1,0,2,1))
+        }
+    }
+
+    @Test
     fun `moves a piece`() {
         val gameBoard = Utils.getEmptyBoard()
         val game = Game("Moving Board")

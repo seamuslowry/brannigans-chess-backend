@@ -79,6 +79,8 @@ class GameService (
         var movingPiece = activePieces[srcRow][srcCol] ?: throw ChessRuleException("Kiff, what have I told you about moving a piece from an empty tile?")
         var targetPiece = activePieces[dstRow][dstCol]
 
+        if (targetPiece?.color == movingPiece.color) throw ChessRuleException("Kiff, I get you're frustrated, but we can't kill our own men... anymore...")
+
         val dst = Position(dstRow, dstCol);
         val plausibleMove = if (targetPiece === null) movingPiece.canMove(dst) else movingPiece.canCapture(dst)
         if (!plausibleMove) throw ChessRuleException("Kiff, I don't think that piece moves like that.")
