@@ -21,4 +21,12 @@ class King(
     override fun plausibleMoves(): Set<Position> {
         return HashSet()
     }
+
+
+    override fun requiresEmpty(dst: Position): Set<Position> {
+        return HashSet()
+    }
+
+    // TODO remove when movement is fully implemented
+    override fun canMove(dst: Position): Boolean = true
 }
