@@ -141,33 +141,66 @@ class GameServiceTest {
     }
 
     @Test
-    fun `moves a piece`() {
+    fun `throws an exception on a move that a piece cannot plausibly perform`() {
         val gameBoard = Utils.getEmptyBoard()
         val game = Game("Moving Board")
-        gameBoard[0][0] = Pawn(PieceColor.BLACK, game, 0, 0)
+        val pawn = Pawn(PieceColor.BLACK, game, 1, 0)
+        gameBoard[1][0] = pawn
 
         every { pieceService.getPiecesAsBoard(any()) } returns gameBoard
         every { pieceService.movePiece(any(), any(), any()) } answers {firstArg()}
 
-        val move = service.move(1, MoveRequest(0,0,1,0))
+        assertThrows<ChessRuleException> {
+            service.move(1, MoveRequest(0,0,5,0))
+        }
+    }
 
-        assertEquals(move.movingPiece, gameBoard[0][0])
+    @Test
+    fun `throws an exception when attempting to move over a tile that must be empty`() {
+        val gameBoard = Utils.getEmptyBoard()
+        val game = Game("Moving Board")
+        val pawn = Pawn(PieceColor.BLACK, game, 1, 0)
+        val blockingPawn = Pawn(PieceColor.WHITE, game, 2, 0)
+        gameBoard[1][0] = pawn
+        gameBoard[2][0] = blockingPawn
+
+        every { pieceService.getPiecesAsBoard(any()) } returns gameBoard
+        every { pieceService.movePiece(any(), any(), any()) } answers {firstArg()}
+
+        assertThrows<ChessRuleException> {
+            service.move(1, MoveRequest(1,0,3,0))
+        }
+    }
+
+    @Test
+    fun `moves a piece`() {
+        val gameBoard = Utils.getEmptyBoard()
+        val game = Game("Moving Board")
+        val pawn = Pawn(PieceColor.BLACK, game, 1, 0)
+        gameBoard[1][0] = pawn
+
+        every { pieceService.getPiecesAsBoard(any()) } returns gameBoard
+        every { pieceService.movePiece(any(), any(), any()) } answers {firstArg()}
+
+        val move = service.move(1, MoveRequest(1,0,3,0))
+
+        assertEquals(move.movingPiece, pawn)
     }
 
     @Test
     fun `takes a piece on a move`() {
         val gameBoard = Utils.getEmptyBoard()
         val game = Game("Moving Board")
-        gameBoard[0][0] = Rook(PieceColor.WHITE, game, 0, 0)
-        gameBoard[1][0] = Pawn(PieceColor.BLACK, game, 1, 0)
+        gameBoard[0][0] = Rook(PieceColor.BLACK, game, 0, 0)
+        gameBoard[1][1] = Pawn(PieceColor.WHITE, game, 1, 1)
 
         every { pieceService.getPiecesAsBoard(any()) } returns gameBoard
         every { pieceService.movePiece(any(), any(), any()) } answers {firstArg()}
         every { pieceService.takePiece(any()) } answers {firstArg()}
 
-        val move = service.move(1, MoveRequest(0,0,1,0))
+        val move = service.move(1, MoveRequest(1,1,0,0))
 
-        assertEquals(move.movingPiece, gameBoard[0][0])
-        assertEquals(move.takenPiece, gameBoard[1][0])
+        assertEquals(move.takenPiece, gameBoard[0][0])
+        assertEquals(move.movingPiece, gameBoard[1][1])
     }
 }
