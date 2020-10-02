@@ -38,6 +38,7 @@ class PieceServiceTest {
 
         verify(exactly = 1) { pieceRepository.save(any<Piece>()) }
         assertEquals(piece , newPiece)
+        assertEquals(piece.game, game)
     }
 
     @Test
