@@ -17,10 +17,8 @@ class Knight(
     override fun plausibleCaptures(): Set<Position> = plausibleMoves()
 
     override fun plausibleMoves(): Set<Position> {
-        if (taken) return emptySet()
-        if (positionCol == null || positionRow == null) return emptySet()
-        val row = positionRow ?: 0
-        val col = positionCol ?: 0
+        if (isImmovable()) return emptySet()
+        val (row, col) = position() ?: return emptySet()
 
         val set = HashSet<Position>()
         set.add(Position(row - 2, col + 1))

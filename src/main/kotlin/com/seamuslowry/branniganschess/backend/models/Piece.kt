@@ -40,6 +40,12 @@ abstract class Piece (
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     open var id: Long? = null
 ) {
+    open fun isImmovable() = positionCol == null || positionRow == null || taken
+    open fun position() = positionRow?.let {row ->
+        positionCol?.let {col ->
+            Position(row, col)
+        }
+    }
     open fun canMove(dst: Position) = plausibleMoves().contains(dst)
     open fun canCapture(dst: Position) = plausibleCaptures().contains(dst)
     abstract fun plausibleMoves(): Set<Position>

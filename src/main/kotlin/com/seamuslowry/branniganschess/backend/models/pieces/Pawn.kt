@@ -1,7 +1,6 @@
 package com.seamuslowry.branniganschess.backend.models.pieces
 
 import com.seamuslowry.branniganschess.backend.models.*
-import org.hibernate.event.spi.PostInsertEvent
 import javax.persistence.DiscriminatorValue
 import javax.persistence.Entity
 import kotlin.math.abs
@@ -16,12 +15,11 @@ class Pawn(
         taken: Boolean = false,
         id: Long? = null
 ): Piece(PieceType.PAWN, color, game, positionRow, positionCol, taken, id) {
+    override fun isImmovable(): Boolean = super.isImmovable() || positionRow == 0 || positionRow == 7
+
     override fun plausibleCaptures(): Set<Position> {
-        if (positionRow == 0 || positionRow == 7) return HashSet()
-        if (positionRow == null || positionCol == null) return HashSet()
-        if (taken) return HashSet();
-        val row = positionRow ?: 0
-        val col = positionCol ?: 0
+        if (isImmovable()) return emptySet()
+        val (row, col) = position() ?: return emptySet()
 
         val set = HashSet<Position>()
         val direction = direction()
@@ -32,11 +30,8 @@ class Pawn(
     }
 
     override fun plausibleMoves(): Set<Position> {
-        if (positionRow == 0 || positionRow == 7) return HashSet()
-        if (positionRow == null || positionCol == null) return HashSet()
-        if (taken) return HashSet();
-        val row = positionRow ?: 0
-        val col = positionCol ?: 0
+        if (isImmovable()) return emptySet()
+        val (row, col) = position() ?: return emptySet()
 
         val set = HashSet<Position>()
         val direction = direction()
@@ -44,7 +39,7 @@ class Pawn(
 
         if (row == startingRow()) set.add(Position(row + 2 * direction, col))
 
-        return set;
+        return set
     }
 
     override fun requiresEmpty(dst: Position): Set<Position> {
