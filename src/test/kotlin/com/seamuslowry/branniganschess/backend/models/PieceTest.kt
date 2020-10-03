@@ -30,11 +30,4 @@ class PieceTest {
         assertDoesNotThrow { Knight(PieceColor.BLACK, game) }
         assertDoesNotThrow { Rook(PieceColor.BLACK, game) }
     }
-
-    // TODO remove after all pieces are implemented
-    @Test
-    fun `requires no empty spaces to move by default`() {
-        val game = Game("New Game")
-        assertEquals(emptySet<Position>(), Queen(PieceColor.BLACK, game, 0, 1).requiresEmpty(Position(0,0)))
-    }
 }
