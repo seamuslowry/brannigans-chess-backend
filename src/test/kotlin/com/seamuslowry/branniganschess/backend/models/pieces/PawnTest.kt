@@ -3,7 +3,7 @@ package com.seamuslowry.branniganschess.backend.models.pieces
 import com.seamuslowry.branniganschess.backend.models.Game
 import com.seamuslowry.branniganschess.backend.models.PieceColor
 import com.seamuslowry.branniganschess.backend.models.Position
-import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.test.context.junit.jupiter.SpringExtension
@@ -11,12 +11,19 @@ import org.springframework.test.context.junit.jupiter.SpringExtension
 @ExtendWith(SpringExtension::class)
 class PawnTest {
     @Test
-    fun `BLACK - can plausibly move two spaces from the start`() {
+    fun `BLACK - can move two spaces from the start`() {
         val game = Game("New Game")
         val piece = Pawn(PieceColor.BLACK, game, 1, 0)
 
-        val plausibleMoves = piece.plausibleMoves();
-        assertEquals(setOf(Position(2,0), Position(3,0)), plausibleMoves)
+        assertTrue(piece.canMove(Position(3,0)))
+    }
+
+    @Test
+    fun `BLACK - can move one space from the start`() {
+        val game = Game("New Game")
+        val piece = Pawn(PieceColor.BLACK, game, 1, 0)
+
+        assertTrue(piece.canMove(Position(2,0)))
     }
 
     @Test
@@ -24,17 +31,16 @@ class PawnTest {
         val game = Game("New Game")
         val piece = Pawn(PieceColor.BLACK, game, 1, 0)
 
-        val requiresEmpty = piece.requiresEmpty(Position(3,0));
+        val requiresEmpty = piece.requiresEmpty(Position(3,0))
         assertEquals(setOf(Position(2,0)), requiresEmpty)
     }
 
     @Test
     fun `BLACK - can usually move one space`() {
         val game = Game("New Game")
-        val piece = Pawn(PieceColor.BLACK, game, 2, 0)
+        val piece = Pawn(PieceColor.BLACK, game, 4, 0)
 
-        val plausibleMoves = piece.plausibleMoves();
-        assertEquals(setOf(Position(3,0)), plausibleMoves)
+        assertTrue(piece.canMove(Position(5,0)))
     }
 
     @Test
@@ -42,8 +48,7 @@ class PawnTest {
         val game = Game("New Game")
         val piece = Pawn(PieceColor.BLACK, game, 7, 0)
 
-        val plausibleMoves = piece.plausibleMoves();
-        assertEquals(setOf<Position>(), plausibleMoves)
+        assertFalse(piece.canMove(Position(8,0)))
     }
 
     @Test
@@ -51,35 +56,24 @@ class PawnTest {
         val game = Game("New Game")
         val piece = Pawn(PieceColor.BLACK, game, 2, 2)
 
-        val plausibleCaptures = piece.plausibleCaptures();
-        assertEquals(setOf(Position(3, 1), Position(3, 3)), plausibleCaptures)
+        assertTrue(piece.canCapture(Position(3,3)))
+        assertTrue(piece.canCapture(Position(3,1)))
     }
 
     @Test
-    fun `BLACK - captures on diagonals - queen edge`() {
-        val game = Game("New Game")
-        val piece = Pawn(PieceColor.BLACK, game, 2, 0)
-
-        val plausibleCaptures = piece.plausibleCaptures();
-        assertEquals(setOf(Position(3, 1)), plausibleCaptures)
-    }
-
-    @Test
-    fun `BLACK - captures on diagonals - king edge`() {
-        val game = Game("New Game")
-        val piece = Pawn(PieceColor.BLACK, game, 2, 7)
-
-        val plausibleCaptures = piece.plausibleCaptures();
-        assertEquals(setOf(Position(3, 6)), plausibleCaptures)
-    }
-
-    @Test
-    fun `WHITE - can plausibly move two spaces from the start`() {
+    fun `WHITE - can move two spaces from the start`() {
         val game = Game("New Game")
         val piece = Pawn(PieceColor.WHITE, game, 6, 0)
 
-        val plausibleMoves = piece.plausibleMoves();
-        assertEquals(setOf(Position(5,0), Position(4,0)), plausibleMoves)
+        assertTrue(piece.canMove(Position(4,0)))
+    }
+
+    @Test
+    fun `WHITE - can move one spaces from the start`() {
+        val game = Game("New Game")
+        val piece = Pawn(PieceColor.WHITE, game, 6, 0)
+
+        assertTrue(piece.canMove(Position(5,0)))
     }
 
     @Test
@@ -96,8 +90,7 @@ class PawnTest {
         val game = Game("New Game")
         val piece = Pawn(PieceColor.WHITE, game, 4, 0)
 
-        val plausibleMoves = piece.plausibleMoves();
-        assertEquals(setOf(Position(3,0)), plausibleMoves)
+        assertTrue(piece.canMove(Position(3,0)))
     }
 
     @Test
@@ -105,8 +98,7 @@ class PawnTest {
         val game = Game("New Game")
         val piece = Pawn(PieceColor.WHITE, game, 0, 0)
 
-        val plausibleMoves = piece.plausibleMoves();
-        assertEquals(setOf<Position>(), plausibleMoves)
+        assertFalse(piece.canMove(Position(-1,0)))
     }
 
     @Test
@@ -114,25 +106,7 @@ class PawnTest {
         val game = Game("New Game")
         val piece = Pawn(PieceColor.WHITE, game, 6, 2)
 
-        val plausibleCaptures = piece.plausibleCaptures();
-        assertEquals(setOf(Position(5, 1), Position(5, 3)), plausibleCaptures)
-    }
-
-    @Test
-    fun `WHITE - captures on diagonals - queen edge`() {
-        val game = Game("New Game")
-        val piece = Pawn(PieceColor.WHITE, game, 6, 0)
-
-        val plausibleCaptures = piece.plausibleCaptures();
-        assertEquals(setOf(Position(5, 1)), plausibleCaptures)
-    }
-
-    @Test
-    fun `WHITE - captures on diagonals - king edge`() {
-        val game = Game("New Game")
-        val piece = Pawn(PieceColor.WHITE, game, 6, 7)
-
-        val plausibleCaptures = piece.plausibleCaptures();
-        assertEquals(setOf(Position(5, 6)), plausibleCaptures)
+        assertTrue(piece.canCapture(Position(5,3)))
+        assertTrue(piece.canCapture(Position(5,1)))
     }
 }
