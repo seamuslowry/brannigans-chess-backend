@@ -33,6 +33,10 @@
           {
             "name": "SPRING_PROFILES_ACTIVE",
             "value": "clean"
+          },
+          {
+            "name": "BRANNIGANS_CHESS_DB_NAME",
+            "value": "brannigan_dev"
           }
         ],
         "resourceRequirements": null,
@@ -42,11 +46,11 @@
         "workingDirectory": null,
         "secrets": [
           {
-            "valueFrom": "arn:aws:secretsmanager:us-east-2:085076848110:secret:brannigans-chess-dev-db-url-6YNKnS",
+            "valueFrom": "arn:aws:secretsmanager:us-east-2:085076848110:secret:brannigans-chess-db-url-FO26ml",
             "name": "BRANNIGANS_CHESS_DB_URL"
           },
           {
-            "valueFrom": "arn:aws:secretsmanager:us-east-2:085076848110:secret:brannigans-chess-dev-db-password-p759yq",
+            "valueFrom": "arn:aws:secretsmanager:us-east-2:085076848110:secret:brannigans-chess-db-password-3KZu8W",
             "name": "BRANNIGANS_CHESS_DB_PASSWORD"
           }
         ],
