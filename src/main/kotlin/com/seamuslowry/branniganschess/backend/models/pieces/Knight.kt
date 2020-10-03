@@ -26,5 +26,4 @@ class Knight(
     }
 
     override fun canCapture(dst: Position): Boolean = canMove(dst)
-    override fun requiresEmpty(dst: Position): Set<Position> = emptySet()
 }
