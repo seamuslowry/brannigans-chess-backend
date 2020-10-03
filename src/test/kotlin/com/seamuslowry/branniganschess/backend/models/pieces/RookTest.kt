@@ -71,13 +71,4 @@ class RookTest {
                 Position(6,0)
         ), requiresEmpty)
     }
-
-    @Test
-    fun `requires no empty tiles when given bad data`() {
-        val game = Game("New Game")
-        val piece = Rook(PieceColor.BLACK, game, 0, 0)
-
-        val requiresEmpty = piece.requiresEmpty(Position(3,3))
-        assertEquals(emptySet<Position>(), requiresEmpty)
-    }
 }
