@@ -13,19 +13,4 @@ class Queen(
         positionCol: Int? = null,
         taken: Boolean = false,
         id: Long? = null
-): Piece(PieceType.QUEEN, color, game, positionRow, positionCol, taken, id) {
-    override fun plausibleCaptures(): Set<Position> {
-        return HashSet()
-    }
-
-    override fun plausibleMoves(): Set<Position> {
-        return HashSet()
-    }
-
-    override fun requiresEmpty(dst: Position): Set<Position> {
-        return HashSet()
-    }
-
-    // TODO remove when movement is fully implemented
-    override fun canMove(dst: Position): Boolean = true
-}
+): Piece(PieceType.QUEEN, color, game, positionRow, positionCol, taken, id)

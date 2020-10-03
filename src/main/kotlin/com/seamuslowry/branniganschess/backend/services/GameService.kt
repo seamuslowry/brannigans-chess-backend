@@ -5,6 +5,7 @@ import com.seamuslowry.branniganschess.backend.dtos.MoveRequest
 import com.seamuslowry.branniganschess.backend.models.*
 import com.seamuslowry.branniganschess.backend.models.pieces.*
 import com.seamuslowry.branniganschess.backend.repos.GameRepository
+import com.seamuslowry.branniganschess.backend.utils.Utils
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.domain.Specification
@@ -73,8 +74,8 @@ class GameService (
         val (srcRow, srcCol, dstRow, dstCol) = moveRequest
 
         if (srcRow == dstRow && srcCol == dstCol) throw ChessRuleException("Kiff, you fool! You're moving a piece right back where it was!")
-        if (!tileOnBoard(srcRow, srcCol)) throw ChessRuleException("Kiff, what have I told you about reaching for pieces off the board?")
-        if (!tileOnBoard(dstRow, dstCol)) throw ChessRuleException("Kiff, if you'd like to move a piece off the board, you should just give up.")
+        if (!Utils.tileOnBoard(srcRow, srcCol)) throw ChessRuleException("Kiff, what have I told you about reaching for pieces off the board?")
+        if (!Utils.tileOnBoard(dstRow, dstCol)) throw ChessRuleException("Kiff, if you'd like to move a piece off the board, you should just give up.")
 
         var movingPiece = activePieces[srcRow][srcCol] ?: throw ChessRuleException("Kiff, what have I told you about moving a piece from an empty tile?")
         var targetPiece = activePieces[dstRow][dstCol]
@@ -101,10 +102,6 @@ class GameService (
                 dstCol,
                 targetPiece
         ))
-    }
-
-    private fun tileOnBoard(row: Int, col: Int): Boolean {
-        return row in 0..7 && col in 0..7
     }
 
     private fun isActive(): Specification<Game> = Specification {
