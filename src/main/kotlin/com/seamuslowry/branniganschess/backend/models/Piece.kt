@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
 import com.seamuslowry.branniganschess.backend.models.pieces.*
+import com.seamuslowry.branniganschess.backend.utils.Utils
 import javax.persistence.*
 
 @Entity
@@ -46,9 +47,7 @@ abstract class Piece (
             Position(row, col)
         }
     }
-    open fun canMove(dst: Position) = plausibleMoves().contains(dst)
-    open fun canCapture(dst: Position) = plausibleCaptures().contains(dst)
-    abstract fun plausibleMoves(): Set<Position>
-    abstract fun plausibleCaptures(): Set<Position>
-    abstract fun requiresEmpty(dst: Position): Set<Position>
+    open fun canMove(dst: Position) = !isImmovable() && Utils.tileOnBoard(dst.row, dst.col)
+    open fun canCapture(dst: Position) = !isImmovable() && Utils.tileOnBoard(dst.row, dst.col)
+    open fun requiresEmpty(dst: Position): Set<Position> = emptySet()
 }

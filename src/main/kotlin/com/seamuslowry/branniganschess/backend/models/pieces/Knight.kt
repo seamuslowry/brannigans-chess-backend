@@ -3,6 +3,7 @@ package com.seamuslowry.branniganschess.backend.models.pieces
 import com.seamuslowry.branniganschess.backend.models.*
 import javax.persistence.DiscriminatorValue
 import javax.persistence.Entity
+import kotlin.math.abs
 
 @Entity
 @DiscriminatorValue("KNIGHT")
@@ -14,27 +15,16 @@ class Knight(
         taken: Boolean = false,
         id: Long? = null
 ): Piece(PieceType.KNIGHT, color, game, positionRow, positionCol, taken, id) {
-    override fun plausibleCaptures(): Set<Position> = plausibleMoves()
+    override fun canMove(dst: Position): Boolean {
+        if (!super.canMove(dst)) return false
+        val (row, col) = position() ?: return false
 
-    override fun plausibleMoves(): Set<Position> {
-        if (isImmovable()) return emptySet()
-        val (row, col) = position() ?: return emptySet()
+        val rowDiff = abs(dst.row - row)
+        val colDiff = abs(dst.col - col)
 
-        val set = HashSet<Position>()
-        set.add(Position(row - 2, col + 1))
-        set.add(Position(row - 2, col - 1))
-        set.add(Position(row + 2, col + 1))
-        set.add(Position(row + 2, col - 1))
-        set.add(Position(row - 1, col + 2))
-        set.add(Position(row - 1, col - 2))
-        set.add(Position(row + 1, col + 2))
-        set.add(Position(row + 1, col - 2))
-
-        set.filter { it.row in 0..7 && it.col in 0..7 }
-
-        return set.filter { it.row in 0..7 && it.col in 0..7 }.toHashSet()
-
+        return setOf(rowDiff,colDiff) == setOf(1,2)
     }
 
+    override fun canCapture(dst: Position): Boolean = canMove(dst)
     override fun requiresEmpty(dst: Position): Set<Position> = emptySet()
 }
