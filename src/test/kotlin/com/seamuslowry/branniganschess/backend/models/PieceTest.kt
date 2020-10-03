@@ -35,6 +35,6 @@ class PieceTest {
     @Test
     fun `requires no empty spaces to move by default`() {
         val game = Game("New Game")
-        assertEquals(emptySet<Position>(), King(PieceColor.BLACK, game, 0, 1).requiresEmpty(Position(0,0)))
+        assertEquals(emptySet<Position>(), Queen(PieceColor.BLACK, game, 0, 1).requiresEmpty(Position(0,0)))
     }
 }
