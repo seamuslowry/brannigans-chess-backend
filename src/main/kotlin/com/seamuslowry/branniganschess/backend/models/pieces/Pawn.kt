@@ -37,14 +37,6 @@ class Pawn(
         return rowDiff == direction && colDiff == 1
     }
 
-    override fun requiresEmpty(dst: Position): Set<Position> {
-        val direction = direction()
-        val row = positionRow ?: 0
-        val col = positionCol ?: 0
-        if (abs(row - dst.row) == 2) return setOf(Position(row + 1 * direction, col))
-        return HashSet()
-    }
-
     private fun startingRow() = if (PieceColor.BLACK == color) 1 else 6
 
     private fun direction() = if (PieceColor.BLACK == color) 1 else -1

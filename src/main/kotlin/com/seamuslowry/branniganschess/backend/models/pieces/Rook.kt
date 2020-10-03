@@ -22,19 +22,4 @@ class Rook(
     }
 
     override fun canCapture(dst: Position): Boolean = canMove(dst)
-    override fun requiresEmpty(dst: Position): Set<Position> {
-        val (row, col) = position() ?: return emptySet()
-
-        if (row == dst.row) {
-            val sortedCols = listOf(col, dst.col).sorted()
-            return (sortedCols[0] + 1 until sortedCols[1]).map { Position(row, it) }.toHashSet()
-        }
-
-        if (col == dst.col) {
-            val sortedRows = listOf(row, dst.row).sorted()
-            return (sortedRows[0] + 1 until sortedRows[1]).map { Position(it, col) }.toHashSet()
-        }
-
-        return emptySet()
-   }
 }
