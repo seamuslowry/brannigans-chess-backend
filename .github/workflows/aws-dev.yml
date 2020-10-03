@@ -26,7 +26,8 @@
 on:
   push:
     branches:
-      develop-** #should only be one active develop at a time, but if there are more pushes will overwrite
+      chore/lower_aws_resources
+      # develop-** #should only be one active develop at a time, but if there are more pushes will overwrite
 
 name: Deploy to Amazon ECS
 
