@@ -1,7 +1,6 @@
 package com.seamuslowry.branniganschess.backend.models.pieces
 
 import com.seamuslowry.branniganschess.backend.models.*
-import org.hibernate.event.spi.PostInsertEvent
 import javax.persistence.DiscriminatorValue
 import javax.persistence.Entity
 import kotlin.math.abs
@@ -16,35 +15,26 @@ class Pawn(
         taken: Boolean = false,
         id: Long? = null
 ): Piece(PieceType.PAWN, color, game, positionRow, positionCol, taken, id) {
-    override fun plausibleCaptures(): Set<Position> {
-        if (positionRow == 0 || positionRow == 7) return HashSet()
-        if (positionRow == null || positionCol == null) return HashSet()
-        if (taken) return HashSet();
-        val row = positionRow ?: 0
-        val col = positionCol ?: 0
+    override fun isImmovable(): Boolean = super.isImmovable() || positionRow == 0 || positionRow == 7
 
-        val set = HashSet<Position>()
+    override fun canMove(dst: Position): Boolean {
+        if (!super.canMove(dst)) return false
+        val (row, col) = position() ?: return false
         val direction = direction()
-        if (col != 0) set.add(Position(row + 1 * direction, col - 1))
-        if (col != 7) set.add(Position(row + 1 * direction, col + 1))
 
-        return set
+        val rowDiff = dst.row - row
+        return dst.col == col && (rowDiff == direction || (row == startingRow() && rowDiff == direction * 2))
     }
 
-    override fun plausibleMoves(): Set<Position> {
-        if (positionRow == 0 || positionRow == 7) return HashSet()
-        if (positionRow == null || positionCol == null) return HashSet()
-        if (taken) return HashSet();
-        val row = positionRow ?: 0
-        val col = positionCol ?: 0
-
-        val set = HashSet<Position>()
+    override fun canCapture(dst: Position): Boolean {
+        if (!super.canCapture(dst)) return false
+        val (row, col) = position() ?: return false
         val direction = direction()
-        set.add(Position(row + 1 * direction, col))
 
-        if (row == startingRow()) set.add(Position(row + 2 * direction, col))
+        val rowDiff = dst.row - row
+        val colDiff = abs(dst.col - col)
 
-        return set;
+        return rowDiff == direction && colDiff == 1
     }
 
     override fun requiresEmpty(dst: Position): Set<Position> {

@@ -36,7 +36,7 @@ class KnightTest {
     @Test
     fun `can capture all locations it can move`() {
         val game = Game("New Game")
-        val piece = Knight(PieceColor.BLACK, game, 1, 0)
+        val piece = Knight(PieceColor.BLACK, game, 3, 3)
 
         assertTrue(piece.canCapture(Position(1,2)))
         assertTrue(piece.canCapture(Position(1,4)))

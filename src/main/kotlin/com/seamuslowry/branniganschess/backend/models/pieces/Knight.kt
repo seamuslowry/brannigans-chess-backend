@@ -3,6 +3,7 @@ package com.seamuslowry.branniganschess.backend.models.pieces
 import com.seamuslowry.branniganschess.backend.models.*
 import javax.persistence.DiscriminatorValue
 import javax.persistence.Entity
+import kotlin.math.abs
 
 @Entity
 @DiscriminatorValue("KNIGHT")
@@ -14,18 +15,17 @@ class Knight(
         taken: Boolean = false,
         id: Long? = null
 ): Piece(PieceType.KNIGHT, color, game, positionRow, positionCol, taken, id) {
-    override fun plausibleCaptures(): Set<Position> {
-        return HashSet()
+    override fun canMove(dst: Position): Boolean {
+        if (!super.canMove(dst)) return false
+        val (row, col) = position() ?: return false
+
+        val rowDiff = abs(dst.row - row)
+        val colDiff = abs(dst.col - col)
+
+        return setOf(rowDiff,colDiff) == setOf(1,2)
     }
 
-    override fun plausibleMoves(): Set<Position> {
-        return HashSet()
-    }
+    override fun canCapture(dst: Position): Boolean = canMove(dst)
 
-    override fun requiresEmpty(dst: Position): Set<Position> {
-        return HashSet()
-    }
-
-    // TODO remove when movement is fully implemented
-    override fun canMove(dst: Position): Boolean = true
+    override fun requiresEmpty(dst: Position): Set<Position> = emptySet()
 }
