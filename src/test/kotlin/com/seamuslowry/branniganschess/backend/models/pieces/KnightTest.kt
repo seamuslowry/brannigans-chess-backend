@@ -3,7 +3,7 @@ package com.seamuslowry.branniganschess.backend.models.pieces
 import com.seamuslowry.branniganschess.backend.models.Game
 import com.seamuslowry.branniganschess.backend.models.PieceColor
 import com.seamuslowry.branniganschess.backend.models.Position
-import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.test.context.junit.jupiter.SpringExtension
@@ -15,70 +15,22 @@ class KnightTest {
         val game = Game("New Game")
         val piece = Knight(PieceColor.BLACK, game, 3, 3)
 
-        val plausibleMoves = piece.plausibleMoves()
-        assertEquals(8, plausibleMoves.count())
-        assertEquals(setOf(
-                Position(1,2),
-                Position(1,4),
-                Position(2,1),
-                Position(2,5),
-                Position(4,5),
-                Position(4,1),
-                Position(5,2),
-                Position(5,4)
-        ), plausibleMoves)
+        assertTrue(piece.canMove(Position(1,2)))
+        assertTrue(piece.canMove(Position(1,4)))
+        assertTrue(piece.canMove(Position(2,1)))
+        assertTrue(piece.canMove(Position(2,5)))
+        assertTrue(piece.canMove(Position(4,5)))
+        assertTrue(piece.canMove(Position(4,1)))
+        assertTrue(piece.canMove(Position(5,2)))
+        assertTrue(piece.canMove(Position(5,4)))
     }
 
     @Test
-    fun `cannot plausibly move off the edge from top-left`() {
+    fun `cannot move off the board`() {
         val game = Game("New Game")
         val piece = Knight(PieceColor.BLACK, game, 0, 0)
 
-        val plausibleMoves = piece.plausibleMoves()
-        assertEquals(2, plausibleMoves.count())
-        assertEquals(setOf(
-                Position(2,1),
-                Position(1,2)
-        ), plausibleMoves)
-    }
-
-    @Test
-    fun `cannot plausibly move off the edge from top-right`() {
-        val game = Game("New Game")
-        val piece = Knight(PieceColor.BLACK, game, 0, 7)
-
-        val plausibleMoves = piece.plausibleMoves()
-        assertEquals(2, plausibleMoves.count())
-        assertEquals(setOf(
-                Position(2,6),
-                Position(1,5)
-        ), plausibleMoves)
-    }
-
-    @Test
-    fun `cannot plausibly move off the edge from bottom-right`() {
-        val game = Game("New Game")
-        val piece = Knight(PieceColor.BLACK, game, 7, 7)
-
-        val plausibleMoves = piece.plausibleMoves()
-        assertEquals(2, plausibleMoves.count())
-        assertEquals(setOf(
-                Position(5,6),
-                Position(6,5)
-        ), plausibleMoves)
-    }
-
-    @Test
-    fun `cannot plausibly move off the edge from bottom-left`() {
-        val game = Game("New Game")
-        val piece = Knight(PieceColor.BLACK, game, 7, 0)
-
-        val plausibleMoves = piece.plausibleMoves()
-        assertEquals(2, plausibleMoves.count())
-        assertEquals(setOf(
-                Position(5,1),
-                Position(6,2)
-        ), plausibleMoves)
+        assertFalse(piece.canMove(Position(-1,-2)))
     }
 
     @Test
@@ -86,9 +38,14 @@ class KnightTest {
         val game = Game("New Game")
         val piece = Knight(PieceColor.BLACK, game, 3, 3)
 
-        val plausibleCaptures = piece.plausibleCaptures()
-        val plausibleMoves = piece.plausibleMoves()
-        assertEquals(plausibleMoves, plausibleCaptures)
+        assertTrue(piece.canCapture(Position(1,2)))
+        assertTrue(piece.canCapture(Position(1,4)))
+        assertTrue(piece.canCapture(Position(2,1)))
+        assertTrue(piece.canCapture(Position(2,5)))
+        assertTrue(piece.canCapture(Position(4,5)))
+        assertTrue(piece.canCapture(Position(4,1)))
+        assertTrue(piece.canCapture(Position(5,2)))
+        assertTrue(piece.canCapture(Position(5,4)))
     }
 
     @Test
