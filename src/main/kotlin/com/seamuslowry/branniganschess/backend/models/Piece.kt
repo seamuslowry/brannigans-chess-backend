@@ -6,6 +6,8 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo
 import com.seamuslowry.branniganschess.backend.models.pieces.*
 import com.seamuslowry.branniganschess.backend.utils.Utils
 import javax.persistence.*
+import kotlin.math.abs
+import kotlin.math.max
 
 @Entity
 @Inheritance
@@ -49,5 +51,19 @@ abstract class Piece (
     }
     open fun canMove(dst: Position) = !isImmovable() && Utils.tileOnBoard(dst.row, dst.col)
     open fun canCapture(dst: Position) = !isImmovable() && Utils.tileOnBoard(dst.row, dst.col)
-    open fun requiresEmpty(dst: Position): Set<Position> = emptySet()
+    open fun requiresEmpty(dst: Position): Set<Position> {
+        val set = HashSet<Position>()
+        val (row, col) = position() ?: return emptySet()
+
+        val rowDiff = dst.row - row
+        val colDiff = dst.col - col
+        val rowDirection = if (rowDiff != 0) rowDiff / abs(rowDiff) else 0
+        val colDirection = if (colDiff != 0) colDiff / abs(colDiff) else 0
+
+        for (i in 1 until max(abs(rowDiff), abs(colDiff))) {
+            set.add(Position(row + rowDirection * i, col + colDirection * i))
+        }
+
+        return set
+    }
 }
