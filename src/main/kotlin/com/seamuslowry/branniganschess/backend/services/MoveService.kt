@@ -22,6 +22,11 @@ class MoveService (
         return moveRepository.findAll(spec)
     }
 
+    fun findLastMove(gameId: Long): Move? {
+        val allMoves = findAllBy(gameId)
+        return if (allMoves.count() > 0) allMoves.last() else null;
+    }
+
     private fun inGame(id: Long): Specification<Move> = Specification {
         root,
         _,
