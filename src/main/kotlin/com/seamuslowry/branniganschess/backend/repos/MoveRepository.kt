@@ -6,5 +6,4 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor
 import org.springframework.stereotype.Repository
 
 @Repository
-interface MoveRepository: JpaRepository<Move, Long>, JpaSpecificationExecutor<Move> {
-}
+interface MoveRepository: JpaRepository<Move, Long>, JpaSpecificationExecutor<Move>
