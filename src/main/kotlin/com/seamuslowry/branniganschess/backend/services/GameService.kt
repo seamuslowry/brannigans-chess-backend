@@ -84,7 +84,7 @@ class GameService (
 
         move = move ?: tryStandardMove(activePieces, movingPiece, moveRequest)
 
-        return move
+        return applyMove(move)
     }
 
     private fun tryEnPassant(board: Array<Array<Piece?>>, movingPiece: Piece, moveRequest: MoveRequest): Move? {
@@ -101,11 +101,8 @@ class GameService (
             if (lastMove?.movingPiece?.id != passantTarget.id) return null
             if (lastMove?.dstRow?.minus(lastMove.srcRow)?.let { abs(it) } != 2) return null
 
-            passantTarget = pieceService.takePiece(passantTarget)
-            val savedMovingPiece = pieceService.movePiece(movingPiece, dstRow, dstCol)
-
             return Move(
-                    savedMovingPiece,
+                    movingPiece,
                     srcRow,
                     srcCol,
                     dstRow,
@@ -130,18 +127,30 @@ class GameService (
 
         if (targetPiece?.color == movingPiece.color) throw ChessRuleException("Kiff, if I can't kill my own men anymore, neither can you.")
 
-        val takenPiece = targetPiece?.let {
-            pieceService.takePiece(it)
-        }
-        val savedMovingPiece = pieceService.movePiece(movingPiece, dstRow, dstCol)
-
-        return moveService.createMove(Move(
-                savedMovingPiece,
+        return Move(
+                movingPiece,
                 srcRow,
                 srcCol,
                 dstRow,
                 dstCol,
-                takenPiece
+                targetPiece
+        )
+    }
+
+    private fun applyMove(move: Move): Move {
+        val takenPiece = move.takenPiece?.let {
+            pieceService.takePiece(it)
+        }
+        val savedMovingPiece = pieceService.movePiece(move.movingPiece, move.dstRow, move.dstCol)
+
+        return moveService.createMove(Move(
+                savedMovingPiece,
+                move.srcRow,
+                move.srcCol,
+                move.dstRow,
+                move.dstCol,
+                takenPiece,
+                move.moveType
         ))
     }
 
