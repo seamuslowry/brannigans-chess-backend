@@ -64,5 +64,33 @@ class MoveIntegrationTests(
         assertNotNull(response.body?.takenPiece)
     }
 
+    @Test
+    fun `will en passant`() {
+        val game = createGame()
+        val board = pieceService.getPiecesAsBoard(game.id)
+
+        // set up a valid test by performing an invalid move through the service
+        // move white pawn into a position where it could en passant
+        pieceService.movePiece(board[6][3]!!, 3,3)
+
+        // move the target pawn in prep for the take
+        restTemplate.postForEntity(
+                "/moves/${game.id}",
+                MoveRequest(1,2,3,2),
+                Move::class.java
+        )
+
+        // take with en passant
+        val response = restTemplate.postForEntity(
+                "/moves/${game.id}",
+                MoveRequest(3,3,2,2),
+                Move::class.java
+        )
+
+        assertEquals(HttpStatus.OK, response.statusCode)
+        assertNotNull(response.body?.movingPiece)
+        assertNotNull(response.body?.takenPiece)
+    }
+
     private fun createGame(): Game = gameService.createGame()
 }
