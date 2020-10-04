@@ -34,6 +34,7 @@ CREATE TABLE IF NOT EXISTS move(
     dst_col integer NOT NULL,
     dst_row integer NOT NULL,
     moving_piece_id integer NOT NULL,
+    move_type VARCHAR(16) NOT NULL,
     taken_piece_id integer,
     FOREIGN KEY (moving_piece_id) REFERENCES piece(id),
     FOREIGN KEY (taken_piece_id) REFERENCES piece(id)
