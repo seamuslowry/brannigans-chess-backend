@@ -24,7 +24,7 @@
         ],
         "command": null,
         "linuxParameters": null,
-        "cpu": 1024,
+        "cpu": 512,
         "environment": [
           {
             "name": "CHESS_ACCESS_CONTROL_ALLOW_ORIGIN",
@@ -33,6 +33,10 @@
           {
             "name": "SPRING_PROFILES_ACTIVE",
             "value": "clean"
+          },
+          {
+            "name": "BRANNIGANS_CHESS_DB_NAME",
+            "value": "brannigan_dev"
           }
         ],
         "resourceRequirements": null,
@@ -42,17 +46,17 @@
         "workingDirectory": null,
         "secrets": [
           {
-            "valueFrom": "arn:aws:secretsmanager:us-east-2:085076848110:secret:brannigans-chess-dev-db-url-6YNKnS",
+            "valueFrom": "arn:aws:secretsmanager:us-east-2:085076848110:secret:brannigans-chess-db-url-FO26ml",
             "name": "BRANNIGANS_CHESS_DB_URL"
           },
           {
-            "valueFrom": "arn:aws:secretsmanager:us-east-2:085076848110:secret:brannigans-chess-dev-db-password-p759yq",
+            "valueFrom": "arn:aws:secretsmanager:us-east-2:085076848110:secret:brannigans-chess-db-password-3KZu8W",
             "name": "BRANNIGANS_CHESS_DB_PASSWORD"
           }
         ],
         "dockerSecurityOptions": null,
         "memory": null,
-        "memoryReservation": 2048,
+        "memoryReservation": 1024,
         "volumesFrom": [],
         "stopTimeout": null,
         "image": "085076848110.dkr.ecr.us-east-2.amazonaws.com/brannigans-chess/backend:6f73dd101ac694de0d0728197d9bd2e926879ec7",
@@ -76,7 +80,7 @@
       }
     ],
     "placementConstraints": [],
-    "memory": "2048",
+    "memory": "1024",
     "taskRoleArn": null,
     "family": "brannigans-chess-backend-dev-task-definition",
     "pidMode": null,
@@ -84,7 +88,7 @@
       "FARGATE"
     ],
     "networkMode": "awsvpc",
-    "cpu": "1024",
+    "cpu": "512",
     "inferenceAccelerators": null,
     "proxyConfiguration": null,
     "volumes": []
