@@ -120,12 +120,12 @@ class GameService (
         val targetPiece = board[dstRow][dstCol]
         val dst = Position(dstRow, dstCol)
         val plausibleMove = if (targetPiece === null) movingPiece.canMove(dst) else movingPiece.canCapture(dst)
-        if (!plausibleMove) throw ChessRuleException("Kiff, I don't think that piece moves like that.")
+        if (!plausibleMove) throw ChessRuleException("Kif, I don't think that piece moves like that.")
 
         val requiredEmpty = movingPiece.requiresEmpty(dst)
-        if(requiredEmpty.any { board[it.row][it.col] != null }) throw ChessRuleException("Kiff, that piece is being blocked by another.")
+        if(requiredEmpty.any { board[it.row][it.col] != null }) throw ChessRuleException("Kif, that piece is being blocked by another.")
 
-        if (targetPiece?.color == movingPiece.color) throw ChessRuleException("Kiff, if I can't kill my own men anymore, neither can you.")
+        if (targetPiece?.color == movingPiece.color) throw ChessRuleException("Kif, if I can't kill my own men anymore, neither can you.")
 
         return Move(
                 movingPiece,
