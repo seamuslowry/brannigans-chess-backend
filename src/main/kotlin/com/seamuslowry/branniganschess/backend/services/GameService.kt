@@ -91,7 +91,7 @@ class GameService (
         if (movingPiece is Pawn) {
             val (srcRow, srcCol, dstRow, dstCol) = moveRequest
 
-            var passantTarget = board[srcRow][dstCol]
+            val passantTarget = board[srcRow][dstCol]
             if (!movingPiece.canCapture(Position(dstRow, dstCol))) return null
             if (passantTarget == null) return null
             if (passantTarget !is Pawn) return null
