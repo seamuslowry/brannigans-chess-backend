@@ -11,6 +11,7 @@ import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.domain.Specification
 import org.springframework.stereotype.Service
 import java.util.*
+import kotlin.math.abs
 
 @Service
 class GameService (
@@ -77,30 +78,79 @@ class GameService (
         if (!Utils.tileOnBoard(srcRow, srcCol)) throw ChessRuleException("Kiff, what have I told you about reaching for pieces off the board?")
         if (!Utils.tileOnBoard(dstRow, dstCol)) throw ChessRuleException("Kiff, if you'd like to move a piece off the board, you should just give up.")
 
-        var movingPiece = activePieces[srcRow][srcCol] ?: throw ChessRuleException("Kiff, what have I told you about moving a piece from an empty tile?")
-        var targetPiece = activePieces[dstRow][dstCol]
+        val movingPiece = activePieces[srcRow][srcCol] ?: throw ChessRuleException("Kiff, what have I told you about moving a piece from an empty tile?")
 
-        if (targetPiece?.color == movingPiece.color) throw ChessRuleException("Kiff, if I can't kill my own men anymore, neither can you.")
+        var move = tryEnPassant(activePieces, movingPiece, moveRequest)
 
+        move = move ?: tryStandardMove(activePieces, movingPiece, moveRequest)
+
+        return applyMove(move)
+    }
+
+    private fun tryEnPassant(board: Array<Array<Piece?>>, movingPiece: Piece, moveRequest: MoveRequest): Move? {
+        if (movingPiece is Pawn) {
+            val (srcRow, srcCol, dstRow, dstCol) = moveRequest
+
+            val passantTarget = board[srcRow][dstCol]
+            if (!movingPiece.canCapture(Position(dstRow, dstCol))) return null
+            if (passantTarget == null) return null
+            if (passantTarget !is Pawn) return null
+            if (passantTarget.color == movingPiece.color) return null
+
+            val lastMove = moveService.findLastMove(movingPiece.game?.id ?: 0)
+            if (lastMove?.movingPiece?.id != passantTarget.id) return null
+            if (lastMove?.dstRow?.minus(lastMove.srcRow)?.let { abs(it) } != 2) return null
+
+            return Move(
+                    movingPiece,
+                    srcRow,
+                    srcCol,
+                    dstRow,
+                    dstCol,
+                    passantTarget,
+                    MoveType.EN_PASSANT
+            )
+        }
+
+        return null
+    }
+
+    private fun tryStandardMove(board: Array<Array<Piece?>>, movingPiece: Piece, moveRequest: MoveRequest): Move {
+        val (srcRow, srcCol, dstRow, dstCol) = moveRequest
+        val targetPiece = board[dstRow][dstCol]
         val dst = Position(dstRow, dstCol)
         val plausibleMove = if (targetPiece === null) movingPiece.canMove(dst) else movingPiece.canCapture(dst)
         if (!plausibleMove) throw ChessRuleException("Kiff, I don't think that piece moves like that.")
 
         val requiredEmpty = movingPiece.requiresEmpty(dst)
-        if(requiredEmpty.any { activePieces[it.row][it.col] != null }) throw ChessRuleException("Kiff, that piece is being blocked by another.")
+        if(requiredEmpty.any { board[it.row][it.col] != null }) throw ChessRuleException("Kiff, that piece is being blocked by another.")
 
-        targetPiece = targetPiece?.let {
-            pieceService.takePiece(it)
-        }
-        movingPiece = pieceService.movePiece(movingPiece, dstRow, dstCol)
+        if (targetPiece?.color == movingPiece.color) throw ChessRuleException("Kiff, if I can't kill my own men anymore, neither can you.")
 
-        return moveService.createMove(Move(
+        return Move(
                 movingPiece,
                 srcRow,
                 srcCol,
                 dstRow,
                 dstCol,
                 targetPiece
+        )
+    }
+
+    private fun applyMove(move: Move): Move {
+        val takenPiece = move.takenPiece?.let {
+            pieceService.takePiece(it)
+        }
+        val savedMovingPiece = pieceService.movePiece(move.movingPiece, move.dstRow, move.dstCol)
+
+        return moveService.createMove(Move(
+                savedMovingPiece,
+                move.srcRow,
+                move.srcCol,
+                move.dstRow,
+                move.dstCol,
+                takenPiece,
+                move.moveType
         ))
     }
 
