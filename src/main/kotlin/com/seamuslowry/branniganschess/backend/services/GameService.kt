@@ -74,11 +74,11 @@ class GameService (
         val activePieces = pieceService.getPiecesAsBoard(gameId)
         val (srcRow, srcCol, dstRow, dstCol) = moveRequest
 
-        if (srcRow == dstRow && srcCol == dstCol) throw ChessRuleException("Kiff, you fool! You're moving a piece right back where it was!")
-        if (!Utils.tileOnBoard(srcRow, srcCol)) throw ChessRuleException("Kiff, what have I told you about reaching for pieces off the board?")
-        if (!Utils.tileOnBoard(dstRow, dstCol)) throw ChessRuleException("Kiff, if you'd like to move a piece off the board, you should just give up.")
+        if (srcRow == dstRow && srcCol == dstCol) throw ChessRuleException("Kif, you fool! You're moving a piece right back where it was!")
+        if (!Utils.tileOnBoard(srcRow, srcCol)) throw ChessRuleException("Kif, what have I told you about reaching for pieces off the board?")
+        if (!Utils.tileOnBoard(dstRow, dstCol)) throw ChessRuleException("Kif, if you'd like to move a piece off the board, you should just give up.")
 
-        val movingPiece = activePieces[srcRow][srcCol] ?: throw ChessRuleException("Kiff, what have I told you about moving a piece from an empty tile?")
+        val movingPiece = activePieces[srcRow][srcCol] ?: throw ChessRuleException("Kif, what have I told you about moving a piece from an empty tile?")
 
         var move = tryEnPassant(activePieces, movingPiece, moveRequest)
 
