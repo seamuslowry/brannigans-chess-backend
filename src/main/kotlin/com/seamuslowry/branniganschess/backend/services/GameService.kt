@@ -180,7 +180,7 @@ class GameService (
         val takenLocation = move.takenPiece?.position()
         takenLocation?.let { copiedBoard[it.row][it.col] == null }
 
-        if (move.moveType == MoveType.EN_PASSANT) copiedBoard[move.srcRow][move.srcCol] = null
+        if (move.moveType == MoveType.EN_PASSANT) copiedBoard[move.srcRow][move.dstCol] = null
         if (move.moveType == MoveType.KING_SIDE_CASTLE) {
             // TODO write test for this case after implementing
             copiedBoard[move.srcRow][move.dstCol - 1] = copiedBoard[move.srcRow][move.dstCol + 1]
@@ -195,33 +195,58 @@ class GameService (
         return copiedBoard
     }
 
-    private fun inCheckAfterMove(game: Game, board: Array<Array<Piece?>>, color: PieceColor, move: Move): Boolean {
-        // find the king after the move
-        val king = pieceService.findAllBy(game.id, color, type = PieceType.KING).first()
-        // get the king's position
-        var kingPosition = king.position() ?: return false // should never happen
+    private fun applyMoveToPieces(pieces: Iterable<Piece>, move: Move): Iterable<Piece> {
+        var newPieces = pieces.filter { it.id != move.takenPiece?.id }
 
-        // find all the active opposing pieces
-        var opposingPieces = pieceService.findAllBy(game.id, Utils.getOpposingColor(color), taken = false)
-
-        // move hasn't been applied yet; need to remove the taken piece from consideration
-        opposingPieces = opposingPieces.filter { it.id != move.takenPiece?.id }
-
-        // move hasn't been applied yet; need to update position on board for computation
-        opposingPieces.forEach {
+        newPieces.forEach {
             if (it.id == move.movingPiece.id) {
                 it.positionCol = move.dstCol
                 it.positionRow = move.dstRow
             }
         }
 
-        // move hasn't been applied yet; king update position if the king was moved
-        if (move.movingPiece.id == king.id) {
-            kingPosition = Position(move.dstRow, move.dstCol)
+        if (move.moveType == MoveType.EN_PASSANT) {
+            newPieces = newPieces.filter { !(it.positionCol == move.dstCol && it.positionRow == move.srcRow) }
+        }
+        if (move.moveType == MoveType.KING_SIDE_CASTLE) {
+            // TODO write test for this case after implementing
+            newPieces.forEach {
+                if (it.positionRow == move.srcRow && it.positionCol == move.dstCol + 1) {
+                    it.positionCol = move.dstCol - 1
+                    it.positionRow = move.dstRow
+                }
+            }
+        }
+        if (move.moveType == MoveType.QUEEN_SIDE_CASTLE) {
+            // TODO write test for this case after implementing
+            newPieces.forEach {
+                if (it.positionRow == move.srcRow && it.positionCol == move.dstCol - 2) {
+                    it.positionCol = move.dstCol + 1
+                    it.positionRow = move.dstRow
+                }
+            }
         }
 
+        return newPieces
+    }
+
+    private fun applyMoveToPiece(piece: Piece, move: Move): Piece = applyMoveToPieces(listOf(piece), move).first()
+
+    private fun inCheckAfterMove(game: Game, board: Array<Array<Piece?>>, color: PieceColor, move: Move): Boolean {
+        // find the king after the move
+        var king = pieceService.findAllBy(game.id, color, type = PieceType.KING).first()
+        // find all the active opposing pieces
+        var opposingPieces = pieceService.findAllBy(game.id, Utils.getOpposingColor(color), taken = false)
+
+        // get the opposing pieces as they would look after the move
+        opposingPieces = applyMoveToPieces(opposingPieces, move)
+        // get the king as it would look after the move
+        king = applyMoveToPiece(king, move)
         // get the 2D board array after the move is applied
         val afterMoveBoard = applyMoveToBoard(board, move)
+
+        // get the after-move king's position
+        val kingPosition = king.position() ?: return false // should never happen
 
         // can any opposing piece capture the king if the move were applied
         return opposingPieces.any { canCapture(afterMoveBoard, it, kingPosition) }
