@@ -47,7 +47,7 @@ class PieceServiceTest {
         val piece = Pawn( PieceColor.BLACK, game, 0, 0)
         every { pieceRepository.findAll(any<Specification<Piece>>()) } returns listOf(piece)
 
-        val foundPieces = service.findAllBy(1, piece.color, piece.taken)
+        val foundPieces = service.findAllBy(1, piece.color, piece.taken, piece.type)
 
         verify(exactly = 1) { pieceRepository.findAll(any<Specification<Piece>>()) }
         assertEquals(1 , foundPieces.count())
