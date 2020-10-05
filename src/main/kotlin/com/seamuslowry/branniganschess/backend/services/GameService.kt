@@ -84,13 +84,9 @@ class GameService (
         if (!Utils.tileOnBoard(dstRow, dstCol)) throw ChessRuleException("Kif, if you'd like to move a piece off the board, you should just give up.")
 
         val movingPiece = board[srcRow][srcCol] ?: throw ChessRuleException("Kif, what have I told you about moving a piece from an empty tile?")
-        val movingColor = movingPiece.color
-        val opposingColor = Utils.getOpposingColor(movingColor)
+        val opposingColor = Utils.getOpposingColor(movingPiece.color)
 
-        val move = tryMove(board, movingPiece, moveRequest)
-
-        // if the mover is in check, the move is invalid
-        if (inCheckAfterMove(game, board, movingColor, move)) throw ChessRuleException("Kif, you can't do that! You're in cheque!")
+        val move = tryMove(game, board, movingPiece, moveRequest)
 
         // update the game state to reflect which player's turn and check status
         val newStatus = getGameStatusAfterMove(game, board, opposingColor, move)
@@ -99,12 +95,15 @@ class GameService (
         return applyMove(move)
     }
 
-    private fun tryMove(board: Array<Array<Piece?>>, movingPiece: Piece, moveRequest: MoveRequest): Move {
+    private fun tryMove(game: Game, board: Array<Array<Piece?>>, movingPiece: Piece, moveRequest: MoveRequest): Move {
         var move = tryEnPassant(board, movingPiece, moveRequest)
 
         move = move ?: tryStandardMove(board, movingPiece, moveRequest)
 
-        return move;
+        // if the mover is in check, the move is invalid
+        if (inCheckAfterMove(game, board, movingPiece.color, move)) throw ChessRuleException("Kif, you can't do that! You're in cheque!")
+
+        return move
     }
 
     private fun tryEnPassant(board: Array<Array<Piece?>>, movingPiece: Piece, moveRequest: MoveRequest): Move? {
