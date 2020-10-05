@@ -87,22 +87,24 @@ class GameService (
         val movingColor = movingPiece.color
         val opposingColor = Utils.getOpposingColor(movingColor)
 
-        var move = tryEnPassant(board, movingPiece, moveRequest)
-
-        move = move ?: tryStandardMove(board, movingPiece, moveRequest)
+        val move = tryMove(board, movingPiece, moveRequest)
 
         // if the mover is in check, the move is invalid
         if (inCheckAfterMove(game, board, movingColor, move)) throw ChessRuleException("Kif, you can't do that! You're in cheque!")
 
-        // if the opponent is in check after the move, update the game state
-        val newStatus = if (inCheckAfterMove(game, board, opposingColor, move)) {
-            if (opposingColor == PieceColor.BLACK) GameStatus.BLACK_CHECK else GameStatus.WHITE_CHECK
-        } else {
-            if (opposingColor == PieceColor.BLACK) GameStatus.WHITE_TURN else GameStatus.BLACK_CHECK
-        }
+        // update the game state to reflect which player's turn and check status
+        val newStatus = getGameStatusAfterMove(game, board, opposingColor, move)
         updateGameStatus(game, newStatus)
 
         return applyMove(move)
+    }
+
+    private fun tryMove(board: Array<Array<Piece?>>, movingPiece: Piece, moveRequest: MoveRequest): Move {
+        var move = tryEnPassant(board, movingPiece, moveRequest)
+
+        move = move ?: tryStandardMove(board, movingPiece, moveRequest)
+
+        return move;
     }
 
     private fun tryEnPassant(board: Array<Array<Piece?>>, movingPiece: Piece, moveRequest: MoveRequest): Move? {
@@ -138,8 +140,8 @@ class GameService (
         val targetPiece = board[dstRow][dstCol]
         val dst = Position(dstRow, dstCol)
 
-        val moveError = if (targetPiece === null) canMove(board, movingPiece, dst) else canCapture(board, movingPiece, dst)
-        moveError?.let { throw ChessRuleException(it) }
+        val actError = if (targetPiece === null) moveError(board, movingPiece, dst) else captureError(board, movingPiece, dst)
+        actError?.let { throw ChessRuleException(it) }
 
         if (targetPiece?.color == movingPiece.color) throw ChessRuleException("Kif, if I can't kill my own men anymore, neither can you.")
 
@@ -195,30 +197,44 @@ class GameService (
     }
 
     private fun inCheckAfterMove(game: Game, board: Array<Array<Piece?>>, color: PieceColor, move: Move): Boolean {
+        // find the king after the move
         val king = pieceService.findAllBy(game.id, color, type = PieceType.KING).first()
+        // get the king's position
+        var kingPosition = king.position() ?: return false // should never happen
+
+        // find all the active opposing pieces
         var opposingPieces = pieceService.findAllBy(game.id, Utils.getOpposingColor(color), taken = false)
+
+        // move hasn't been applied yet; need to remove the taken piece from consideration
         opposingPieces = opposingPieces.filter { it.id != move.takenPiece?.id }
+
+        // move hasn't been applied yet; need to update position on board for computation
         opposingPieces.forEach {
             if (it.id == move.movingPiece.id) {
                 it.positionCol = move.dstCol
                 it.positionRow = move.dstRow
             }
         }
-        var kingPosition = king.position() ?: return false // should never happen
+
+        // move hasn't been applied yet; king update position if the king was moved
         if (move.movingPiece.id == king.id) {
             kingPosition = Position(move.dstRow, move.dstCol)
         }
 
+        // get the 2D board array after the move is applied
         val afterMoveBoard = applyMoveToBoard(board, move)
 
-        return opposingPieces.any { canCapture(afterMoveBoard, it, kingPosition) == null }
+        // can any opposing piece capture the king if the move were applied
+        return opposingPieces.any { canCapture(afterMoveBoard, it, kingPosition) }
     }
 
-    private fun canCapture(board: Array<Array<Piece?>>, movingPiece: Piece, dst: Position): String? = canAct(board, movingPiece, dst, movingPiece::canCapture)
+    private fun canCapture(board: Array<Array<Piece?>>, movingPiece: Piece, dst: Position): Boolean = captureError(board, movingPiece, dst) == null
 
-    private fun canMove(board: Array<Array<Piece?>>, movingPiece: Piece, dst: Position): String? = canAct(board, movingPiece, dst, movingPiece::canMove)
+    private fun moveError(board: Array<Array<Piece?>>, movingPiece: Piece, dst: Position): String? = actError(board, movingPiece, dst, movingPiece::canMove)
 
-    private fun canAct(board: Array<Array<Piece?>>, movingPiece: Piece, dst: Position, canActFn: (dst: Position) -> Boolean): String? {
+    private fun captureError(board: Array<Array<Piece?>>, movingPiece: Piece, dst: Position): String? = actError(board, movingPiece, dst, movingPiece::canCapture)
+
+    private fun actError(board: Array<Array<Piece?>>, movingPiece: Piece, dst: Position, canActFn: (dst: Position) -> Boolean): String? {
         val plausibleMove = canActFn(dst)
         if (!plausibleMove) return "Kif, I don't think that piece moves like that."
 
@@ -227,6 +243,13 @@ class GameService (
 
         return null
     }
+
+    private fun getGameStatusAfterMove(game: Game, board: Array<Array<Piece?>>, opposingColor: PieceColor, move: Move) =
+            if (inCheckAfterMove(game, board, opposingColor, move)) {
+                if (opposingColor == PieceColor.BLACK) GameStatus.BLACK_CHECK else GameStatus.WHITE_CHECK
+            } else {
+                if (opposingColor == PieceColor.BLACK) GameStatus.BLACK_TURN else GameStatus.WHITE_TURN
+            }
 
     private fun updateGameStatus(game: Game, status: GameStatus): Game {
         game.status = status

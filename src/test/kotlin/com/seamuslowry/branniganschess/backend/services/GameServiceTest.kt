@@ -6,12 +6,14 @@ import com.seamuslowry.branniganschess.backend.dtos.MoveRequest
 import com.seamuslowry.branniganschess.backend.models.*
 import com.seamuslowry.branniganschess.backend.models.pieces.King
 import com.seamuslowry.branniganschess.backend.models.pieces.Pawn
+import com.seamuslowry.branniganschess.backend.models.pieces.Queen
 import com.seamuslowry.branniganschess.backend.models.pieces.Rook
 import com.seamuslowry.branniganschess.backend.repos.GameRepository
 import com.seamuslowry.branniganschess.backend.utils.Utils
 import io.mockk.every
 import io.mockk.verify
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -193,7 +195,7 @@ class GameServiceTest {
     }
 
     @Test
-    fun `throws an exception when the mover ends in check`() {
+    fun `throws an exception when the king moves into check`() {
         val gameBoard = Utils.getEmptyBoard()
         val game = Game("Moving Board")
         val king = King(PieceColor.WHITE, game, 7, 4)
@@ -209,6 +211,26 @@ class GameServiceTest {
 
         assertThrows<ChessRuleException> {
             service.move(1, MoveRequest(7,4,6,4))
+        }
+    }
+
+    @Test
+    fun `throws an exception when the moving unrelated piece while in check`() {
+        val gameBoard = Utils.getEmptyBoard()
+        val game = Game("Moving Board")
+        val king = King(PieceColor.WHITE, game, 6, 4)
+        val pawn = Pawn(PieceColor.BLACK, game, 5, 5, id=12)
+        gameBoard[7][4] = king
+        gameBoard[5][5] = pawn
+
+        every { pieceService.getPiecesAsBoard(any()) } returns gameBoard
+        every { pieceService.movePiece(any(), any(), any()) } answers {firstArg()}
+        every { pieceService.takePiece(any()) } answers {firstArg()}
+        every { pieceService.findAllBy(any(), PieceColor.WHITE, any(), PieceType.KING) } returns listOf(king)
+        every { pieceService.findAllBy(any(), PieceColor.BLACK, any(), any()) } returns listOf(pawn)
+
+        assertThrows<ChessRuleException> {
+            service.move(1, MoveRequest(6,1,6,3))
         }
     }
 
@@ -325,26 +347,6 @@ class GameServiceTest {
     }
 
     @Test
-    fun `updates the game state when the opponent ends in check`() {
-        val gameBoard = Utils.getEmptyBoard()
-        val game = Game("Check Board")
-        val king = King(PieceColor.WHITE, game, 7, 4)
-        val pawn = Pawn(PieceColor.BLACK, game, 5, 5, id=12)
-        gameBoard[7][4] = king
-        gameBoard[5][5] = pawn
-
-        every { pieceService.getPiecesAsBoard(any()) } returns gameBoard
-        every { pieceService.movePiece(any(), any(), any()) } answers {firstArg()}
-        every { pieceService.takePiece(any()) } answers {firstArg()}
-        every { pieceService.findAllBy(any(), PieceColor.WHITE, any(), PieceType.KING) } returns listOf(king)
-        every { pieceService.findAllBy(any(), PieceColor.BLACK, any(), any()) } returns listOf(pawn)
-
-        service.move(1, MoveRequest(5,5,6,5))
-
-        verify(exactly = 1) { gameRepository.save(any<Game>()) }
-    }
-
-    @Test
     fun `allows the king to kill the piece keeping it in check`() {
         val gameBoard = Utils.getEmptyBoard()
         val game = Game("Check Board")
@@ -361,12 +363,34 @@ class GameServiceTest {
 
         val move = service.move(1, MoveRequest(7,4,6,5))
 
-        verify(exactly = 1) { gameRepository.save(any<Game>()) }
         assertEquals(pawn, move.takenPiece)
     }
 
     @Test
-    fun `can en passant into check`() {
+    fun `allows a piece to move to protect the king`() {
+        val gameBoard = Utils.getEmptyBoard()
+        val game = Game("Check Board")
+        val king = King(PieceColor.WHITE, game, 7, 4)
+        val queen = Queen(PieceColor.WHITE, game, 7, 3)
+        val rook = Rook(PieceColor.BLACK, game, 7, 5, id=12)
+        gameBoard[7][4] = king
+        gameBoard[7][3] = queen
+        gameBoard[7][5] = rook
+
+        every { pieceService.getPiecesAsBoard(any()) } returns gameBoard
+        every { pieceService.movePiece(any(), any(), any()) } answers {firstArg()}
+        every { pieceService.takePiece(any()) } answers {firstArg()}
+        every { pieceService.findAllBy(any(), PieceColor.WHITE, any(), PieceType.KING) } returns listOf(king)
+        every { pieceService.findAllBy(any(), PieceColor.BLACK, any(), any()) } returns listOf(rook)
+
+        val move = service.move(1, MoveRequest(7,3,6,4))
+
+        assertNull(move.takenPiece)
+        assertEquals(move.movingPiece.type, PieceType.QUEEN)
+    }
+
+    @Test
+    fun `can en passant to check`() {
         val gameBoard = Utils.getEmptyBoard()
         val game = Game("Check Board")
         val king = King(PieceColor.WHITE, game, 6, 4)
@@ -386,6 +410,6 @@ class GameServiceTest {
         val move = service.move(1, MoveRequest(4,6,5,5))
 
         verify(exactly = 1) { gameRepository.save(any<Game>()) }
-        assertEquals(pawn, move.takenPiece)
+        assertEquals(passantPawn.id, move.takenPiece?.id)
     }
 }
