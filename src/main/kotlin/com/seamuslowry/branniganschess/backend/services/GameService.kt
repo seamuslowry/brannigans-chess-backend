@@ -119,11 +119,8 @@ class GameService (
         val (srcRow, srcCol, dstRow, dstCol) = moveRequest
         val targetPiece = board[dstRow][dstCol]
         val dst = Position(dstRow, dstCol)
-        val plausibleMove = if (targetPiece === null) movingPiece.canMove(dst) else movingPiece.canCapture(dst)
-        if (!plausibleMove) throw ChessRuleException("Kif, I don't think that piece moves like that.")
 
-        val requiredEmpty = movingPiece.requiresEmpty(dst)
-        if(requiredEmpty.any { board[it.row][it.col] != null }) throw ChessRuleException("Kif, that piece is being blocked by another.")
+        if (targetPiece === null) validateMove(board, movingPiece, dst) else validateCapture(board, movingPiece, dst)
 
         if (targetPiece?.color == movingPiece.color) throw ChessRuleException("Kif, if I can't kill my own men anymore, neither can you.")
 
@@ -152,6 +149,20 @@ class GameService (
                 takenPiece,
                 move.moveType
         ))
+    }
+
+    private fun validateCapture(board: Array<Array<Piece?>>, movingPiece: Piece, dst: Position): Boolean = canAct(board, movingPiece, dst, movingPiece::canCapture)
+
+    private fun validateMove(board: Array<Array<Piece?>>, movingPiece: Piece, dst: Position): Boolean = canAct(board, movingPiece, dst, movingPiece::canMove);
+
+    private fun canAct(board: Array<Array<Piece?>>, movingPiece: Piece, dst: Position, canActFn: (pos: Position) -> Boolean): Boolean {
+        val plausibleMove = canActFn(dst)
+        if (!plausibleMove) throw ChessRuleException("Kif, I don't think that piece moves like that.")
+
+        val requiredEmpty = movingPiece.requiresEmpty(dst)
+        if(requiredEmpty.any { board[it.row][it.col] != null }) throw ChessRuleException("Kif, that piece is being blocked by another.")
+
+        return true;
     }
 
     private fun isActive(): Specification<Game> = Specification {
