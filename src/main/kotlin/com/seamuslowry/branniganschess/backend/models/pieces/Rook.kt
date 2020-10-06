@@ -14,6 +14,7 @@ class Rook(
         taken: Boolean = false,
         id: Long? = null
 ): Piece(PieceType.ROOK, color, game, positionRow, positionCol, taken, id) {
+    override fun copy() = Rook(color, game, positionRow, positionCol, taken, id)
     override fun canMove(dst: Position): Boolean {
         if (!super.canMove(dst)) return false
         val (row, col) = position() ?: return false

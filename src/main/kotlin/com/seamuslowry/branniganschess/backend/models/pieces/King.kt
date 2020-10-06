@@ -15,6 +15,7 @@ class King(
         taken: Boolean = false,
         id: Long? = null
 ): Piece(PieceType.KING, color, game, positionRow, positionCol, taken, id) {
+    override fun copy() = King(color, game, positionRow, positionCol, taken, id)
     override fun canMove(dst: Position): Boolean {
         if (!super.canMove(dst)) return false
         val (row, col) = position() ?: return false
@@ -26,4 +27,12 @@ class King(
     }
 
     override fun canCapture(dst: Position): Boolean = canMove(dst)
+
+    private fun startingRow() = if (color == PieceColor.BLACK) 0 else 7
+
+    fun kingSideCastleRequest() = Position(startingRow(), 6)
+    fun kingSideCastleRook() = Position(startingRow(), 7)
+
+    fun queenSideCastleRequest() = Position(startingRow(), 2)
+    fun queenSideCastleRook() = Position(startingRow(), 0)
 }
