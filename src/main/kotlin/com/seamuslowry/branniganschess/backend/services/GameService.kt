@@ -71,20 +71,39 @@ class GameService (
     }
 
     fun move(gameId: Long, moveRequest: MoveRequest): Move {
-        val activePieces = pieceService.getPiecesAsBoard(gameId)
+        val game = gameRepository.getOne(gameId)
+        return move(game, moveRequest)
+    }
+
+    private fun move(game: Game, moveRequest: MoveRequest): Move {
+        val board = pieceService.getPiecesAsBoard(game.id)
         val (srcRow, srcCol, dstRow, dstCol) = moveRequest
 
         if (srcRow == dstRow && srcCol == dstCol) throw ChessRuleException("Kif, you fool! You're moving a piece right back where it was!")
         if (!Utils.tileOnBoard(srcRow, srcCol)) throw ChessRuleException("Kif, what have I told you about reaching for pieces off the board?")
         if (!Utils.tileOnBoard(dstRow, dstCol)) throw ChessRuleException("Kif, if you'd like to move a piece off the board, you should just give up.")
 
-        val movingPiece = activePieces[srcRow][srcCol] ?: throw ChessRuleException("Kif, what have I told you about moving a piece from an empty tile?")
+        val movingPiece = board[srcRow][srcCol] ?: throw ChessRuleException("Kif, what have I told you about moving a piece from an empty tile?")
+        val opposingColor = Utils.getOpposingColor(movingPiece.color)
 
-        var move = tryEnPassant(activePieces, movingPiece, moveRequest)
+        val move = tryMove(game, board, movingPiece, moveRequest)
 
-        move = move ?: tryStandardMove(activePieces, movingPiece, moveRequest)
+        // update the game state to reflect which player's turn and check status
+        val newStatus = getGameStatusAfterMove(game, board, opposingColor, move)
+        updateGameStatus(game, newStatus)
 
         return applyMove(move)
+    }
+
+    private fun tryMove(game: Game, board: Array<Array<Piece?>>, movingPiece: Piece, moveRequest: MoveRequest): Move {
+        var move = tryEnPassant(board, movingPiece, moveRequest)
+
+        move = move ?: tryStandardMove(board, movingPiece, moveRequest)
+
+        // if the mover is in check, the move is invalid
+        if (inCheckAfterMove(game, board, movingPiece.color, move)) throw ChessRuleException("Kif, you can't do that! You're in cheque!")
+
+        return move
     }
 
     private fun tryEnPassant(board: Array<Array<Piece?>>, movingPiece: Piece, moveRequest: MoveRequest): Move? {
@@ -119,11 +138,9 @@ class GameService (
         val (srcRow, srcCol, dstRow, dstCol) = moveRequest
         val targetPiece = board[dstRow][dstCol]
         val dst = Position(dstRow, dstCol)
-        val plausibleMove = if (targetPiece === null) movingPiece.canMove(dst) else movingPiece.canCapture(dst)
-        if (!plausibleMove) throw ChessRuleException("Kif, I don't think that piece moves like that.")
 
-        val requiredEmpty = movingPiece.requiresEmpty(dst)
-        if(requiredEmpty.any { board[it.row][it.col] != null }) throw ChessRuleException("Kif, that piece is being blocked by another.")
+        val actError = if (targetPiece === null) moveError(board, movingPiece, dst) else captureError(board, movingPiece, dst)
+        actError?.let { throw ChessRuleException(it) }
 
         if (targetPiece?.color == movingPiece.color) throw ChessRuleException("Kif, if I can't kill my own men anymore, neither can you.")
 
@@ -152,6 +169,115 @@ class GameService (
                 takenPiece,
                 move.moveType
         ))
+    }
+
+    private fun applyMoveToBoard(board: Array<Array<Piece?>>, move: Move): Array<Array<Piece?>> {
+        val copiedBoard = Utils.copyBoard(board)
+
+        copiedBoard[move.srcRow][move.srcCol] = null
+        copiedBoard[move.dstRow][move.dstCol] = move.movingPiece
+
+        val takenLocation = move.takenPiece?.position()
+        takenLocation?.let { copiedBoard[it.row][it.col] == null }
+
+        if (move.moveType == MoveType.EN_PASSANT) copiedBoard[move.srcRow][move.dstCol] = null
+        if (move.moveType == MoveType.KING_SIDE_CASTLE) {
+            // TODO write test for this case after implementing
+            copiedBoard[move.srcRow][move.dstCol - 1] = copiedBoard[move.srcRow][move.dstCol + 1]
+            copiedBoard[move.srcRow][move.dstCol + 1] = null
+        }
+        if (move.moveType == MoveType.QUEEN_SIDE_CASTLE) {
+            // TODO write test for this case after implementing
+            copiedBoard[move.srcRow][move.dstCol + 1] = copiedBoard[move.srcRow][move.dstCol - 2]
+            copiedBoard[move.srcRow][move.dstCol - 2] = null
+        }
+
+        return copiedBoard
+    }
+
+    private fun applyMoveToPieces(pieces: Iterable<Piece>, move: Move): Iterable<Piece> {
+        var newPieces = pieces.filter { it.id != move.takenPiece?.id }
+
+        newPieces.forEach {
+            if (it.id == move.movingPiece.id) {
+                it.positionCol = move.dstCol
+                it.positionRow = move.dstRow
+            }
+        }
+
+        if (move.moveType == MoveType.EN_PASSANT) {
+            newPieces = newPieces.filter { !(it.positionCol == move.dstCol && it.positionRow == move.srcRow) }
+        }
+        if (move.moveType == MoveType.KING_SIDE_CASTLE) {
+            // TODO write test for this case after implementing
+            newPieces.forEach {
+                if (it.positionRow == move.srcRow && it.positionCol == move.dstCol + 1) {
+                    it.positionCol = move.dstCol - 1
+                    it.positionRow = move.dstRow
+                }
+            }
+        }
+        if (move.moveType == MoveType.QUEEN_SIDE_CASTLE) {
+            // TODO write test for this case after implementing
+            newPieces.forEach {
+                if (it.positionRow == move.srcRow && it.positionCol == move.dstCol - 2) {
+                    it.positionCol = move.dstCol + 1
+                    it.positionRow = move.dstRow
+                }
+            }
+        }
+
+        return newPieces
+    }
+
+    private fun applyMoveToPiece(piece: Piece, move: Move): Piece = applyMoveToPieces(listOf(piece), move).first()
+
+    private fun inCheckAfterMove(game: Game, board: Array<Array<Piece?>>, color: PieceColor, move: Move): Boolean {
+        // find the king after the move
+        var king = pieceService.findAllBy(game.id, color, type = PieceType.KING).first()
+        // find all the active opposing pieces
+        var opposingPieces = pieceService.findAllBy(game.id, Utils.getOpposingColor(color), taken = false)
+
+        // get the opposing pieces as they would look after the move
+        opposingPieces = applyMoveToPieces(opposingPieces, move)
+        // get the king as it would look after the move
+        king = applyMoveToPiece(king, move)
+        // get the 2D board array after the move is applied
+        val afterMoveBoard = applyMoveToBoard(board, move)
+
+        // get the after-move king's position
+        val kingPosition = king.position() ?: return false // should never happen
+
+        // can any opposing piece capture the king if the move were applied
+        return opposingPieces.any { canCapture(afterMoveBoard, it, kingPosition) }
+    }
+
+    private fun canCapture(board: Array<Array<Piece?>>, movingPiece: Piece, dst: Position): Boolean = captureError(board, movingPiece, dst) == null
+
+    private fun moveError(board: Array<Array<Piece?>>, movingPiece: Piece, dst: Position): String? = actError(board, movingPiece, dst, movingPiece::canMove)
+
+    private fun captureError(board: Array<Array<Piece?>>, movingPiece: Piece, dst: Position): String? = actError(board, movingPiece, dst, movingPiece::canCapture)
+
+    private fun actError(board: Array<Array<Piece?>>, movingPiece: Piece, dst: Position, canActFn: (dst: Position) -> Boolean): String? {
+        val plausibleMove = canActFn(dst)
+        if (!plausibleMove) return "Kif, I don't think that piece moves like that."
+
+        val requiredEmpty = movingPiece.requiresEmpty(dst)
+        if(requiredEmpty.any { board[it.row][it.col] != null }) return "Kif, that piece is being blocked by another."
+
+        return null
+    }
+
+    private fun getGameStatusAfterMove(game: Game, board: Array<Array<Piece?>>, opposingColor: PieceColor, move: Move) =
+            if (inCheckAfterMove(game, board, opposingColor, move)) {
+                if (opposingColor == PieceColor.BLACK) GameStatus.BLACK_CHECK else GameStatus.WHITE_CHECK
+            } else {
+                if (opposingColor == PieceColor.BLACK) GameStatus.BLACK_TURN else GameStatus.WHITE_TURN
+            }
+
+    private fun updateGameStatus(game: Game, status: GameStatus): Game {
+        game.status = status
+        return gameRepository.save(game)
     }
 
     private fun isActive(): Specification<Game> = Specification {

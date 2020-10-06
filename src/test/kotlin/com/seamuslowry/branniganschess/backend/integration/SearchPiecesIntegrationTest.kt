@@ -2,6 +2,7 @@ package com.seamuslowry.branniganschess.backend.integration
 
 import com.seamuslowry.branniganschess.backend.models.Game
 import com.seamuslowry.branniganschess.backend.models.PieceColor
+import com.seamuslowry.branniganschess.backend.models.pieces.King
 import com.seamuslowry.branniganschess.backend.models.pieces.Pawn
 import com.seamuslowry.branniganschess.backend.repos.GameRepository
 import com.seamuslowry.branniganschess.backend.services.PieceService
@@ -79,5 +80,19 @@ class SearchPiecesIntegrationTest(
         Assertions.assertEquals(HttpStatus.OK, entity.statusCode)
         Assertions.assertEquals(1, entity.body?.count())
         Assertions.assertTrue(entity.body?.first().toString().contains("id=${searchPiece.id}"))
+    }
+
+    @Test
+    fun `Finds a color king in a game`() {
+        val gameOne = gameRepository.save(Game("Piece Search I-Test Game One"))
+
+        pieceService.createPiece(Pawn(PieceColor.BLACK, gameOne))
+        pieceService.createPiece(Pawn(PieceColor.WHITE, gameOne))
+        val searchPiece = pieceService.createPiece(King(PieceColor.BLACK, gameOne))
+
+        val foundPieces = pieceService.findAllBy(gameOne.id, searchPiece.color, type = searchPiece.type)
+
+        Assertions.assertEquals(1, foundPieces.count())
+        Assertions.assertEquals(searchPiece.id, foundPieces.first().id)
     }
 }

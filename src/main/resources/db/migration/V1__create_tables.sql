@@ -11,6 +11,7 @@ CREATE TABLE IF NOT EXISTS game(
     white_player_id integer,
     black_player_id integer,
     winner_id integer,
+    status VARCHAR(48),
     FOREIGN KEY (white_player_id) REFERENCES player(id),
     FOREIGN KEY (black_player_id) REFERENCES player(id),
     FOREIGN KEY (winner_id) REFERENCES player(id)
