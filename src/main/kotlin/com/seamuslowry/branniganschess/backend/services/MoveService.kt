@@ -27,6 +27,8 @@ class MoveService (
         return if (allMoves.count() > 0) allMoves.last() else null
     }
 
+    fun hasMoved(piece: Piece): Boolean = moveRepository.findAll(Specification.where(fromPiece(piece))).isNotEmpty()
+
     private fun inGame(id: Long): Specification<Move> = Specification {
         root,
         _,
@@ -37,5 +39,11 @@ class MoveService (
         root,
         _,
         criteriaBuilder -> criteriaBuilder.equal(root.get<Piece>("movingPiece").get<PieceColor>("color"), color)
+    }
+
+    private fun fromPiece(piece: Piece): Specification<Move> = Specification {
+        root,
+        _,
+        criteriaBuilder -> criteriaBuilder.equal(root.get<Piece>("movingPiece").get<Long>("id"), piece.id)
     }
 }
