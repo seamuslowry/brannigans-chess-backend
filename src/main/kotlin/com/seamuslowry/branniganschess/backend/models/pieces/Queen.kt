@@ -16,6 +16,7 @@ class Queen(
         taken: Boolean = false,
         id: Long? = null
 ): Piece(PieceType.QUEEN, color, game, positionRow, positionCol, taken, id) {
+    override fun copy() = Queen(color, game, positionRow, positionCol, taken, id)
     override fun canMove(dst: Position): Boolean {
         if (!super.canMove(dst)) return false
         val (row, col) = position() ?: return false

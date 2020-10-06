@@ -98,6 +98,8 @@ class GameService (
     private fun tryMove(game: Game, board: Array<Array<Piece?>>, movingPiece: Piece, moveRequest: MoveRequest): Move {
         var move = tryEnPassant(board, movingPiece, moveRequest)
 
+        move = move ?: tryCastle(game, board, movingPiece, moveRequest)
+
         move = move ?: tryStandardMove(board, movingPiece, moveRequest)
 
         // if the mover is in check, the move is invalid
@@ -128,6 +130,49 @@ class GameService (
                     dstCol,
                     passantTarget,
                     MoveType.EN_PASSANT
+            )
+        }
+
+        return null
+    }
+
+    private fun tryCastle(game: Game, board: Array<Array<Piece?>>, movingPiece: Piece, moveRequest: MoveRequest): Move? {
+        if (movingPiece is King) {
+            val (srcRow, srcCol, dstRow, dstCol) = moveRequest
+            val (moveType, rookPosition) = when (Position(dstRow, dstCol)) {
+                movingPiece.kingSideCastleRequest() -> Pair(MoveType.KING_SIDE_CASTLE, movingPiece.kingSideCastleRook())
+                movingPiece.queenSideCastleRequest() -> Pair(MoveType.QUEEN_SIDE_CASTLE, movingPiece.queenSideCastleRook())
+                else -> return null
+            }
+
+            // cannot castle if in check
+            if (game.status == GameStatus.BLACK_CHECK || game.status == GameStatus.WHITE_CHECK) return null
+
+            // cannot castle if king has already moved
+            if (moveService.hasMoved(movingPiece)) return null
+
+            // cannot castle if rook has already moved
+            val rook = board[rookPosition.row][rookPosition.col]
+            if (rook == null || moveService.hasMoved(rook)) return null
+
+            // cannot castle if tiles between the king and rook are occupied
+            val requiresEmpty = movingPiece.requiresEmpty(rookPosition)
+            if (requiresEmpty.any { board[it.row][it.col] != null }) return null
+
+            // cannot castle if any of the intervening tiles would place the king in check
+            if (requiresEmpty.any {
+                        val spoofedMove = Move(movingPiece, srcRow, srcCol, it.row, it.col)
+                        inCheckAfterMove(game, board, movingPiece.color, spoofedMove)
+                    }) return null
+
+            return Move(
+                    movingPiece,
+                    srcRow,
+                    srcCol,
+                    dstRow,
+                    dstCol,
+                    null,
+                    moveType
             )
         }
 
@@ -196,7 +241,8 @@ class GameService (
     }
 
     private fun applyMoveToPieces(pieces: Iterable<Piece>, move: Move): Iterable<Piece> {
-        var newPieces = pieces.filter { it.id != move.takenPiece?.id }
+        var newPieces = pieces.map { it.copy() }
+        newPieces = newPieces.filter { it.id != move.takenPiece?.id }
 
         newPieces.forEach {
             if (it.id == move.movingPiece.id) {

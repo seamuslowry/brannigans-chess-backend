@@ -43,6 +43,8 @@ abstract class Piece (
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     open var id: Long? = null
 ) {
+    // need copy but cannot use data class
+    abstract fun copy(): Piece
     open fun isImmovable() = positionCol == null || positionRow == null || taken
     open fun position() = positionRow?.let {row ->
         positionCol?.let {col ->

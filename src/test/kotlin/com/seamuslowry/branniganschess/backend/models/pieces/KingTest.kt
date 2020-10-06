@@ -56,4 +56,68 @@ class KingTest {
         val requiresEmpty = piece.requiresEmpty(Position(1,1))
         assertEquals(setOf<Position>(), requiresEmpty)
     }
+
+    @Test
+    fun `provides the tile that would request a king side castle - BLACK`() {
+        val game = Game("New Game")
+        val piece = King(PieceColor.BLACK, game)
+
+        assertEquals(Position(0,6), piece.kingSideCastleRequest())
+    }
+
+    @Test
+    fun `provides the tile that would request a king side castle - WHITE`() {
+        val game = Game("New Game")
+        val piece = King(PieceColor.WHITE, game)
+
+        assertEquals(Position(7,6), piece.kingSideCastleRequest())
+    }
+
+    @Test
+    fun `provides the tile of the rook for a king side castle - BLACK`() {
+        val game = Game("New Game")
+        val piece = King(PieceColor.BLACK, game)
+
+        assertEquals(Position(0,7), piece.kingSideCastleRook())
+    }
+
+    @Test
+    fun `provides the tile of the rook a king side castle - WHITE`() {
+        val game = Game("New Game")
+        val piece = King(PieceColor.WHITE, game)
+
+        assertEquals(Position(7,7), piece.kingSideCastleRook())
+    }
+
+    @Test
+    fun `provides the tile that would request a queen side castle - BLACK`() {
+        val game = Game("New Game")
+        val piece = King(PieceColor.BLACK, game)
+
+        assertEquals(Position(0,2), piece.queenSideCastleRequest())
+    }
+
+    @Test
+    fun `provides the tile that would request a queen side castle - WHITE`() {
+        val game = Game("New Game")
+        val piece = King(PieceColor.WHITE, game)
+
+        assertEquals(Position(7,2), piece.queenSideCastleRequest())
+    }
+
+    @Test
+    fun `provides the tile of the rook for a queen side castle - BLACK`() {
+        val game = Game("New Game")
+        val piece = King(PieceColor.BLACK, game)
+
+        assertEquals(Position(0,0), piece.queenSideCastleRook())
+    }
+
+    @Test
+    fun `provides the tile of the rook a queen side castle - WHITE`() {
+        val game = Game("New Game")
+        val piece = King(PieceColor.WHITE, game)
+
+        assertEquals(Position(7,0), piece.queenSideCastleRook())
+    }
 }

@@ -6,8 +6,7 @@ import com.seamuslowry.branniganschess.backend.models.pieces.Pawn
 import com.seamuslowry.branniganschess.backend.repos.MoveRepository
 import io.mockk.every
 import io.mockk.verify
-import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertNull
+import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
@@ -94,5 +93,18 @@ class MoveServiceTest {
 
         verify(exactly = 1) { moveRepository.findAll(any<Specification<Move>>()) }
         assertNull(foundMove)
+    }
+
+    @Test
+    fun `checks if a piece has moved`() {
+        val game = Game("Has Moved Game")
+        val piece = Pawn( PieceColor.BLACK, game, 0, 0)
+        val move = Move(piece, 0,0,1,0)
+        every { moveRepository.findAll(any<Specification<Move>>()) } returns listOf(move)
+
+        val hasMoved = service.hasMoved(piece)
+
+        verify(exactly = 1) { moveRepository.findAll(any<Specification<Move>>()) }
+        assertTrue(hasMoved)
     }
 }
