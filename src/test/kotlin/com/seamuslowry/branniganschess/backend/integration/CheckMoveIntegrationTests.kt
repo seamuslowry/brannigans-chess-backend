@@ -15,106 +15,12 @@ import org.springframework.boot.test.web.client.TestRestTemplate
 import org.springframework.http.HttpStatus
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-class MoveIntegrationTests(
+class CheckMoveIntegrationTests(
         @Autowired val restTemplate: TestRestTemplate,
         @Autowired val gameService: GameService,
         @Autowired val pieceService: PieceService,
         @Autowired val gameRepository: GameRepository
 ) {
-
-    @Test
-    fun `Throws an exception on an invalid move`() {
-        val game = createGame()
-        val response = restTemplate.postForEntity(
-                "/moves/${game.id}",
-                MoveRequest(0,0,0,0),
-                String::class.java
-        )
-
-        assertEquals(HttpStatus.BAD_REQUEST, response.statusCode)
-    }
-
-    @Test
-    fun `moves a black piece`() {
-        var game = createGame()
-        val response = restTemplate.postForEntity(
-                "/moves/${game.id}",
-                MoveRequest(1,0,2,0),
-                Move::class.java
-        )
-
-        game = gameRepository.getOne(game.id)
-
-        assertEquals(HttpStatus.OK, response.statusCode)
-        assertNotNull(response.body?.movingPiece)
-        assertNull(response.body?.takenPiece)
-        assertEquals(GameStatus.WHITE_TURN, game.status)
-    }
-
-    @Test
-    fun `moves a white piece`() {
-        var game = createGame()
-        val response = restTemplate.postForEntity(
-                "/moves/${game.id}",
-                MoveRequest(6,0,5,0),
-                Move::class.java
-        )
-
-        game = gameRepository.getOne(game.id)
-
-        assertEquals(HttpStatus.OK, response.statusCode)
-        assertNotNull(response.body?.movingPiece)
-        assertNull(response.body?.takenPiece)
-        assertEquals(GameStatus.BLACK_TURN, game.status)
-    }
-
-    @Test
-    fun `takes a piece`() {
-        val game = createGame()
-        val board = pieceService.getPiecesAsBoard(game.id)
-
-        // set up a valid test by performing an invalid move through the service
-        pieceService.movePiece(board[1][0]!!, 5,0)
-
-        val response = restTemplate.postForEntity(
-                "/moves/${game.id}",
-                MoveRequest(5,0,6,1),
-                Move::class.java
-        )
-
-        assertEquals(HttpStatus.OK, response.statusCode)
-        assertNotNull(response.body?.movingPiece)
-        assertNotNull(response.body?.takenPiece)
-    }
-
-    @Test
-    fun `will en passant`() {
-        val game = createGame()
-        val board = pieceService.getPiecesAsBoard(game.id)
-
-        // set up a valid test by performing an invalid move through the service
-        // move white pawn into a position where it could en passant
-        pieceService.movePiece(board[6][3]!!, 3,3)
-
-        // move the target pawn in prep for the take
-        restTemplate.postForEntity(
-                "/moves/${game.id}",
-                MoveRequest(1,2,3,2),
-                Move::class.java
-        )
-
-        // take with en passant
-        val response = restTemplate.postForEntity(
-                "/moves/${game.id}",
-                MoveRequest(3,3,2,2),
-                Move::class.java
-        )
-
-        assertEquals(HttpStatus.OK, response.statusCode)
-        assertNotNull(response.body?.movingPiece)
-        assertNotNull(response.body?.takenPiece)
-    }
-
     @Test
     fun `puts black in check`() {
         var game = createGame()
@@ -166,7 +72,7 @@ class MoveIntegrationTests(
     }
 
     @Test
-    fun `will en passant into check`() {
+    fun `will en passant to place opponent in check`() {
         var game = createGame()
         val board = pieceService.getPiecesAsBoard(game.id)
 
@@ -344,6 +250,38 @@ class MoveIntegrationTests(
         assertNotNull(response.body?.movingPiece)
         assertNotNull(response.body?.takenPiece)
         assertNotEquals(GameStatus.WHITE_CHECK, game.status)
+    }
+
+    @Test
+    fun `can castle to place opponent in check`() {
+        var game = gameService.createGame()
+        val board = pieceService.getPiecesAsBoard(game.id)
+
+        // set up a valid test by performing invalid moves through the service
+        // take black king-side bishop
+        pieceService.takePiece(board[0][5]!!)
+        // take black king-side knight
+        pieceService.takePiece(board[0][6]!!)
+        // take black pawn in front of where black rook will end
+        pieceService.takePiece(board[1][5]!!)
+        // take white pawn in front of where black rook will end
+        pieceService.takePiece(board[6][5]!!)
+        // take white king-side bishop
+        pieceService.takePiece(board[7][5]!!)
+        // move white king in front of where rook will end up
+        pieceService.movePiece(board[7][4]!!, 7, 5)
+
+        // castle
+        val response = restTemplate.postForEntity(
+                "/moves/${game.id}",
+                MoveRequest(0,4,0,6),
+                Move::class.java
+        )
+
+        game = gameRepository.getOne(game.id)
+
+        assertEquals(HttpStatus.OK, response.statusCode)
+        assertEquals(GameStatus.WHITE_CHECK, game.status)
     }
 
     private fun createGame(): Game = gameService.createGame()

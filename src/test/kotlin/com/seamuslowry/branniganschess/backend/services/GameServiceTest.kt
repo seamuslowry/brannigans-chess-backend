@@ -4,10 +4,7 @@ import com.ninjasquad.springmockk.MockkBean
 import com.seamuslowry.branniganschess.backend.dtos.ChessRuleException
 import com.seamuslowry.branniganschess.backend.dtos.MoveRequest
 import com.seamuslowry.branniganschess.backend.models.*
-import com.seamuslowry.branniganschess.backend.models.pieces.King
-import com.seamuslowry.branniganschess.backend.models.pieces.Pawn
-import com.seamuslowry.branniganschess.backend.models.pieces.Queen
-import com.seamuslowry.branniganschess.backend.models.pieces.Rook
+import com.seamuslowry.branniganschess.backend.models.pieces.*
 import com.seamuslowry.branniganschess.backend.repos.GameRepository
 import com.seamuslowry.branniganschess.backend.utils.Utils
 import io.mockk.every
@@ -48,6 +45,7 @@ class GameServiceTest {
         every { gameRepository.getOne(any()) } answers { Game("Generic Game", id=firstArg()) }
         every { gameRepository.save(any<Game>()) } answers { firstArg() }
         every { pieceService.findAllBy(any(), any(), any(), any()) } answers { listOf(King(secondArg(), null, id=100)) }
+        every { moveService.hasMoved(any()) } returns false
     }
 
     @Test
@@ -411,5 +409,170 @@ class GameServiceTest {
 
         verify(exactly = 1) { gameRepository.save(any<Game>()) }
         assertEquals(passantPawn.id, move.takenPiece?.id)
+    }
+
+    @Test
+    fun `will not castle while in check - WHITE`() {
+        val gameBoard = Utils.getEmptyBoard()
+        val game = Game("Check Board", status = GameStatus.WHITE_CHECK)
+        val king = King(PieceColor.WHITE, game, 7, 4, id=98)
+        gameBoard[7][4] = king
+
+        every { pieceService.getPiecesAsBoard(any()) } returns gameBoard
+        every { pieceService.movePiece(any(), any(), any()) } answers {firstArg()}
+        every { pieceService.findAllBy(any(), PieceColor.WHITE, any(), PieceType.KING) } returns listOf(king)
+        every { pieceService.findAllBy(any(), PieceColor.BLACK, any(), any()) } returns emptyList()
+        every { gameRepository.getOne(any()) } returns game
+
+        assertThrows<ChessRuleException> { service.move(1, MoveRequest(7,4,7,6)) }
+    }
+
+    @Test
+    fun `will not castle while in check - BLACK`() {
+        val gameBoard = Utils.getEmptyBoard()
+        val game = Game("Check Board", status = GameStatus.BLACK_CHECK)
+        val king = King(PieceColor.BLACK, game, 0, 4, id=102)
+        gameBoard[0][4] = king
+
+        every { pieceService.getPiecesAsBoard(any()) } returns gameBoard
+        every { pieceService.movePiece(any(), any(), any()) } answers {firstArg()}
+        every { pieceService.findAllBy(any(), PieceColor.BLACK, any(), PieceType.KING) } returns listOf(king)
+        every { pieceService.findAllBy(any(), PieceColor.WHITE, any(), any()) } returns emptyList()
+        every { gameRepository.getOne(any()) } returns game
+
+        assertThrows<ChessRuleException> { service.move(1, MoveRequest(0,4,0,6)) }
+    }
+
+    @Test
+    fun `will not castle if king has already moved`() {
+        val gameBoard = Utils.getEmptyBoard()
+        val game = Game("Castle Board")
+        val king = King(PieceColor.BLACK, game, 0, 4, id=105)
+        gameBoard[0][4] = king
+
+        every { pieceService.getPiecesAsBoard(any()) } returns gameBoard
+        every { pieceService.movePiece(any(), any(), any()) } answers {firstArg()}
+        every { pieceService.findAllBy(any(), PieceColor.BLACK, any(), PieceType.KING) } returns listOf(king)
+        every { pieceService.findAllBy(any(), PieceColor.WHITE, any(), any()) } returns emptyList()
+        every { moveService.hasMoved(king) } returns true
+
+        assertThrows<ChessRuleException> { service.move(1, MoveRequest(0,4,0,6)) }
+    }
+
+    @Test
+    fun `will not castle if rook has already moved`() {
+        val gameBoard = Utils.getEmptyBoard()
+        val game = Game("Castle Board")
+        val king = King(PieceColor.BLACK, game, 0, 4, id=106)
+        val rook = Rook(PieceColor.BLACK, game, 0, 7, id=107)
+        gameBoard[0][4] = king
+        gameBoard[0][7] = rook
+
+        every { pieceService.getPiecesAsBoard(any()) } returns gameBoard
+        every { pieceService.movePiece(any(), any(), any()) } answers {firstArg()}
+        every { pieceService.findAllBy(any(), PieceColor.BLACK, any(), PieceType.KING) } returns listOf(king)
+        every { pieceService.findAllBy(any(), PieceColor.WHITE, any(), any()) } returns emptyList()
+        every { moveService.hasMoved(king) } returns false
+        every { moveService.hasMoved(rook) } returns true
+
+        assertThrows<ChessRuleException> { service.move(1, MoveRequest(0,4,0,6)) }
+    }
+
+    @Test
+    fun `will not castle if rook cannot be found`() {
+        val gameBoard = Utils.getEmptyBoard()
+        val game = Game("Castle Board")
+        val king = King(PieceColor.BLACK, game, 0, 4, id=108)
+        val rook = Rook(PieceColor.BLACK, game, 1, 7, id=109)
+        gameBoard[0][4] = king
+        gameBoard[1][7] = rook
+
+        every { pieceService.getPiecesAsBoard(any()) } returns gameBoard
+        every { pieceService.movePiece(any(), any(), any()) } answers {firstArg()}
+        every { pieceService.findAllBy(any(), PieceColor.BLACK, any(), PieceType.KING) } returns listOf(king)
+        every { pieceService.findAllBy(any(), PieceColor.WHITE, any(), any()) } returns emptyList()
+        every { moveService.hasMoved(king) } returns false
+
+        assertThrows<ChessRuleException> { service.move(1, MoveRequest(0,4,0,6)) }
+    }
+
+    @Test
+    fun `will not castle if intervening tile is occupied`() {
+        val gameBoard = Utils.getEmptyBoard()
+        val game = Game("Castle Board")
+        val king = King(PieceColor.BLACK, game, 0, 4, id=110)
+        val rook = Rook(PieceColor.BLACK, game, 0, 7, id=111)
+        val bishop = Bishop(PieceColor.BLACK, game, 0, 5, id=112)
+        gameBoard[0][4] = king
+        gameBoard[0][5] = bishop
+        gameBoard[0][7] = rook
+
+        every { pieceService.getPiecesAsBoard(any()) } returns gameBoard
+        every { pieceService.movePiece(any(), any(), any()) } answers {firstArg()}
+        every { pieceService.findAllBy(any(), PieceColor.BLACK, any(), PieceType.KING) } returns listOf(king)
+        every { pieceService.findAllBy(any(), PieceColor.WHITE, any(), any()) } returns emptyList()
+        every { moveService.hasMoved(any()) } returns false
+
+        assertThrows<ChessRuleException> { service.move(1, MoveRequest(0,4,0,6)) }
+    }
+
+    @Test
+    fun `will not castle if intervening tile would be in check`() {
+        val gameBoard = Utils.getEmptyBoard()
+        val game = Game("Castle Board")
+        val king = King(PieceColor.BLACK, game, 0, 4, id=110)
+        val rook = Rook(PieceColor.BLACK, game, 0, 7, id=111)
+        val whiteRook = Rook(PieceColor.WHITE, game, 3, 5, id=112)
+        gameBoard[0][4] = king
+        gameBoard[3][5] = whiteRook
+        gameBoard[0][7] = rook
+
+        every { pieceService.getPiecesAsBoard(any()) } returns gameBoard
+        every { pieceService.movePiece(any(), any(), any()) } answers {firstArg()}
+        every { pieceService.findAllBy(any(), PieceColor.BLACK, any(), PieceType.KING) } returns listOf(king)
+        every { pieceService.findAllBy(any(), PieceColor.WHITE, any(), any()) } returns listOf(whiteRook)
+        every { moveService.hasMoved(any()) } returns false
+
+        assertThrows<ChessRuleException> { service.move(1, MoveRequest(0,4,0,6)) }
+    }
+
+    @Test
+    fun `king side castles`() {
+        val gameBoard = Utils.getEmptyBoard()
+        val game = Game("Castle Board")
+        val king = King(PieceColor.BLACK, game, 0, 4, id=110)
+        val rook = Rook(PieceColor.BLACK, game, 0, 7, id=111)
+        gameBoard[0][4] = king
+        gameBoard[0][7] = rook
+
+        every { pieceService.getPiecesAsBoard(any()) } returns gameBoard
+        every { pieceService.movePiece(any(), any(), any()) } answers {firstArg()}
+        every { pieceService.findAllBy(any(), PieceColor.BLACK, any(), PieceType.KING) } returns listOf(king)
+        every { pieceService.findAllBy(any(), PieceColor.BLACK, any(), any()) } returns listOf(king, rook)
+
+        val move = service.move(1, MoveRequest(0,4,0,6))
+
+        assertEquals(king, move.movingPiece)
+        assertEquals(MoveType.KING_SIDE_CASTLE, move.moveType)
+    }
+
+    @Test
+    fun `queen side castles`() {
+        val gameBoard = Utils.getEmptyBoard()
+        val game = Game("Castle Board")
+        val king = King(PieceColor.BLACK, game, 0, 4, id=110)
+        val rook = Rook(PieceColor.BLACK, game, 0, 0, id=111)
+        gameBoard[0][4] = king
+        gameBoard[0][0] = rook
+
+        every { pieceService.getPiecesAsBoard(any()) } returns gameBoard
+        every { pieceService.movePiece(any(), any(), any()) } answers {firstArg()}
+        every { pieceService.findAllBy(any(), PieceColor.BLACK, any(), PieceType.KING) } returns listOf(king)
+        every { pieceService.findAllBy(any(), PieceColor.BLACK, any(), any()) } returns listOf(king, rook)
+
+        val move = service.move(1, MoveRequest(0,4,0,2))
+
+        assertEquals(king, move.movingPiece)
+        assertEquals(MoveType.QUEEN_SIDE_CASTLE, move.moveType)
     }
 }
