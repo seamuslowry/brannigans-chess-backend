@@ -15,7 +15,7 @@ class Pawn(
         taken: Boolean = false,
         id: Long? = null
 ): Piece(PieceType.PAWN, color, game, positionRow, positionCol, taken, id) {
-    override fun copy(): Pawn = Pawn(color, game, positionRow, positionCol, taken, id)
+    override fun copy() = Pawn(color, game, positionRow, positionCol, taken, id)
     override fun isImmovable(): Boolean = super.isImmovable() || positionRow == 0 || positionRow == 7
     override fun plausibleMoves(): Set<Position> {
         val direction = direction()
