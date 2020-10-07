@@ -144,6 +144,17 @@ class PawnTest {
     }
 
     @Test
+    fun `WHITE - no plausible moves off the side of the board`() {
+        val game = Game("New Game")
+        val piece = Pawn(PieceColor.WHITE, game, 5, 0)
+
+        assertEquals(setOf(
+                Position(4,1),
+                Position(4, 0)
+        ), piece.plausibleMoves())
+    }
+
+    @Test
     fun `BLACK - has a max of 4 plausible moves`() {
         val game = Game("New Game")
         val piece = Pawn(PieceColor.BLACK, game, 1, 2)
@@ -173,6 +184,17 @@ class PawnTest {
                 Position(3, 3),
                 Position(3,1),
                 Position(3, 2)
+        ), piece.plausibleMoves())
+    }
+
+    @Test
+    fun `BLACK - no plausible moves off the side of the board`() {
+        val game = Game("New Game")
+        val piece = Pawn(PieceColor.BLACK, game, 2, 0)
+
+        assertEquals(setOf(
+                Position(3,1),
+                Position(3, 0)
         ), piece.plausibleMoves())
     }
 }

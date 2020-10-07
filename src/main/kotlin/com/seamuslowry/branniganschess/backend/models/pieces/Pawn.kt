@@ -1,6 +1,7 @@
 package com.seamuslowry.branniganschess.backend.models.pieces
 
 import com.seamuslowry.branniganschess.backend.models.*
+import com.seamuslowry.branniganschess.backend.utils.Utils
 import javax.persistence.DiscriminatorValue
 import javax.persistence.Entity
 import kotlin.math.abs
@@ -26,7 +27,7 @@ class Pawn(
                 Position(row + direction, col),
                 Position(row + direction, col + 1),
                 Position(row + direction, col - 1)
-        )
+        ).filter { Utils.tileOnBoard(it.row, it.col) }.toHashSet()
 
         if (row == startingRow()) set.add(Position(row + direction * 2, col))
 
