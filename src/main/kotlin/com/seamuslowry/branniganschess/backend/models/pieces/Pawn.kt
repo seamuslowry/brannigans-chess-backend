@@ -1,6 +1,7 @@
 package com.seamuslowry.branniganschess.backend.models.pieces
 
 import com.seamuslowry.branniganschess.backend.models.*
+import com.seamuslowry.branniganschess.backend.utils.Utils
 import javax.persistence.DiscriminatorValue
 import javax.persistence.Entity
 import kotlin.math.abs
@@ -17,6 +18,21 @@ class Pawn(
 ): Piece(PieceType.PAWN, color, game, positionRow, positionCol, taken, id) {
     override fun copy() = Pawn(color, game, positionRow, positionCol, taken, id)
     override fun isImmovable(): Boolean = super.isImmovable() || positionRow == 0 || positionRow == 7
+    override fun plausibleMoves(): Set<Position> {
+        val direction = direction()
+        val (row, col) = position() ?: return emptySet()
+        if (abs(row - startingRow()) == 6) return emptySet()
+
+        val set = mutableSetOf(
+                Position(row + direction, col),
+                Position(row + direction, col + 1),
+                Position(row + direction, col - 1)
+        ).filter { Utils.tileOnBoard(it.row, it.col) }.toHashSet()
+
+        if (row == startingRow()) set.add(Position(row + direction * 2, col))
+
+        return set
+    }
 
     override fun canMove(dst: Position): Boolean {
         if (!super.canMove(dst)) return false

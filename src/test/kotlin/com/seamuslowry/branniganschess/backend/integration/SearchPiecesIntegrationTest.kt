@@ -4,7 +4,9 @@ import com.seamuslowry.branniganschess.backend.models.Game
 import com.seamuslowry.branniganschess.backend.models.PieceColor
 import com.seamuslowry.branniganschess.backend.models.pieces.King
 import com.seamuslowry.branniganschess.backend.models.pieces.Pawn
+import com.seamuslowry.branniganschess.backend.models.pieces.Rook
 import com.seamuslowry.branniganschess.backend.repos.GameRepository
+import com.seamuslowry.branniganschess.backend.services.GameService
 import com.seamuslowry.branniganschess.backend.services.PieceService
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
@@ -17,7 +19,8 @@ import org.springframework.http.HttpStatus
 class SearchPiecesIntegrationTest(
         @Autowired val restTemplate: TestRestTemplate,
         @Autowired val gameRepository: GameRepository,
-        @Autowired val pieceService: PieceService
+        @Autowired val pieceService: PieceService,
+        @Autowired val gameService: GameService
 ) {
     @Test
     fun `Finds pieces from a specific game`() {
@@ -94,5 +97,16 @@ class SearchPiecesIntegrationTest(
 
         Assertions.assertEquals(1, foundPieces.count())
         Assertions.assertEquals(searchPiece.id, foundPieces.first().id)
+    }
+
+    @Test
+    fun `Finds a piece at a location`() {
+        val gameOne = gameService.createGame()
+
+        val foundPiece = pieceService.getPieceAt(gameOne.id, 0,7)
+
+        Assertions.assertTrue(foundPiece is Rook)
+        Assertions.assertEquals(0, foundPiece?.positionRow)
+        Assertions.assertEquals(7, foundPiece?.positionCol)
     }
 }

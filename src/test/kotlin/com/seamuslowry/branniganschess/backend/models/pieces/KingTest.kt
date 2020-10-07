@@ -120,4 +120,33 @@ class KingTest {
 
         assertEquals(Position(7,0), piece.queenSideCastleRook())
     }
+
+    @Test
+    fun `has a max of 8 plausible moves`() {
+        val game = Game("New Game")
+        val piece = King(PieceColor.BLACK, game, 3, 3)
+
+        assertEquals(setOf(
+                Position(3,4),
+                Position(3,2),
+                Position(2,4),
+                Position(2,2),
+                Position(4,4),
+                Position(4,2),
+                Position(2,3),
+                Position(4,3)
+        ), piece.plausibleMoves())
+    }
+
+    @Test
+    fun `has a min of 3 plausible moves`() {
+        val game = Game("New Game")
+        val piece = King(PieceColor.BLACK, game, 0, 0)
+
+        assertEquals(setOf(
+                Position(0,1),
+                Position(1,1),
+                Position(1,0)
+        ), piece.plausibleMoves())
+    }
 }
