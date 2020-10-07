@@ -388,30 +388,6 @@ class GameServiceTest {
     }
 
     @Test
-    fun `can en passant to check`() {
-        val gameBoard = Utils.getEmptyBoard()
-        val game = Game("Check Board")
-        val king = King(PieceColor.WHITE, game, 6, 4, id=98)
-        val passantPawn = Pawn(PieceColor.WHITE, game, 4, 5)
-        val pawn = Pawn(PieceColor.BLACK, game, 4, 6, id=12)
-        gameBoard[6][4] = king
-        gameBoard[4][5] = passantPawn
-        gameBoard[4][6] = pawn
-
-        every { pieceService.getPiecesAsBoard(any()) } returns gameBoard
-        every { pieceService.movePiece(any(), any(), any()) } answers {firstArg()}
-        every { pieceService.takePiece(any()) } answers {firstArg()}
-        every { moveService.findLastMove(any()) } returns Move(passantPawn, 2,5,4,5)
-        every { pieceService.findAllBy(any(), PieceColor.WHITE, any(), PieceType.KING) } returns listOf(king)
-        every { pieceService.findAllBy(any(), PieceColor.BLACK, any(), any()) } returns listOf(pawn)
-
-        val move = service.move(1, MoveRequest(4,6,5,5))
-
-        verify(exactly = 1) { gameRepository.save(any<Game>()) }
-        assertEquals(passantPawn.id, move.takenPiece?.id)
-    }
-
-    @Test
     fun `will not castle while in check - WHITE`() {
         val gameBoard = Utils.getEmptyBoard()
         val game = Game("Check Board", status = GameStatus.WHITE_CHECK)
@@ -549,6 +525,7 @@ class GameServiceTest {
         every { pieceService.movePiece(any(), any(), any()) } answers {firstArg()}
         every { pieceService.findAllBy(any(), PieceColor.BLACK, any(), PieceType.KING) } returns listOf(king)
         every { pieceService.findAllBy(any(), PieceColor.BLACK, any(), any()) } returns listOf(king, rook)
+        every { pieceService.getPieceAt(any(), 0,7) } returns rook
 
         val move = service.move(1, MoveRequest(0,4,0,6))
 
@@ -569,10 +546,55 @@ class GameServiceTest {
         every { pieceService.movePiece(any(), any(), any()) } answers {firstArg()}
         every { pieceService.findAllBy(any(), PieceColor.BLACK, any(), PieceType.KING) } returns listOf(king)
         every { pieceService.findAllBy(any(), PieceColor.BLACK, any(), any()) } returns listOf(king, rook)
+        every { pieceService.getPieceAt(any(), 0,0) } returns rook
 
         val move = service.move(1, MoveRequest(0,4,0,2))
 
         assertEquals(king, move.movingPiece)
         assertEquals(MoveType.QUEEN_SIDE_CASTLE, move.moveType)
+    }
+
+    @Test
+    fun `finds a checkmate`() {
+        val board = Utils.getEmptyBoard()
+        val game = Game("Checkmate Board")
+        val king = King(PieceColor.BLACK, game, 0, 0, id=1)
+        val rookOne = Rook(PieceColor.WHITE, game, 1, 6, id=2)
+        val rookTwo = Rook(PieceColor.WHITE, game, 0, 7, id=3)
+
+        board[0][0] = king
+        board[1][6] = rookOne
+        board[0][7] = rookTwo
+
+        every { pieceService.getPiecesAsBoard(any()) } returns board
+        every { pieceService.movePiece(any(), any(), any()) } answers {firstArg()}
+        every { pieceService.findAllBy(any(), PieceColor.BLACK, any(), PieceType.KING) } returns listOf(king)
+        every { pieceService.findAllBy(any(), PieceColor.WHITE, any(), any()) } returns listOf(rookOne, rookTwo)
+        every { pieceService.findAllBy(any(), PieceColor.BLACK, false, any()) } returns listOf(king)
+
+        val newStatus = service.getGameStatusAfterMove(game, PieceColor.BLACK)
+
+        assertEquals(GameStatus.CHECKMATE, newStatus)
+    }
+
+    @Test
+    fun `finds a stalemate`() {
+        val gameBoard = Utils.getEmptyBoard()
+        val game = Game("Checkmate Board")
+        val king = King(PieceColor.BLACK, game, 0, 0, id=1)
+        val rookOne = Rook(PieceColor.WHITE, game, 1, 6, id=2)
+        val rookTwo = Rook(PieceColor.WHITE, game, 2, 1, id=3)
+        gameBoard[0][0] = king
+        gameBoard[1][6] = rookOne
+        gameBoard[2][1] = rookTwo
+
+        every { pieceService.getPiecesAsBoard(any()) } returns gameBoard
+        every { pieceService.movePiece(any(), any(), any()) } answers {firstArg()}
+        every { pieceService.findAllBy(any(), PieceColor.BLACK, any(), PieceType.KING) } returns listOf(king)
+        every { pieceService.findAllBy(any(), PieceColor.WHITE, any(), any()) } returns listOf(rookOne, rookTwo)
+
+        val newStatus = service.getGameStatusAfterMove(game, PieceColor.BLACK)
+
+        assertEquals(GameStatus.STALEMATE, newStatus)
     }
 }

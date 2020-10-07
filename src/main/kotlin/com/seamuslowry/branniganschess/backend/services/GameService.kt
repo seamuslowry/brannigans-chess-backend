@@ -88,11 +88,13 @@ class GameService (
 
         val move = tryMove(game, board, movingPiece, moveRequest)
 
+        val appliedMove = applyMove(game, move)
+
         // update the game state to reflect which player's turn and check status
-        val newStatus = getGameStatusAfterMove(game, board, opposingColor, move)
+        val newStatus = getGameStatusAfterMove(game, opposingColor)
         updateGameStatus(game, newStatus)
 
-        return applyMove(move)
+        return appliedMove
     }
 
     private fun tryMove(game: Game, board: Array<Array<Piece?>>, movingPiece: Piece, moveRequest: MoveRequest): Move {
@@ -199,11 +201,19 @@ class GameService (
         )
     }
 
-    private fun applyMove(move: Move): Move {
+    private fun applyMove(game: Game, move: Move): Move {
         val takenPiece = move.takenPiece?.let {
             pieceService.takePiece(it)
         }
         val savedMovingPiece = pieceService.movePiece(move.movingPiece, move.dstRow, move.dstCol)
+        if (move.moveType == MoveType.KING_SIDE_CASTLE) {
+            val castle = pieceService.getPieceAt(game.id, move.srcRow, move.dstCol + 1)
+            castle?.let { pieceService.movePiece(castle, move.srcRow, move.dstCol - 1) }
+        }
+        if (move.moveType == MoveType.QUEEN_SIDE_CASTLE) {
+            val castle = pieceService.getPieceAt(game.id, move.srcRow, move.dstCol - 2)
+            castle?.let { pieceService.movePiece(castle, move.srcRow, move.dstCol + 1) }
+        }
 
         return moveService.createMove(Move(
                 savedMovingPiece,
@@ -227,12 +237,10 @@ class GameService (
 
         if (move.moveType == MoveType.EN_PASSANT) copiedBoard[move.srcRow][move.dstCol] = null
         if (move.moveType == MoveType.KING_SIDE_CASTLE) {
-            // TODO write test for this case after implementing
             copiedBoard[move.srcRow][move.dstCol - 1] = copiedBoard[move.srcRow][move.dstCol + 1]
             copiedBoard[move.srcRow][move.dstCol + 1] = null
         }
         if (move.moveType == MoveType.QUEEN_SIDE_CASTLE) {
-            // TODO write test for this case after implementing
             copiedBoard[move.srcRow][move.dstCol + 1] = copiedBoard[move.srcRow][move.dstCol - 2]
             copiedBoard[move.srcRow][move.dstCol - 2] = null
         }
@@ -254,29 +262,25 @@ class GameService (
         if (move.moveType == MoveType.EN_PASSANT) {
             newPieces = newPieces.filter { !(it.positionCol == move.dstCol && it.positionRow == move.srcRow) }
         }
-        if (move.moveType == MoveType.KING_SIDE_CASTLE) {
-            // TODO write test for this case after implementing
-            newPieces.forEach {
-                if (it.positionRow == move.srcRow && it.positionCol == move.dstCol + 1) {
-                    it.positionCol = move.dstCol - 1
-                    it.positionRow = move.dstRow
-                }
-            }
-        }
-        if (move.moveType == MoveType.QUEEN_SIDE_CASTLE) {
-            // TODO write test for this case after implementing
-            newPieces.forEach {
-                if (it.positionRow == move.srcRow && it.positionCol == move.dstCol - 2) {
-                    it.positionCol = move.dstCol + 1
-                    it.positionRow = move.dstRow
-                }
-            }
-        }
+        // castle checks are NOT necessary here; method used only to calculate check
 
         return newPieces
     }
 
-    private fun applyMoveToPiece(piece: Piece, move: Move): Piece = applyMoveToPieces(listOf(piece), move).first()
+    private fun applyMoveToPiece(piece: Piece, move: Move) = applyMoveToPieces(listOf(piece), move).first()
+
+    private fun haveAnyValidMoves(game: Game, board: Array<Array<Piece?>>, pieces: Iterable<Piece>): Boolean = pieces.any {piece ->
+        piece.plausibleMoves().any { pos ->
+            try {
+                val piecePos = piece.position()
+                piecePos?.let { tryMove(game, board, piece, MoveRequest(it.row, it.col, pos.row, pos.col)) }
+                true
+            } catch (ex: ChessRuleException) {
+                false
+            }
+        }
+    }
+
 
     private fun inCheckAfterMove(game: Game, board: Array<Array<Piece?>>, color: PieceColor, move: Move): Boolean {
         // find the king after the move
@@ -291,11 +295,15 @@ class GameService (
         // get the 2D board array after the move is applied
         val afterMoveBoard = applyMoveToBoard(board, move)
 
+        return canBeCaptured(afterMoveBoard, king, opposingPieces)
+    }
+
+    private fun canBeCaptured(board: Array<Array<Piece?>>, king: Piece, pieces: Iterable<Piece>): Boolean {
         // get the after-move king's position
         val kingPosition = king.position() ?: return false // should never happen
 
         // can any opposing piece capture the king if the move were applied
-        return opposingPieces.any { canCapture(afterMoveBoard, it, kingPosition) }
+        return pieces.any { canCapture(board, it, kingPosition) }
     }
 
     private fun canCapture(board: Array<Array<Piece?>>, movingPiece: Piece, dst: Position): Boolean = captureError(board, movingPiece, dst) == null
@@ -314,15 +322,28 @@ class GameService (
         return null
     }
 
-    private fun getGameStatusAfterMove(game: Game, board: Array<Array<Piece?>>, opposingColor: PieceColor, move: Move) =
-            if (inCheckAfterMove(game, board, opposingColor, move)) {
-                if (opposingColor == PieceColor.BLACK) GameStatus.BLACK_CHECK else GameStatus.WHITE_CHECK
-            } else {
-                if (opposingColor == PieceColor.BLACK) GameStatus.BLACK_TURN else GameStatus.WHITE_TURN
-            }
+    fun getGameStatusAfterMove(game: Game, opposingColor: PieceColor): GameStatus {
+        val board = pieceService.getPiecesAsBoard(game.id)
+        val friendlyPieces = pieceService.findAllBy(game.id, opposingColor, false)
+        val opposingPieces = pieceService.findAllBy(game.id, Utils.getOpposingColor(opposingColor), false)
+        val king = pieceService.findAllBy(game.id, opposingColor, type = PieceType.KING).first()
 
-    private fun updateGameStatus(game: Game, status: GameStatus): Game {
-        game.status = status
+        val inCheck = canBeCaptured(board, king, opposingPieces)
+        val hasValidMove = haveAnyValidMoves(game, board, friendlyPieces)
+
+        return when {
+            inCheck && hasValidMove -> if (opposingColor == PieceColor.BLACK) GameStatus.BLACK_CHECK else GameStatus.WHITE_CHECK
+            inCheck && !hasValidMove -> GameStatus.CHECKMATE
+            !inCheck && !hasValidMove -> GameStatus.STALEMATE
+            else -> if (opposingColor == PieceColor.BLACK) GameStatus.BLACK_TURN else GameStatus.WHITE_TURN
+        }
+    }
+
+    private fun updateGameStatus(game: Game, newStatus: GameStatus): Game {
+        if (newStatus == GameStatus.CHECKMATE) {
+            game.winner = if (game.status === GameStatus.WHITE_TURN) game.whitePlayer else game.blackPlayer
+        }
+        game.status = newStatus
         return gameRepository.save(game)
     }
 

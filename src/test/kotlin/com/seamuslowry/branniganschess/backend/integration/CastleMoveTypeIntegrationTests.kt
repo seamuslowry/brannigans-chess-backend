@@ -3,6 +3,8 @@ package com.seamuslowry.branniganschess.backend.integration
 import com.seamuslowry.branniganschess.backend.dtos.MoveRequest
 import com.seamuslowry.branniganschess.backend.models.Move
 import com.seamuslowry.branniganschess.backend.models.MoveType
+import com.seamuslowry.branniganschess.backend.models.pieces.King
+import com.seamuslowry.branniganschess.backend.models.pieces.Rook
 import com.seamuslowry.branniganschess.backend.services.GameService
 import com.seamuslowry.branniganschess.backend.services.PieceService
 import org.junit.jupiter.api.Assertions
@@ -21,7 +23,7 @@ class CastleMoveTypeIntegrationTests (
     @Test
     fun `king-side castles - WHITE`() {
         val game = gameService.createGame()
-        val board = pieceService.getPiecesAsBoard(game.id)
+        var board = pieceService.getPiecesAsBoard(game.id)
 
         // set up a valid test by performing invalid moves through the service
         // take white king-side bishop
@@ -36,16 +38,20 @@ class CastleMoveTypeIntegrationTests (
                 Move::class.java
         )
 
+        board = pieceService.getPiecesAsBoard(game.id)
+
         Assertions.assertEquals(HttpStatus.OK, response.statusCode)
         Assertions.assertNotNull(response.body?.movingPiece)
         Assertions.assertNull(response.body?.takenPiece)
         Assertions.assertEquals(MoveType.KING_SIDE_CASTLE, response.body?.moveType)
+        Assertions.assertTrue(board[7][5] is Rook)
+        Assertions.assertTrue(board[7][6] is King)
     }
 
     @Test
     fun `queen-side castles - WHITE`() {
         val game = gameService.createGame()
-        val board = pieceService.getPiecesAsBoard(game.id)
+        var board = pieceService.getPiecesAsBoard(game.id)
 
         // set up a valid test by performing invalid moves through the service
         // take white queen-side bishop
@@ -62,16 +68,20 @@ class CastleMoveTypeIntegrationTests (
                 Move::class.java
         )
 
+        board = pieceService.getPiecesAsBoard(game.id)
+
         Assertions.assertEquals(HttpStatus.OK, response.statusCode)
         Assertions.assertNotNull(response.body?.movingPiece)
         Assertions.assertNull(response.body?.takenPiece)
         Assertions.assertEquals(MoveType.QUEEN_SIDE_CASTLE, response.body?.moveType)
+        Assertions.assertTrue(board[7][3] is Rook)
+        Assertions.assertTrue(board[7][2] is King)
     }
 
     @Test
     fun `king-side castles - BLACK`() {
         val game = gameService.createGame()
-        val board = pieceService.getPiecesAsBoard(game.id)
+        var board = pieceService.getPiecesAsBoard(game.id)
 
         // set up a valid test by performing invalid moves through the service
         // take black king-side bishop
@@ -86,16 +96,20 @@ class CastleMoveTypeIntegrationTests (
                 Move::class.java
         )
 
+        board = pieceService.getPiecesAsBoard(game.id)
+
         Assertions.assertEquals(HttpStatus.OK, response.statusCode)
         Assertions.assertNotNull(response.body?.movingPiece)
         Assertions.assertNull(response.body?.takenPiece)
         Assertions.assertEquals(MoveType.KING_SIDE_CASTLE, response.body?.moveType)
+        Assertions.assertTrue(board[0][5] is Rook)
+        Assertions.assertTrue(board[0][6] is King)
     }
 
     @Test
     fun `queen-side castles - BLACK`() {
         val game = gameService.createGame()
-        val board = pieceService.getPiecesAsBoard(game.id)
+        var board = pieceService.getPiecesAsBoard(game.id)
 
         // set up a valid test by performing invalid moves through the service
         // take black queen-side bishop
@@ -112,9 +126,13 @@ class CastleMoveTypeIntegrationTests (
                 Move::class.java
         )
 
+        board = pieceService.getPiecesAsBoard(game.id)
+
         Assertions.assertEquals(HttpStatus.OK, response.statusCode)
         Assertions.assertNotNull(response.body?.movingPiece)
         Assertions.assertNull(response.body?.takenPiece)
         Assertions.assertEquals(MoveType.QUEEN_SIDE_CASTLE, response.body?.moveType)
+        Assertions.assertTrue(board[0][3] is Rook)
+        Assertions.assertTrue(board[0][2] is King)
     }
 }
