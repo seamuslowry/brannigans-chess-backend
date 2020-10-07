@@ -56,4 +56,32 @@ class KnightTest {
         val requiresEmpty = piece.requiresEmpty(Position(3,1))
         assertEquals(setOf<Position>(), requiresEmpty)
     }
+
+    @Test
+    fun `has a max of 8 plausible moves`() {
+        val game = Game("New Game")
+        val piece = Knight(PieceColor.BLACK, game, 3, 3)
+
+        assertEquals(setOf(
+                Position(5,4),
+                Position(5,2),
+                Position(1,4),
+                Position(1,2),
+                Position(4,1),
+                Position(4,5),
+                Position(2,1),
+                Position(2,5)
+        ), piece.plausibleMoves())
+    }
+
+    @Test
+    fun `has a min of 2 plausible moves`() {
+        val game = Game("New Game")
+        val piece = Knight(PieceColor.BLACK, game, 0, 0)
+
+        assertEquals(setOf(
+                Position(2,1),
+                Position(1,2)
+        ), piece.plausibleMoves())
+    }
 }

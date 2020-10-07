@@ -45,6 +45,7 @@ abstract class Piece (
 ) {
     // need copy but cannot use data class
     abstract fun copy(): Piece
+    abstract fun plausibleMoves(): Set<Position>
     open fun isImmovable() = positionCol == null || positionRow == null || taken
     open fun position() = positionRow?.let {row ->
         positionCol?.let {col ->

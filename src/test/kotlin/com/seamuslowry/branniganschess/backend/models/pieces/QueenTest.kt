@@ -175,4 +175,40 @@ class QueenTest {
                 Position(1,6)
         ), requiresEmpty)
     }
+
+    @Test
+    fun `can plausibly move along any straight line or diagonal`() {
+        val game = Game("New Game")
+        val piece = Queen(PieceColor.BLACK, game, 3, 3)
+
+        assertEquals(setOf(
+                Position(3,0),
+                Position(3,1),
+                Position(3,2),
+                Position(3,4),
+                Position(3,5),
+                Position(3,6),
+                Position(3,7),
+                Position(7,3),
+                Position(6,3),
+                Position(5,3),
+                Position(4,3),
+                Position(2,3),
+                Position(1,3),
+                Position(0,3),
+                Position(0,0),
+                Position(1,1),
+                Position(2,2),
+                Position(4,4),
+                Position(5,5),
+                Position(6,6),
+                Position(7,7),
+                Position(6,0),
+                Position(5,1),
+                Position(4,2),
+                Position(2,4),
+                Position(1,5),
+                Position(0,6)
+        ), piece.plausibleMoves())
+    }
 }

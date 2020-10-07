@@ -71,4 +71,27 @@ class RookTest {
                 Position(6,0)
         ), requiresEmpty)
     }
+
+    @Test
+    fun `can plausibly move along any straight line`() {
+        val game = Game("New Game")
+        val piece = Rook(PieceColor.BLACK, game, 3, 3)
+
+        assertEquals(setOf(
+                Position(3,0),
+                Position(3,1),
+                Position(3,2),
+                Position(3,4),
+                Position(3,5),
+                Position(3,6),
+                Position(3,7),
+                Position(7,3),
+                Position(6,3),
+                Position(5,3),
+                Position(4,3),
+                Position(2,3),
+                Position(1,3),
+                Position(0,3)
+        ), piece.plausibleMoves())
+    }
 }

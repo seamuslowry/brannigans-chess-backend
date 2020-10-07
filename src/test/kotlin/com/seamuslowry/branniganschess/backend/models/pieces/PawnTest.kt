@@ -81,7 +81,7 @@ class PawnTest {
         val game = Game("New Game")
         val piece = Pawn(PieceColor.WHITE, game, 6, 0)
 
-        val requiresEmpty = piece.requiresEmpty(Position(4,0));
+        val requiresEmpty = piece.requiresEmpty(Position(4,0))
         assertEquals(setOf(Position(5,0)), requiresEmpty)
     }
 
@@ -108,5 +108,71 @@ class PawnTest {
 
         assertTrue(piece.canCapture(Position(5,3)))
         assertTrue(piece.canCapture(Position(5,1)))
+    }
+
+    @Test
+    fun `WHITE - has a max of 4 plausible moves`() {
+        val game = Game("New Game")
+        val piece = Pawn(PieceColor.WHITE, game, 6, 2)
+
+        assertEquals(setOf(
+                Position(5, 3),
+                Position(5,1),
+                Position(5, 2),
+                Position(4,2)
+        ), piece.plausibleMoves())
+    }
+
+    @Test
+    fun `WHITE - has no moves at the end of the board`() {
+        val game = Game("New Game")
+        val piece = Pawn(PieceColor.WHITE, game, 0, 2)
+
+        assertEquals(emptySet<Position>(), piece.plausibleMoves())
+    }
+
+    @Test
+    fun `WHITE - 3 moves after leaving the starting position`() {
+        val game = Game("New Game")
+        val piece = Pawn(PieceColor.WHITE, game, 5, 2)
+
+        assertEquals(setOf(
+                Position(4, 3),
+                Position(4,1),
+                Position(4, 2)
+        ), piece.plausibleMoves())
+    }
+
+    @Test
+    fun `BLACK - has a max of 4 plausible moves`() {
+        val game = Game("New Game")
+        val piece = Pawn(PieceColor.BLACK, game, 1, 2)
+
+        assertEquals(setOf(
+                Position(2, 3),
+                Position(2,1),
+                Position(2, 2),
+                Position(3,2)
+        ), piece.plausibleMoves())
+    }
+
+    @Test
+    fun `BLACK - has no moves at the end of the board`() {
+        val game = Game("New Game")
+        val piece = Pawn(PieceColor.BLACK, game, 7, 2)
+
+        assertEquals(emptySet<Position>(), piece.plausibleMoves())
+    }
+
+    @Test
+    fun `BLACK - 3 moves after leaving the starting position`() {
+        val game = Game("New Game")
+        val piece = Pawn(PieceColor.BLACK, game, 2, 2)
+
+        assertEquals(setOf(
+                Position(3, 3),
+                Position(3,1),
+                Position(3, 2)
+        ), piece.plausibleMoves())
     }
 }

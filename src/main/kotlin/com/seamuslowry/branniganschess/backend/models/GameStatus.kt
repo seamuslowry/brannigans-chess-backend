@@ -10,7 +10,6 @@ enum class GameStatus {
     BLACK_CHECK,
     WHITE_PROMOTION, // unused
     BLACK_PROMOTION, // unused
-    VICTORY,
+    CHECKMATE,
     STALEMATE,
-    DRAW // unused
 }
