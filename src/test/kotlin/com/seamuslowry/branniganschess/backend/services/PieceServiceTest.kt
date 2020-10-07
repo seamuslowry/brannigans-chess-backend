@@ -106,4 +106,16 @@ class PieceServiceTest {
         assertEquals(newCol, movedPiece.positionCol)
         assertEquals(newRow, movedPiece.positionRow)
     }
+
+    @Test
+    fun `finds a piece by location`() {
+        val game = Game("Location Piece Game")
+        val piece = Pawn( PieceColor.BLACK, game, 4, 4)
+
+        every { pieceRepository.findAll( any<Specification<Piece>>()) } returns listOf(piece)
+
+        val foundPiece = service.getPieceAt(game.id, 4, 4)
+
+        assertEquals(piece, foundPiece)
+    }
 }

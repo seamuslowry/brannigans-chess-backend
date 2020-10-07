@@ -52,6 +52,14 @@ class PieceService (
         return array
     }
 
+    fun getPieceAt(gameId: Long, row: Int, col: Int): Piece? {
+        val spec: Specification<Piece> = Specification
+                .where(inGame(gameId))!!
+                .and(inRow(row))!!
+                .and(inCol(col))!!
+
+        return pieceRepository.findAll(spec).firstOrNull()
+    }
 
     private fun inGame(id: Long): Specification<Piece> = Specification {
         root,
@@ -75,5 +83,17 @@ class PieceService (
         root,
         _,
         criteriaBuilder -> criteriaBuilder.equal(root.get<Boolean>("taken"), taken)
+    }
+
+    private fun inRow(row: Int): Specification<Piece> = Specification {
+        root,
+        _,
+        criteriaBuilder -> criteriaBuilder.equal(root.get<Int>("positionRow"), row)
+    }
+
+    private fun inCol(col: Int): Specification<Piece> = Specification {
+        root,
+        _,
+        criteriaBuilder -> criteriaBuilder.equal(root.get<Int>("positionCol"), col)
     }
 }
