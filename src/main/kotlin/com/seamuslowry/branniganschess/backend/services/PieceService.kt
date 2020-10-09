@@ -1,6 +1,7 @@
 package com.seamuslowry.branniganschess.backend.services
 
 import com.seamuslowry.branniganschess.backend.dtos.ChessRuleException
+import com.seamuslowry.branniganschess.backend.dtos.PieceIdentifierDto
 import com.seamuslowry.branniganschess.backend.models.*
 import com.seamuslowry.branniganschess.backend.models.pieces.*
 import com.seamuslowry.branniganschess.backend.repos.PieceRepository
@@ -68,9 +69,9 @@ class PieceService (
         return pieceRepository.findAll(spec).firstOrNull()
     }
 
-    fun promote(pieceId: Long, type: PieceType): Piece {
-        // in order for the subtypes to take effect, it seems pieces must be retrieved as a list
-        val p = pieceRepository.findByIdOrNull(pieceId)
+    fun promote(pieceIdentifierDto: PieceIdentifierDto, type: PieceType): Piece {
+        val (gameId, row, col) = pieceIdentifierDto
+        val p = getPieceAt(gameId, row, col)
         if (p is Pawn && p.promotable()) {
             val piece = createPiece(when(type) {
                 PieceType.QUEEN -> Queen(p.color, p.game, p.positionRow, p.positionCol)

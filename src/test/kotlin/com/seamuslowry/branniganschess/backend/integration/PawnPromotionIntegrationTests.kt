@@ -1,5 +1,6 @@
 package com.seamuslowry.branniganschess.backend.integration
 
+import com.seamuslowry.branniganschess.backend.dtos.PieceIdentifierDto
 import com.seamuslowry.branniganschess.backend.models.Piece
 import com.seamuslowry.branniganschess.backend.models.PieceStatus
 import com.seamuslowry.branniganschess.backend.models.pieces.Queen
@@ -32,8 +33,8 @@ class PawnPromotionIntegrationTests(
 
         // promote
         val response = restTemplate.postForEntity(
-                "/pieces/${pawn.id}/promote/QUEEN",
-                null,
+                "/pieces/promote/QUEEN",
+                PieceIdentifierDto(game.id, 0, 3),
                 Piece::class.java
         )
 
