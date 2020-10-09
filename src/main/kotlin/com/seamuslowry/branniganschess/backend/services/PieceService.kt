@@ -1,9 +1,12 @@
 package com.seamuslowry.branniganschess.backend.services
 
+import com.seamuslowry.branniganschess.backend.dtos.ChessRuleException
 import com.seamuslowry.branniganschess.backend.models.*
+import com.seamuslowry.branniganschess.backend.models.pieces.*
 import com.seamuslowry.branniganschess.backend.repos.PieceRepository
 import com.seamuslowry.branniganschess.backend.utils.Utils
 import org.springframework.data.jpa.domain.Specification
+import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 
 @Service
@@ -63,6 +66,24 @@ class PieceService (
                 .and(inCol(col))!!
 
         return pieceRepository.findAll(spec).firstOrNull()
+    }
+
+    fun promote(pieceId: Long, type: PieceType): Piece {
+        // in order for the subtypes to take effect, it seems pieces must be retrieved as a list
+        val p = pieceRepository.findByIdOrNull(pieceId)
+        if (p is Pawn && p.promotable()) {
+            removePiece(p)
+            val piece = when(type) {
+                PieceType.QUEEN -> Queen(p.color, p.game, p.positionRow, p.positionCol)
+                PieceType.ROOK -> Rook(p.color, p.game, p.positionRow, p.positionCol)
+                PieceType.BISHOP -> Bishop(p.color, p.game, p.positionRow, p.positionCol)
+                PieceType.KNIGHT -> Knight(p.color, p.game, p.positionRow, p.positionCol)
+                else -> throw ChessRuleException("Kif, you have to follow the rules. I don't, but you do.")
+            }
+            return createPiece(piece)
+        }
+
+        throw ChessRuleException("Kif, I just... I don't even know...")
     }
 
     private fun inGame(id: Long): Specification<Piece> = Specification {

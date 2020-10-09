@@ -4,6 +4,7 @@ import com.ninjasquad.springmockk.MockkBean
 import com.seamuslowry.branniganschess.backend.models.Game
 import com.seamuslowry.branniganschess.backend.models.PieceColor
 import com.seamuslowry.branniganschess.backend.models.pieces.Pawn
+import com.seamuslowry.branniganschess.backend.models.pieces.Queen
 import com.seamuslowry.branniganschess.backend.services.PieceService
 import io.mockk.every
 import org.junit.jupiter.api.Test
@@ -15,6 +16,7 @@ import org.springframework.http.MediaType
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.*
 
 @ExtendWith(SpringExtension::class)
@@ -35,5 +37,17 @@ class PieceControllerTest(@Autowired val mockMvc: MockMvc) {
                 .andExpect(status().isOk)
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("\$").isArray)
+    }
+
+    @Test
+    fun `Promotes a piece`() {
+        val game = Game("Piece Controller Test Game")
+        game.id = 1
+        val piece = Queen(PieceColor.BLACK, game, 7, 0)
+        every { pieceService.promote(game.id, any()) } returns piece
+        mockMvc.perform(post("/pieces/1/promote/QUEEN").accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk)
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("\$").isNotEmpty)
     }
 }

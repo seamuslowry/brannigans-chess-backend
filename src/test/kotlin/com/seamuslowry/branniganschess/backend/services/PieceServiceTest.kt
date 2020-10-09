@@ -1,21 +1,21 @@
 package com.seamuslowry.branniganschess.backend.services
 
 import com.ninjasquad.springmockk.MockkBean
-import com.seamuslowry.branniganschess.backend.models.Game
-import com.seamuslowry.branniganschess.backend.models.Piece
-import com.seamuslowry.branniganschess.backend.models.PieceColor
-import com.seamuslowry.branniganschess.backend.models.PieceStatus
-import com.seamuslowry.branniganschess.backend.models.pieces.Pawn
+import com.seamuslowry.branniganschess.backend.dtos.ChessRuleException
+import com.seamuslowry.branniganschess.backend.models.*
+import com.seamuslowry.branniganschess.backend.models.pieces.*
 import com.seamuslowry.branniganschess.backend.repos.PieceRepository
 import io.mockk.every
 import io.mockk.verify
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
 import org.springframework.data.jpa.domain.Specification
+import org.springframework.data.repository.findByIdOrNull
 import org.springframework.test.context.junit.jupiter.SpringExtension
 
 
@@ -134,5 +134,105 @@ class PieceServiceTest {
         val foundPiece = service.getPieceAt(game.id, 4, 4)
 
         assertEquals(piece, foundPiece)
+    }
+
+    @Test
+    fun `promotes a piece to queen`() {
+        val game = Game("2D Piece Game")
+        val piece = Pawn( PieceColor.BLACK, game, 7, 4)
+
+        every { pieceRepository.save(any<Piece>()) } answers {firstArg()}
+        every { pieceRepository.findByIdOrNull(any()) } returns piece
+
+        val promotedPiece = service.promote(1, PieceType.QUEEN)
+
+        verify(exactly = 2) { pieceRepository.save(any<Piece>()) }
+        assertTrue(promotedPiece is Queen)
+    }
+
+    @Test
+    fun `promotes a piece to knight`() {
+        val game = Game("2D Piece Game")
+        val piece = Pawn( PieceColor.BLACK, game, 7, 4)
+
+        every { pieceRepository.save(any<Piece>()) } answers {firstArg()}
+        every { pieceRepository.findByIdOrNull(any()) } returns piece
+
+        val promotedPiece = service.promote(1, PieceType.KNIGHT)
+
+        verify(exactly = 2) { pieceRepository.save(any<Piece>()) }
+        assertTrue(promotedPiece is Knight)
+    }
+
+    @Test
+    fun `promotes a piece to bishop`() {
+        val game = Game("2D Piece Game")
+        val piece = Pawn( PieceColor.BLACK, game, 7, 4)
+
+        every { pieceRepository.save(any<Piece>()) } answers {firstArg()}
+        every { pieceRepository.findByIdOrNull(any()) } returns piece
+
+        val promotedPiece = service.promote(1, PieceType.BISHOP)
+
+        verify(exactly = 2) { pieceRepository.save(any<Piece>()) }
+        assertTrue(promotedPiece is Bishop)
+    }
+
+    @Test
+    fun `promotes a piece to rook`() {
+        val game = Game("2D Piece Game")
+        val piece = Pawn( PieceColor.BLACK, game, 7, 4)
+
+        every { pieceRepository.save(any<Piece>()) } answers {firstArg()}
+        every { pieceRepository.findByIdOrNull(any()) } returns piece
+
+        val promotedPiece = service.promote(1, PieceType.ROOK)
+
+        verify(exactly = 2) { pieceRepository.save(any<Piece>()) }
+        assertTrue(promotedPiece is Rook)
+    }
+
+    @Test
+    fun `will not promote a piece to king`() {
+        val game = Game("2D Piece Game")
+        val piece = Pawn( PieceColor.BLACK, game, 7, 4)
+
+        every { pieceRepository.save(any<Piece>()) } answers {firstArg()}
+        every { pieceRepository.findByIdOrNull(any()) } returns piece
+
+        assertThrows<ChessRuleException> { service.promote(1, PieceType.KING) }
+    }
+
+    @Test
+    fun `will not promote a piece to pawn`() {
+        val game = Game("2D Piece Game")
+        val piece = Pawn( PieceColor.BLACK, game, 7, 4)
+
+        every { pieceRepository.save(any<Piece>()) } answers {firstArg()}
+        every { pieceRepository.findByIdOrNull(any()) } returns piece
+
+        assertThrows<ChessRuleException> { service.promote(1, PieceType.PAWN) }
+    }
+
+    @Test
+    fun `will not promote a non-pawn`() {
+        val game = Game("2D Piece Game")
+        val piece = Knight(PieceColor.BLACK, game, 7, 4)
+
+        every { pieceRepository.save(any<Piece>()) } answers {firstArg()}
+        every { pieceRepository.findByIdOrNull(any()) } returns piece
+
+        assertThrows<ChessRuleException> { service.promote(1, PieceType.QUEEN) }
+    }
+
+    @Test
+    fun `will not promote a pawn in an early row`() {
+        val game = Game("2D Piece Game")
+        val piece = Knight(PieceColor.BLACK, game, 6, 4)
+
+        every { pieceRepository.save(any<Piece>()) } answers {firstArg()}
+        every { pieceRepository.findByIdOrNull(any()) } returns piece
+
+        assertThrows<ChessRuleException> { service.promote(1, PieceType.QUEEN) }
     }
 }
