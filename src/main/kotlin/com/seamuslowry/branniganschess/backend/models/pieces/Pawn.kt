@@ -13,10 +13,10 @@ class Pawn(
         game: Game?,
         positionRow: Int? = null,
         positionCol: Int? = null,
-        taken: Boolean = false,
+        status: PieceStatus = PieceStatus.ACTIVE,
         id: Long? = null
-): Piece(PieceType.PAWN, color, game, positionRow, positionCol, taken, id) {
-    override fun copy() = Pawn(color, game, positionRow, positionCol, taken, id)
+): Piece(PieceType.PAWN, color, game, positionRow, positionCol, status, id) {
+    override fun copy() = Pawn(color, game, positionRow, positionCol, status, id)
     override fun isImmovable(): Boolean = super.isImmovable() || positionRow == 0 || positionRow == 7
     override fun plausibleMoves(): Set<Position> {
         val direction = direction()
@@ -53,6 +53,10 @@ class Pawn(
 
         return rowDiff == direction && colDiff == 1
     }
+
+    fun promotable() = positionRow == finalRow()
+
+    private fun finalRow() = if (PieceColor.BLACK == color) 7 else 0
 
     private fun startingRow() = if (PieceColor.BLACK == color) 1 else 6
 

@@ -25,28 +25,29 @@ import kotlin.math.max
         JsonSubTypes.Type(Pawn::class)
 )
 abstract class Piece (
-    @Enumerated(EnumType.STRING)
-    @Column(name="type", insertable = false, updatable = false)
-    open val type: PieceType,
-    @Enumerated(EnumType.STRING)
-    open val color: PieceColor,
-    @ManyToOne
-    @JsonIgnore
-    // nullable because of JsonIgnore
-    // do NOT want to send it up to the client
-    // cannot be saved as null
-    open val game: Game?,
-    open var positionRow: Int? = null,
-    open var positionCol: Int? = null,
-    open var taken: Boolean = false,
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    open var id: Long? = null
+        @Enumerated(EnumType.STRING)
+        @Column(name="type", insertable = false, updatable = false)
+        open val type: PieceType,
+        @Enumerated(EnumType.STRING)
+        open val color: PieceColor,
+        @ManyToOne
+        @JsonIgnore
+        // nullable because of JsonIgnore
+        // do NOT want to send it up to the client
+        // cannot be saved as null
+        open val game: Game?,
+        open var positionRow: Int? = null,
+        open var positionCol: Int? = null,
+        @Enumerated(EnumType.STRING)
+        open var status: PieceStatus = PieceStatus.ACTIVE,
+        @Id
+        @GeneratedValue(strategy = GenerationType.IDENTITY)
+        open var id: Long? = null
 ) {
     // need copy but cannot use data class
     abstract fun copy(): Piece
     abstract fun plausibleMoves(): Set<Position>
-    open fun isImmovable() = positionCol == null || positionRow == null || taken
+    open fun isImmovable() = positionCol == null || positionRow == null || status != PieceStatus.ACTIVE
     open fun position() = positionRow?.let {row ->
         positionCol?.let {col ->
             Position(row, col)

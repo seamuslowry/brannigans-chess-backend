@@ -13,10 +13,10 @@ class Knight(
         game: Game?,
         positionRow: Int? = null,
         positionCol: Int? = null,
-        taken: Boolean = false,
+        status: PieceStatus = PieceStatus.ACTIVE,
         id: Long? = null
-): Piece(PieceType.KNIGHT, color, game, positionRow, positionCol, taken, id) {
-    override fun copy() = Knight(color, game, positionRow, positionCol, taken, id)
+): Piece(PieceType.KNIGHT, color, game, positionRow, positionCol, status, id) {
+    override fun copy() = Knight(color, game, positionRow, positionCol, status, id)
     override fun plausibleMoves(): Set<Position> {
         val (row, col) = position() ?: return emptySet()
 

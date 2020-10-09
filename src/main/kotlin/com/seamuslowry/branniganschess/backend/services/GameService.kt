@@ -286,7 +286,7 @@ class GameService (
         // find the king after the move
         var king = pieceService.findAllBy(game.id, color, type = PieceType.KING).first()
         // find all the active opposing pieces
-        var opposingPieces = pieceService.findAllBy(game.id, Utils.getOpposingColor(color), taken = false)
+        var opposingPieces = pieceService.findAllBy(game.id, Utils.getOpposingColor(color), status = PieceStatus.ACTIVE)
 
         // get the opposing pieces as they would look after the move
         opposingPieces = applyMoveToPieces(opposingPieces, move)
@@ -324,8 +324,8 @@ class GameService (
 
     fun getGameStatusAfterMove(game: Game, opposingColor: PieceColor): GameStatus {
         val board = pieceService.getPiecesAsBoard(game.id)
-        val friendlyPieces = pieceService.findAllBy(game.id, opposingColor, false)
-        val opposingPieces = pieceService.findAllBy(game.id, Utils.getOpposingColor(opposingColor), false)
+        val friendlyPieces = pieceService.findAllBy(game.id, opposingColor, PieceStatus.ACTIVE)
+        val opposingPieces = pieceService.findAllBy(game.id, Utils.getOpposingColor(opposingColor), PieceStatus.ACTIVE)
         val king = pieceService.findAllBy(game.id, opposingColor, type = PieceType.KING).first()
 
         val inCheck = canBeCaptured(board, king, opposingPieces)

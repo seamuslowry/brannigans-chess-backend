@@ -197,4 +197,36 @@ class PawnTest {
                 Position(3, 0)
         ), piece.plausibleMoves())
     }
+
+    @Test
+    fun `BLACK - is promotable at the final row`() {
+        val game = Game("New Game")
+        val piece = Pawn(PieceColor.BLACK, game, 7, 0)
+
+        assertTrue(piece.promotable())
+    }
+
+    @Test
+    fun `WHITE - is promotable at the final row`() {
+        val game = Game("New Game")
+        val piece = Pawn(PieceColor.WHITE, game, 0, 0)
+
+        assertTrue(piece.promotable())
+    }
+
+    @Test
+    fun `BLACK - is not promotable off the final row`() {
+        val game = Game("New Game")
+        val piece = Pawn(PieceColor.BLACK, game, 6, 0)
+
+        assertFalse(piece.promotable())
+    }
+
+    @Test
+    fun `WHITE - is not promotable off the final row`() {
+        val game = Game("New Game")
+        val piece = Pawn(PieceColor.WHITE, game, 1, 0)
+
+        assertFalse(piece.promotable())
+    }
 }

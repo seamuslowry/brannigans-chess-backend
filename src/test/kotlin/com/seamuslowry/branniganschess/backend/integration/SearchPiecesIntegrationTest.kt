@@ -2,6 +2,7 @@ package com.seamuslowry.branniganschess.backend.integration
 
 import com.seamuslowry.branniganschess.backend.models.Game
 import com.seamuslowry.branniganschess.backend.models.PieceColor
+import com.seamuslowry.branniganschess.backend.models.PieceStatus
 import com.seamuslowry.branniganschess.backend.models.pieces.King
 import com.seamuslowry.branniganschess.backend.models.pieces.Pawn
 import com.seamuslowry.branniganschess.backend.models.pieces.Rook
@@ -55,10 +56,10 @@ class SearchPiecesIntegrationTest(
     fun `Finds taken pieces from a game`() {
         val gameOne = gameRepository.save(Game("Piece Search I-Test Game One"))
 
-        val searchPiece = pieceService.createPiece(Pawn(PieceColor.BLACK, gameOne, 0, 0, true))
+        val searchPiece = pieceService.createPiece(Pawn(PieceColor.BLACK, gameOne, 0, 0, PieceStatus.TAKEN))
         pieceService.createPiece(Pawn(PieceColor.BLACK, gameOne))
 
-        val entity = restTemplate.getForEntity("/pieces/${gameOne.id}?taken=true", Iterable::class.java)
+        val entity = restTemplate.getForEntity("/pieces/${gameOne.id}?status=TAKEN", Iterable::class.java)
 
         Assertions.assertEquals(HttpStatus.OK, entity.statusCode)
         Assertions.assertEquals(1, entity.body?.count())
@@ -70,15 +71,15 @@ class SearchPiecesIntegrationTest(
         val gameOne = gameRepository.save(Game("Piece Search I-Test Game One"))
         val gameTwo = gameRepository.save(Game("Piece Search I-Test Game Two"))
 
-        val searchPiece = pieceService.createPiece(Pawn(PieceColor.BLACK, gameOne, 0, 0, true))
+        val searchPiece = pieceService.createPiece(Pawn(PieceColor.BLACK, gameOne, 0, 0, PieceStatus.TAKEN))
         // matches game and taken
-        pieceService.createPiece(Pawn(PieceColor.WHITE, gameOne, 0, 0, true))
+        pieceService.createPiece(Pawn(PieceColor.WHITE, gameOne, 0, 0, PieceStatus.TAKEN))
         // matches game and color
-        pieceService.createPiece(Pawn(PieceColor.BLACK, gameOne, 0, 0, false))
+        pieceService.createPiece(Pawn(PieceColor.BLACK, gameOne, 0, 0, PieceStatus.ACTIVE))
         // matches color and taken
-        pieceService.createPiece(Pawn(PieceColor.BLACK, gameTwo, 0, 0, true))
+        pieceService.createPiece(Pawn(PieceColor.BLACK, gameTwo, 0, 0, PieceStatus.TAKEN))
 
-        val entity = restTemplate.getForEntity("/pieces/${gameOne.id}?color=BLACK&taken=true", Iterable::class.java)
+        val entity = restTemplate.getForEntity("/pieces/${gameOne.id}?color=BLACK&status=TAKEN", Iterable::class.java)
 
         Assertions.assertEquals(HttpStatus.OK, entity.statusCode)
         Assertions.assertEquals(1, entity.body?.count())

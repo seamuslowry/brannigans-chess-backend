@@ -25,11 +25,11 @@ class SearchGamesIntegrationTests(
         wonGame.winner = winner
         gameRepository.save(wonGame)
 
-        val entity = restTemplate.getForEntity("/games?active=true&size=${gameRepository.count()}", TestPageImpl::class.java)
+        val entity = restTemplate.getForEntity("/games?active=true&size=${gameRepository.count()}", TestGamePageImpl::class.java)
 
         Assertions.assertEquals(HttpStatus.OK, entity.statusCode)
-        Assertions.assertTrue(entity.body?.content.toString().contains("id=${activeGame.id}"))
-        Assertions.assertFalse(entity.body?.content.toString().contains("id=${wonGame.id}"))
+        Assertions.assertNotNull(entity.body?.content?.find { it.id == activeGame.id })
+        Assertions.assertNull(entity.body?.content?.find { it.id == wonGame.id })
     }
 
     @Test
@@ -41,11 +41,11 @@ class SearchGamesIntegrationTests(
         wonGame.winner = winner
         wonGame = gameRepository.save(wonGame)
 
-        val entity = restTemplate.getForEntity("/games?active=false&size=${gameRepository.count()}", TestPageImpl::class.java)
+        val entity = restTemplate.getForEntity("/games?active=false&size=${gameRepository.count()}", TestGamePageImpl::class.java)
 
         Assertions.assertEquals(HttpStatus.OK, entity.statusCode)
-        Assertions.assertFalse(entity.body?.content.toString().contains("id=${activeGame.id}"))
-        Assertions.assertTrue(entity.body?.content.toString().contains("id=${wonGame.id}"))
+        Assertions.assertNull(entity.body?.content?.find { it.id == activeGame.id })
+        Assertions.assertNotNull(entity.body?.content?.find { it.id == wonGame.id })
     }
 
     @Test
@@ -57,10 +57,10 @@ class SearchGamesIntegrationTests(
         wonGame.winner = winner
         gameRepository.save(wonGame)
 
-        val entity = restTemplate.getForEntity("/games?size=${gameRepository.count()}", TestPageImpl::class.java)
+        val entity = restTemplate.getForEntity("/games?size=${gameRepository.count()}", TestGamePageImpl::class.java)
 
         Assertions.assertEquals(HttpStatus.OK, entity.statusCode)
-        Assertions.assertTrue(entity.body?.content.toString().contains("id=${activeGame.id}"))
-        Assertions.assertTrue(entity.body?.content.toString().contains("id=${wonGame.id}"))
+        Assertions.assertNotNull(entity.body?.content?.find { it.id == activeGame.id })
+        Assertions.assertNotNull(entity.body?.content?.find { it.id == wonGame.id })
     }
 }
