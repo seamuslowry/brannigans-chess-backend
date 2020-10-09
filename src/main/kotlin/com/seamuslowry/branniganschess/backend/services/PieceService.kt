@@ -72,15 +72,15 @@ class PieceService (
         // in order for the subtypes to take effect, it seems pieces must be retrieved as a list
         val p = pieceRepository.findByIdOrNull(pieceId)
         if (p is Pawn && p.promotable()) {
-            removePiece(p)
-            val piece = when(type) {
+            val piece = createPiece(when(type) {
                 PieceType.QUEEN -> Queen(p.color, p.game, p.positionRow, p.positionCol)
                 PieceType.ROOK -> Rook(p.color, p.game, p.positionRow, p.positionCol)
                 PieceType.BISHOP -> Bishop(p.color, p.game, p.positionRow, p.positionCol)
                 PieceType.KNIGHT -> Knight(p.color, p.game, p.positionRow, p.positionCol)
                 else -> throw ChessRuleException("Kif, you have to follow the rules. I don't, but you do.")
-            }
-            return createPiece(piece)
+            })
+            removePiece(p)
+            return piece
         }
 
         throw ChessRuleException("Kif, I just... I don't even know...")
