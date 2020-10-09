@@ -4,6 +4,7 @@ import com.ninjasquad.springmockk.MockkBean
 import com.seamuslowry.branniganschess.backend.models.Game
 import com.seamuslowry.branniganschess.backend.models.Piece
 import com.seamuslowry.branniganschess.backend.models.PieceColor
+import com.seamuslowry.branniganschess.backend.models.PieceStatus
 import com.seamuslowry.branniganschess.backend.models.pieces.Pawn
 import com.seamuslowry.branniganschess.backend.repos.PieceRepository
 import io.mockk.every
@@ -47,7 +48,7 @@ class PieceServiceTest {
         val piece = Pawn( PieceColor.BLACK, game, 0, 0)
         every { pieceRepository.findAll(any<Specification<Piece>>()) } returns listOf(piece)
 
-        val foundPieces = service.findAllBy(1, piece.color, piece.taken, piece.type)
+        val foundPieces = service.findAllBy(1, piece.color, piece.status, piece.type)
 
         verify(exactly = 1) { pieceRepository.findAll(any<Specification<Piece>>()) }
         assertEquals(1 , foundPieces.count())
@@ -85,7 +86,7 @@ class PieceServiceTest {
 
         verify(exactly = 1) { pieceRepository.save(any<Piece>()) }
 
-        assertTrue(takenPiece.taken)
+        assertEquals(PieceStatus.TAKEN, takenPiece.status)
         assertNull(takenPiece.positionCol)
         assertNull(takenPiece.positionRow)
     }

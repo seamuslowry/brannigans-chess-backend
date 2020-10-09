@@ -205,7 +205,7 @@ class GameServiceTest {
         every { pieceService.movePiece(any(), any(), any()) } answers {firstArg()}
         every { pieceService.takePiece(any()) } answers {firstArg()}
         every { pieceService.findAllBy(any(), PieceColor.WHITE, any(), PieceType.KING) } returns listOf(king)
-        every { pieceService.findAllBy(any(), PieceColor.BLACK, false, any()) } returns listOf(pawn)
+        every { pieceService.findAllBy(any(), PieceColor.BLACK, PieceStatus.ACTIVE, any()) } returns listOf(pawn)
 
         assertThrows<ChessRuleException> {
             service.move(1, MoveRequest(7,4,6,4))
@@ -357,7 +357,7 @@ class GameServiceTest {
         every { pieceService.movePiece(any(), any(), any()) } answers {firstArg()}
         every { pieceService.takePiece(any()) } answers {firstArg()}
         every { pieceService.findAllBy(any(), PieceColor.WHITE, any(), PieceType.KING) } returns listOf(king)
-        every { pieceService.findAllBy(any(), PieceColor.BLACK, false, any()) } returns listOf(pawn)
+        every { pieceService.findAllBy(any(), PieceColor.BLACK, PieceStatus.TAKEN, any()) } returns listOf(pawn)
 
         val move = service.move(1, MoveRequest(7,4,6,5))
 
@@ -379,7 +379,7 @@ class GameServiceTest {
         every { pieceService.movePiece(any(), any(), any()) } answers {firstArg()}
         every { pieceService.takePiece(any()) } answers {firstArg()}
         every { pieceService.findAllBy(any(), PieceColor.WHITE, any(), PieceType.KING) } returns listOf(king)
-        every { pieceService.findAllBy(any(), PieceColor.BLACK, false, any()) } returns listOf(rook)
+        every { pieceService.findAllBy(any(), PieceColor.BLACK, PieceStatus.ACTIVE, any()) } returns listOf(rook)
 
         val move = service.move(1, MoveRequest(7,3,6,4))
 
@@ -570,7 +570,7 @@ class GameServiceTest {
         every { pieceService.movePiece(any(), any(), any()) } answers {firstArg()}
         every { pieceService.findAllBy(any(), PieceColor.BLACK, any(), PieceType.KING) } returns listOf(king)
         every { pieceService.findAllBy(any(), PieceColor.WHITE, any(), any()) } returns listOf(rookOne, rookTwo)
-        every { pieceService.findAllBy(any(), PieceColor.BLACK, false, any()) } returns listOf(king)
+        every { pieceService.findAllBy(any(), PieceColor.BLACK, PieceStatus.ACTIVE, any()) } returns listOf(king)
 
         val newStatus = service.getGameStatusAfterMove(game, PieceColor.BLACK)
 

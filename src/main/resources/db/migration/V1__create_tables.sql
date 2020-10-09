@@ -21,7 +21,7 @@ CREATE TABLE IF NOT EXISTS piece(
     id bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     type VARCHAR(10) NOT NULL,
     color VARCHAR(5) NOT NULL,
-    taken boolean NOT NULL default false,
+    status VARCHAR(8) NOT NULL,
     position_row integer,
     position_col integer,
     game_id integer NOT NULL,

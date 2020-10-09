@@ -1,9 +1,6 @@
 package com.seamuslowry.branniganschess.backend.services
 
-import com.seamuslowry.branniganschess.backend.models.Game
-import com.seamuslowry.branniganschess.backend.models.Piece
-import com.seamuslowry.branniganschess.backend.models.PieceColor
-import com.seamuslowry.branniganschess.backend.models.PieceType
+import com.seamuslowry.branniganschess.backend.models.*
 import com.seamuslowry.branniganschess.backend.repos.PieceRepository
 import com.seamuslowry.branniganschess.backend.utils.Utils
 import org.springframework.data.jpa.domain.Specification
@@ -18,7 +15,7 @@ class PieceService (
     fun updatePiece(p: Piece): Piece = pieceRepository.save(p)
 
     fun takePiece(p: Piece): Piece {
-        p.taken = true
+        p.status = PieceStatus.TAKEN
         p.positionRow = null
         p.positionCol = null
         return updatePiece(p)
@@ -30,18 +27,18 @@ class PieceService (
         return updatePiece(p)
     }
 
-    fun findAllBy(gameId: Long, color: PieceColor? = null, taken: Boolean? = null, type: PieceType? = null): Iterable<Piece> {
+    fun findAllBy(gameId: Long, color: PieceColor? = null, status: PieceStatus? = null, type: PieceType? = null): Iterable<Piece> {
         var spec: Specification<Piece> = Specification.where(inGame(gameId))!!
 
         color?.let { spec = spec.and(isColor(it))!! }
-        taken?.let { spec = spec.and(isTaken(it))!! }
+        status?.let { spec = spec.and(isStatus(it))!! }
         type?.let { spec = spec.and(isType(it))!! }
 
         return pieceRepository.findAll(spec)
     }
 
     fun getPiecesAsBoard(gameId: Long): Array<Array<Piece?>> {
-        val activePieces = findAllBy(gameId, taken = false)
+        val activePieces = findAllBy(gameId, status = PieceStatus.ACTIVE)
 
         val array: Array<Array<Piece?>> = Utils.getEmptyBoard()
 
@@ -79,10 +76,10 @@ class PieceService (
         criteriaBuilder -> criteriaBuilder.equal(root.get<PieceType>("type"), type)
     }
 
-    private fun isTaken(taken: Boolean): Specification<Piece> = Specification {
+    private fun isStatus(status: PieceStatus): Specification<Piece> = Specification {
         root,
         _,
-        criteriaBuilder -> criteriaBuilder.equal(root.get<Boolean>("taken"), taken)
+        criteriaBuilder -> criteriaBuilder.equal(root.get<PieceStatus>("status"), status)
     }
 
     private fun inRow(row: Int): Specification<Piece> = Specification {

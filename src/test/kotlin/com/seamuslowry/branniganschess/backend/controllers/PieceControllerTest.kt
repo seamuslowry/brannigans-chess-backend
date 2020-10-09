@@ -30,8 +30,8 @@ class PieceControllerTest(@Autowired val mockMvc: MockMvc) {
         val game = Game("Piece Controller Test Game")
         game.id = 1
         val piece = Pawn(PieceColor.BLACK, game)
-        every { pieceService.findAllBy(game.id, piece.color, piece.taken) } returns listOf(piece)
-        mockMvc.perform(get("/pieces/${game.id}?color=${piece.color}&taken=${piece.taken}").accept(MediaType.APPLICATION_JSON))
+        every { pieceService.findAllBy(game.id, piece.color, piece.status) } returns listOf(piece)
+        mockMvc.perform(get("/pieces/${game.id}?color=${piece.color}&status=${piece.status}").accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk)
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("\$").isArray)

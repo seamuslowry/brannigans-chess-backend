@@ -1,11 +1,6 @@
 package com.seamuslowry.branniganschess.backend.controllers
 
 import com.seamuslowry.branniganschess.backend.models.*
-import com.seamuslowry.branniganschess.backend.repos.GameRepository
-import com.seamuslowry.branniganschess.backend.repos.MoveRepository
-import com.seamuslowry.branniganschess.backend.repos.PieceRepository
-import com.seamuslowry.branniganschess.backend.repos.PlayerRepository
-import com.seamuslowry.branniganschess.backend.services.GameService
 import com.seamuslowry.branniganschess.backend.services.PieceService
 import io.swagger.annotations.ApiOperation
 import io.swagger.annotations.ApiResponse
@@ -28,8 +23,8 @@ class PieceController(
     )
     fun getPieces(@PathVariable gameId: Long,
                   @RequestParam(required = false) color: PieceColor?,
-                  @RequestParam(required = false) taken: Boolean?)
+                  @RequestParam(required = false) status: PieceStatus?)
             : ResponseEntity<Iterable<Piece>> {
-        return ResponseEntity.ok(pieceService.findAllBy(gameId, color, taken))
+        return ResponseEntity.ok(pieceService.findAllBy(gameId, color, status))
     }
 }
