@@ -21,6 +21,13 @@ class PieceService (
         return updatePiece(p)
     }
 
+    fun removePiece(p: Piece): Piece {
+        p.status = PieceStatus.REMOVED
+        p.positionRow = null
+        p.positionCol = null
+        return updatePiece(p)
+    }
+
     fun movePiece(p: Piece, dstRow: Int, dstCol: Int): Piece {
         p.positionCol = dstCol
         p.positionRow = dstRow

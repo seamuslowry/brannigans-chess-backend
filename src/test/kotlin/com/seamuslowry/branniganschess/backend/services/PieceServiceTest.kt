@@ -92,6 +92,22 @@ class PieceServiceTest {
     }
 
     @Test
+    fun `removes a piece`() {
+        val game = Game("2D Piece Game")
+        val piece = Pawn( PieceColor.BLACK, game, 4, 4)
+
+        every { pieceRepository.save(any<Piece>()) } answers {firstArg()}
+
+        val takenPiece = service.removePiece(piece)
+
+        verify(exactly = 1) { pieceRepository.save(any<Piece>()) }
+
+        assertEquals(PieceStatus.REMOVED, takenPiece.status)
+        assertNull(takenPiece.positionCol)
+        assertNull(takenPiece.positionRow)
+    }
+
+    @Test
     fun `moves a piece`() {
         val game = Game("2D Piece Game")
         val piece = Pawn( PieceColor.BLACK, game, 4, 4)
