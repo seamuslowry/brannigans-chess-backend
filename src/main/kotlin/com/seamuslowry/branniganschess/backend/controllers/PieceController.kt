@@ -31,8 +31,9 @@ class PieceController(
     @PostMapping("/promote/{type}")
     @ApiOperation("Promotes a piece in the given game", response = Piece::class, responseContainer = "List")
     @ApiResponses(
-            ApiResponse(code = 200, message =  "Successfully retrieved the list of pieces."),
-            ApiResponse(code = 404, message =  "The game does not exist."),
+            ApiResponse(code = 200, message =  "Successfully promoted the piece."),
+            ApiResponse(code = 400, message =  "You are not allowed to promote that piece."),
+            ApiResponse(code = 404, message =  "The piece does not exist."),
             ApiResponse(code = 500, message =  "There was a problem with the service.")
     )
     fun promotePiece(@PathVariable type: PieceType,
