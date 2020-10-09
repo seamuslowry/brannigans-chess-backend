@@ -54,6 +54,10 @@ class Pawn(
         return rowDiff == direction && colDiff == 1
     }
 
+    fun promotable() = positionRow == finalRow()
+
+    private fun finalRow() = if (PieceColor.BLACK == color) 7 else 0
+
     private fun startingRow() = if (PieceColor.BLACK == color) 1 else 6
 
     private fun direction() = if (PieceColor.BLACK == color) 1 else -1
