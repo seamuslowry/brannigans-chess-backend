@@ -38,6 +38,7 @@ abstract class Piece (
         open val game: Game?,
         open var positionRow: Int? = null,
         open var positionCol: Int? = null,
+        @Enumerated(EnumType.STRING)
         open var status: PieceStatus = PieceStatus.ACTIVE,
         @Id
         @GeneratedValue(strategy = GenerationType.IDENTITY)
