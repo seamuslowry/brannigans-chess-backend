@@ -2,7 +2,6 @@ package com.seamuslowry.branniganschess.backend.controllers
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.ninjasquad.springmockk.MockkBean
-import com.seamuslowry.branniganschess.backend.dtos.MoveRequest
 import com.seamuslowry.branniganschess.backend.dtos.PieceIdentifierDto
 import com.seamuslowry.branniganschess.backend.models.Game
 import com.seamuslowry.branniganschess.backend.models.PieceColor
