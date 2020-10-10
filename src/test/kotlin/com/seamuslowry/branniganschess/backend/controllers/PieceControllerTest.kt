@@ -7,6 +7,7 @@ import com.seamuslowry.branniganschess.backend.models.Game
 import com.seamuslowry.branniganschess.backend.models.PieceColor
 import com.seamuslowry.branniganschess.backend.models.pieces.Pawn
 import com.seamuslowry.branniganschess.backend.models.pieces.Queen
+import com.seamuslowry.branniganschess.backend.services.GameService
 import com.seamuslowry.branniganschess.backend.services.PieceService
 import io.mockk.every
 import org.junit.jupiter.api.Test
@@ -29,6 +30,9 @@ class PieceControllerTest(@Autowired val mockMvc: MockMvc) {
     @MockkBean
     private lateinit var pieceService: PieceService
 
+    @MockkBean
+    private lateinit var gameService: GameService
+
     @Test
     fun `Searches for pieces`() {
         val game = Game("Piece Controller Test Game")
@@ -49,6 +53,7 @@ class PieceControllerTest(@Autowired val mockMvc: MockMvc) {
         val pieceIdRequest = ObjectMapper().writeValueAsString(PieceIdentifierDto(game.id, 7,0))
 
         every { pieceService.promote(any(), any()) } returns piece
+        every { gameService.updateGameStatus(any(), any()) } returns Game("Promote Game")
         mockMvc.perform(post("/pieces/promote/QUEEN")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(pieceIdRequest))

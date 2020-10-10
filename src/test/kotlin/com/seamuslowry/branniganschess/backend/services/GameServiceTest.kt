@@ -580,7 +580,7 @@ class GameServiceTest {
     @Test
     fun `finds a stalemate`() {
         val gameBoard = Utils.getEmptyBoard()
-        val game = Game("Checkmate Board")
+        val game = Game("Stalemate Board")
         val king = King(PieceColor.BLACK, game, 0, 0, id=1)
         val rookOne = Rook(PieceColor.WHITE, game, 1, 6, id=2)
         val rookTwo = Rook(PieceColor.WHITE, game, 2, 1, id=3)
@@ -596,5 +596,26 @@ class GameServiceTest {
         val newStatus = service.getGameStatusAfterMove(game, PieceColor.BLACK)
 
         assertEquals(GameStatus.STALEMATE, newStatus)
+    }
+
+    @Test
+    fun `updates to a stalemate`() {
+        val gameBoard = Utils.getEmptyBoard()
+        val game = Game("Stalemate Board")
+        val king = King(PieceColor.BLACK, game, 0, 0, id=1)
+        val rookOne = Rook(PieceColor.WHITE, game, 1, 6, id=2)
+        val rookTwo = Rook(PieceColor.WHITE, game, 2, 1, id=3)
+        gameBoard[0][0] = king
+        gameBoard[1][6] = rookOne
+        gameBoard[2][1] = rookTwo
+
+        every { pieceService.getPiecesAsBoard(any()) } returns gameBoard
+        every { pieceService.movePiece(any(), any(), any()) } answers {firstArg()}
+        every { pieceService.findAllBy(any(), PieceColor.BLACK, any(), PieceType.KING) } returns listOf(king)
+        every { pieceService.findAllBy(any(), PieceColor.WHITE, any(), any()) } returns listOf(rookOne, rookTwo)
+
+        val savedGame = service.updateGameStatus(game.id, PieceColor.WHITE)
+
+        assertEquals(GameStatus.STALEMATE, savedGame.status)
     }
 }

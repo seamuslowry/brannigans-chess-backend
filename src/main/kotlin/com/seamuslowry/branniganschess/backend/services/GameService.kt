@@ -75,6 +75,12 @@ class GameService (
         return move(game, moveRequest)
     }
 
+    fun updateGameStatus(gameId: Long, movingColor: PieceColor): Game {
+        val game = gameRepository.getOne(gameId)
+        val newStatus = getGameStatusAfterMove(game, Utils.getOpposingColor(movingColor))
+        return updateGameStatus(game, newStatus)
+    }
+
     private fun move(game: Game, moveRequest: MoveRequest): Move {
         val board = pieceService.getPiecesAsBoard(game.id)
         val (srcRow, srcCol, dstRow, dstCol) = moveRequest
