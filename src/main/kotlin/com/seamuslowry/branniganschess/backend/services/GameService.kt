@@ -77,7 +77,7 @@ class GameService (
 
     fun updateGameStatus(gameId: Long, movingColor: PieceColor): Game {
         val game = gameRepository.getOne(gameId)
-        val newStatus = getGameStatusAfterMove(game, Utils.getOpposingColor(movingColor))
+        val newStatus = getGameStatusForNextPlayer(game, Utils.getOpposingColor(movingColor))
         return updateGameStatus(game, newStatus)
     }
 
@@ -106,7 +106,7 @@ class GameService (
         val appliedMove = applyMove(game, move)
 
         // update the game state to reflect which player's turn and check status
-        val newStatus = getGameStatusAfterMove(game, opposingColor)
+        val newStatus = getGameStatusForNextPlayer(game, opposingColor)
         updateGameStatus(game, newStatus)
 
         return appliedMove
@@ -338,7 +338,7 @@ class GameService (
         return null
     }
 
-    fun getGameStatusAfterMove(game: Game, opposingColor: PieceColor): GameStatus {
+    fun getGameStatusForNextPlayer(game: Game, opposingColor: PieceColor): GameStatus {
         val board = pieceService.getPiecesAsBoard(game.id)
         val friendlyPieces = pieceService.findAllBy(game.id, opposingColor, PieceStatus.ACTIVE)
         val opposingPieces = pieceService.findAllBy(game.id, Utils.getOpposingColor(opposingColor), PieceStatus.ACTIVE)

@@ -639,7 +639,7 @@ class GameServiceTest {
         every { pieceService.findAllBy(any(), PieceColor.WHITE, any(), any()) } returns listOf(rookOne, rookTwo)
         every { pieceService.findAllBy(any(), PieceColor.BLACK, PieceStatus.ACTIVE, any()) } returns listOf(king)
 
-        val newStatus = service.getGameStatusAfterMove(game, PieceColor.BLACK)
+        val newStatus = service.getGameStatusForNextPlayer(game, PieceColor.BLACK)
 
         assertEquals(GameStatus.CHECKMATE, newStatus)
     }
@@ -660,7 +660,7 @@ class GameServiceTest {
         every { pieceService.findAllBy(any(), PieceColor.BLACK, any(), PieceType.KING) } returns listOf(king)
         every { pieceService.findAllBy(any(), PieceColor.WHITE, any(), any()) } returns listOf(rookOne, rookTwo)
 
-        val newStatus = service.getGameStatusAfterMove(game, PieceColor.BLACK)
+        val newStatus = service.getGameStatusForNextPlayer(game, PieceColor.BLACK)
 
         assertEquals(GameStatus.STALEMATE, newStatus)
     }
@@ -679,7 +679,7 @@ class GameServiceTest {
         every { pieceService.findAllBy(any(), PieceColor.BLACK, any(), any()) } returns listOf(king)
         every { pieceService.findAllBy(any(), PieceColor.WHITE, any(), any()) } returns listOf(pawn)
 
-        val newStatus = service.getGameStatusAfterMove(game, PieceColor.BLACK)
+        val newStatus = service.getGameStatusForNextPlayer(game, PieceColor.BLACK)
 
         assertEquals(GameStatus.WHITE_PROMOTION, newStatus)
     }
@@ -698,7 +698,7 @@ class GameServiceTest {
         every { pieceService.findAllBy(any(), PieceColor.WHITE, any(), any()) } returns listOf(king)
         every { pieceService.findAllBy(any(), PieceColor.BLACK, any(), any()) } returns listOf(pawn)
 
-        val newStatus = service.getGameStatusAfterMove(game, PieceColor.WHITE)
+        val newStatus = service.getGameStatusForNextPlayer(game, PieceColor.WHITE)
 
         assertEquals(GameStatus.BLACK_PROMOTION, newStatus)
     }
