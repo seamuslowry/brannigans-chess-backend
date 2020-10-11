@@ -3,6 +3,7 @@ package com.seamuslowry.branniganschess.backend.integration
 import com.seamuslowry.branniganschess.backend.dtos.MoveRequest
 import com.seamuslowry.branniganschess.backend.services.GameService
 import com.seamuslowry.branniganschess.backend.services.MoveService
+import com.seamuslowry.branniganschess.backend.services.PieceService
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -14,7 +15,8 @@ import org.springframework.http.HttpStatus
 class SearchMovesIntegrationTests(
         @Autowired val restTemplate: TestRestTemplate,
         @Autowired val gameService: GameService,
-        @Autowired val moveService: MoveService
+        @Autowired val moveService: MoveService,
+        @Autowired val pieceService: PieceService
 ) {
     @Test
     fun `Finds all moves from a specific game`() {
@@ -54,13 +56,11 @@ class SearchMovesIntegrationTests(
     @Test
     fun `Determines if a piece has moved`() {
         val game = gameService.createGame()
-        // move black pawn one
-        gameService.move(game.id, MoveRequest(1,0, 2, 0))
-        // move black rook one
-        val blackMove = gameService.move(game.id, MoveRequest(0,0, 1, 0))
+        // move white pawn one
+        val whiteMove = gameService.move(game.id, MoveRequest(6,0, 5, 0))
 
-        val rookMoved = moveService.hasMoved(blackMove.movingPiece)
+        val pawnMoved = moveService.hasMoved(whiteMove.movingPiece)
 
-        Assertions.assertTrue(rookMoved)
+        Assertions.assertTrue(pawnMoved)
     }
 }

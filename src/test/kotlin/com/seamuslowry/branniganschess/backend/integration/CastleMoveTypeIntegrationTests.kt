@@ -1,6 +1,7 @@
 package com.seamuslowry.branniganschess.backend.integration
 
 import com.seamuslowry.branniganschess.backend.dtos.MoveRequest
+import com.seamuslowry.branniganschess.backend.models.GameStatus
 import com.seamuslowry.branniganschess.backend.models.Move
 import com.seamuslowry.branniganschess.backend.models.MoveType
 import com.seamuslowry.branniganschess.backend.models.pieces.King
@@ -89,6 +90,9 @@ class CastleMoveTypeIntegrationTests (
         // take black king-side knight
         pieceService.takePiece(board[0][6]!!)
 
+        // set it to be black's turn
+        gameService.updateGameStatus(game, GameStatus.BLACK_TURN)
+
         // castle
         val response = restTemplate.postForEntity(
                 "/moves/${game.id}",
@@ -118,6 +122,9 @@ class CastleMoveTypeIntegrationTests (
         pieceService.takePiece(board[0][1]!!)
         // take black queen
         pieceService.takePiece(board[0][3]!!)
+
+        // set it to be black's turn
+        gameService.updateGameStatus(game, GameStatus.BLACK_TURN)
 
         // castle
         val response = restTemplate.postForEntity(

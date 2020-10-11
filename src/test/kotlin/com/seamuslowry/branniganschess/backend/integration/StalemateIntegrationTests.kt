@@ -38,13 +38,8 @@ class StalemateIntegrationTests(
         pieceService.takePiece(board[0][7]!!)
         // move the black king to the corner
         pieceService.movePiece(board[0][4]!!, 0, 0)
-
         // move white rook over one col
-        restTemplate.postForEntity(
-                "/moves/${game.id}",
-                MoveRequest(7,0,7,1),
-                Move::class.java
-        )
+        pieceService.movePiece(board[7][0]!!, 7, 1)
 
         // move other rook to stalemate
         val response = restTemplate.postForEntity(

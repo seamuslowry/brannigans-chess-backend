@@ -90,6 +90,15 @@ class GameService (
         if (!Utils.tileOnBoard(dstRow, dstCol)) throw ChessRuleException("Kif, if you'd like to move a piece off the board, you should just give up.")
 
         val movingPiece = board[srcRow][srcCol] ?: throw ChessRuleException("Kif, what have I told you about moving a piece from an empty tile?")
+
+        val gameStatus = game.status
+        if (
+                (movingPiece.color == PieceColor.BLACK && !(gameStatus == GameStatus.BLACK_TURN || gameStatus == GameStatus.BLACK_CHECK))
+                || (movingPiece.color == PieceColor.WHITE && !(gameStatus == GameStatus.WHITE_TURN || gameStatus == GameStatus.WHITE_CHECK))
+        ) throw ChessRuleException("Slow down, Kif it's my turn. Or at least not yours.")
+
+
+
         val opposingColor = Utils.getOpposingColor(movingPiece.color)
 
         val move = tryMove(game, board, movingPiece, moveRequest)
@@ -345,7 +354,7 @@ class GameService (
         }
     }
 
-    private fun updateGameStatus(game: Game, newStatus: GameStatus): Game {
+    fun updateGameStatus(game: Game, newStatus: GameStatus): Game {
         if (newStatus == GameStatus.CHECKMATE) {
             game.winner = if (game.status === GameStatus.WHITE_TURN) game.whitePlayer else game.blackPlayer
         }
