@@ -666,6 +666,44 @@ class GameServiceTest {
     }
 
     @Test
+    fun `finds a promotion state - WHITE`() {
+        val gameBoard = Utils.getEmptyBoard()
+        val game = Game("Promotion Board")
+        val pawn = Pawn(PieceColor.WHITE, game, 0, 1, id=2)
+        val king = King(PieceColor.BLACK, game, 7, 0, id=1)
+        gameBoard[0][1] = pawn
+        gameBoard[7][0] = king
+
+        every { pieceService.getPiecesAsBoard(any()) } returns gameBoard
+        every { pieceService.movePiece(any(), any(), any()) } answers {firstArg()}
+        every { pieceService.findAllBy(any(), PieceColor.BLACK, any(), any()) } returns listOf(king)
+        every { pieceService.findAllBy(any(), PieceColor.WHITE, any(), any()) } returns listOf(pawn)
+
+        val newStatus = service.getGameStatusAfterMove(game, PieceColor.BLACK)
+
+        assertEquals(GameStatus.WHITE_PROMOTION, newStatus)
+    }
+
+    @Test
+    fun `finds a promotion state - BLACK`() {
+        val gameBoard = Utils.getEmptyBoard()
+        val game = Game("Promotion Board")
+        val pawn = Pawn(PieceColor.BLACK, game, 7, 1, id=2)
+        val king = King(PieceColor.WHITE, game, 0, 0, id=1)
+        gameBoard[7][1] = pawn
+        gameBoard[0][0] = king
+
+        every { pieceService.getPiecesAsBoard(any()) } returns gameBoard
+        every { pieceService.movePiece(any(), any(), any()) } answers {firstArg()}
+        every { pieceService.findAllBy(any(), PieceColor.WHITE, any(), any()) } returns listOf(king)
+        every { pieceService.findAllBy(any(), PieceColor.BLACK, any(), any()) } returns listOf(pawn)
+
+        val newStatus = service.getGameStatusAfterMove(game, PieceColor.WHITE)
+
+        assertEquals(GameStatus.BLACK_PROMOTION, newStatus)
+    }
+
+    @Test
     fun `updates to a stalemate`() {
         val gameBoard = Utils.getEmptyBoard()
         val game = Game("Stalemate Board")

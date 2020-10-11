@@ -346,10 +346,13 @@ class GameService (
         val inCheck = canBeCaptured(board, king, opposingPieces)
         val hasValidMove = haveAnyValidMoves(game, board, friendlyPieces)
 
+        val promotable = opposingPieces.any { it is Pawn && it.promotable() }
+
         return when {
             inCheck && hasValidMove -> if (opposingColor == PieceColor.BLACK) GameStatus.BLACK_CHECK else GameStatus.WHITE_CHECK
             inCheck && !hasValidMove -> GameStatus.CHECKMATE
             !inCheck && !hasValidMove -> GameStatus.STALEMATE
+            promotable -> if (opposingColor == PieceColor.BLACK) GameStatus.WHITE_PROMOTION else GameStatus.BLACK_PROMOTION
             else -> if (opposingColor == PieceColor.BLACK) GameStatus.BLACK_TURN else GameStatus.WHITE_TURN
         }
     }
