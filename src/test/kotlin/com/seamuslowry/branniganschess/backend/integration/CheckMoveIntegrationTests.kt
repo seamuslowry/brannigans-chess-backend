@@ -57,6 +57,8 @@ class CheckMoveIntegrationTests(
         // move a rook into ready to check
         pieceService.movePiece(board[0][0]!!, 4,3)
 
+        // set it to be black's turn
+        gameService.updateGameStatus(game, GameStatus.BLACK_TURN)
         val response = restTemplate.postForEntity(
                 "/moves/${game.id}",
                 MoveRequest(4,3,4,4),
@@ -84,6 +86,8 @@ class CheckMoveIntegrationTests(
         // move the king to the pawn's former space
         pieceService.movePiece(board[0][4]!!, 1,1)
 
+        // set it to be black's turn
+        gameService.updateGameStatus(game, GameStatus.BLACK_TURN)
         // move the target pawn in prep for the take
         restTemplate.postForEntity(
                 "/moves/${game.id}",
@@ -185,6 +189,8 @@ class CheckMoveIntegrationTests(
         // move the king into check
         pieceService.movePiece(board[0][4]!!, 3,2)
 
+        // set it to be black's turn
+        gameService.updateGameStatus(game, GameStatus.BLACK_CHECK)
         // attempt to move the king out of check
         val response = restTemplate.postForEntity(
                 "/moves/${game.id}",
@@ -211,6 +217,8 @@ class CheckMoveIntegrationTests(
         // move the black king into check
         pieceService.movePiece(board[0][4]!!, 3,2)
 
+        // set it to be black's turn
+        gameService.updateGameStatus(game, GameStatus.BLACK_CHECK)
         // attempt to take rook
         val response = restTemplate.postForEntity(
                 "/moves/${game.id}",
@@ -271,6 +279,8 @@ class CheckMoveIntegrationTests(
         // move white king in front of where rook will end up
         pieceService.movePiece(board[7][4]!!, 7, 5)
 
+        // set it to be black's turn
+        gameService.updateGameStatus(game, GameStatus.BLACK_TURN)
         // castle
         val response = restTemplate.postForEntity(
                 "/moves/${game.id}",

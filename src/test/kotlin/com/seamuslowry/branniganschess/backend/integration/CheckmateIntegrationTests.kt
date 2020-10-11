@@ -34,13 +34,7 @@ class CheckmateIntegrationTests(
         // take the two black rooks
         pieceService.takePiece(board[0][0]!!)
         pieceService.takePiece(board[0][7]!!)
-
-        // move white rook to block king in
-        restTemplate.postForEntity(
-                "/moves/${game.id}",
-                MoveRequest(7,0,1,0),
-                Move::class.java
-        )
+        pieceService.movePiece(board[7][0]!!, 1, 0)
 
         // move other rook to checkmate
         val response = restTemplate.postForEntity(
@@ -67,12 +61,11 @@ class CheckmateIntegrationTests(
         pieceService.takePiece(board[7][0]!!)
         pieceService.takePiece(board[7][7]!!)
 
-        // move black rook to block king in
-        restTemplate.postForEntity(
-                "/moves/${game.id}",
-                MoveRequest(0,0,6,0),
-                Move::class.java
-        )
+        // move the rook to block white in
+        pieceService.movePiece(board[0][0]!!, 6, 0)
+
+        // set it to be black's turn
+        gameService.updateGameStatus(game, GameStatus.BLACK_TURN)
 
         // move other rook to checkmate
         val response = restTemplate.postForEntity(

@@ -36,6 +36,8 @@ class StandardMoveIntegrationTests(
     @Test
     fun `moves a black piece`() {
         var game = createGame()
+        // set it to be black's turn
+        gameService.updateGameStatus(game, GameStatus.BLACK_TURN)
         val response = restTemplate.postForEntity(
                 "/moves/${game.id}",
                 MoveRequest(1,0,2,0),
@@ -73,17 +75,50 @@ class StandardMoveIntegrationTests(
         val board = pieceService.getPiecesAsBoard(game.id)
 
         // set up a valid test by performing an invalid move through the service
-        pieceService.movePiece(board[1][0]!!, 5,0)
+        pieceService.movePiece(board[6][0]!!, 2,0)
 
         val response = restTemplate.postForEntity(
                 "/moves/${game.id}",
-                MoveRequest(5,0,6,1),
+                MoveRequest(2,0,1,1),
                 Move::class.java
         )
 
         assertEquals(HttpStatus.OK, response.statusCode)
         assertNotNull(response.body?.movingPiece)
         assertNotNull(response.body?.takenPiece)
+    }
+
+    @Test
+    fun `will not let black move off its turn`() {
+        val game = createGame()
+
+        val response = restTemplate.postForEntity(
+                "/moves/${game.id}",
+                MoveRequest(1,0,2,0),
+                String::class.java
+        )
+
+        assertEquals(HttpStatus.BAD_REQUEST, response.statusCode)
+    }
+
+    @Test
+    fun `will not let white move off its turn`() {
+        val game = createGame()
+
+        // white move one
+        restTemplate.postForEntity(
+                "/moves/${game.id}",
+                MoveRequest(6,0,5,0),
+                Move::class.java
+        )
+
+        val response = restTemplate.postForEntity(
+                "/moves/${game.id}",
+                MoveRequest(5,0,4,0),
+                String::class.java
+        )
+
+        assertEquals(HttpStatus.BAD_REQUEST, response.statusCode)
     }
 
     private fun createGame(): Game = gameService.createGame()

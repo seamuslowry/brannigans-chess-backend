@@ -75,6 +75,12 @@ class GameService (
         return move(game, moveRequest)
     }
 
+    fun updateGameStatus(gameId: Long, movingColor: PieceColor): Game {
+        val game = gameRepository.getOne(gameId)
+        val newStatus = getGameStatusAfterMove(game, Utils.getOpposingColor(movingColor))
+        return updateGameStatus(game, newStatus)
+    }
+
     private fun move(game: Game, moveRequest: MoveRequest): Move {
         val board = pieceService.getPiecesAsBoard(game.id)
         val (srcRow, srcCol, dstRow, dstCol) = moveRequest
@@ -84,6 +90,15 @@ class GameService (
         if (!Utils.tileOnBoard(dstRow, dstCol)) throw ChessRuleException("Kif, if you'd like to move a piece off the board, you should just give up.")
 
         val movingPiece = board[srcRow][srcCol] ?: throw ChessRuleException("Kif, what have I told you about moving a piece from an empty tile?")
+
+        val gameStatus = game.status
+        if (
+                (movingPiece.color == PieceColor.BLACK && !(gameStatus == GameStatus.BLACK_TURN || gameStatus == GameStatus.BLACK_CHECK))
+                || (movingPiece.color == PieceColor.WHITE && !(gameStatus == GameStatus.WHITE_TURN || gameStatus == GameStatus.WHITE_CHECK))
+        ) throw ChessRuleException("Slow down, Kif it's my turn. Or at least not yours.")
+
+
+
         val opposingColor = Utils.getOpposingColor(movingPiece.color)
 
         val move = tryMove(game, board, movingPiece, moveRequest)
@@ -331,15 +346,18 @@ class GameService (
         val inCheck = canBeCaptured(board, king, opposingPieces)
         val hasValidMove = haveAnyValidMoves(game, board, friendlyPieces)
 
+        val promotable = opposingPieces.any { it is Pawn && it.promotable() }
+
         return when {
             inCheck && hasValidMove -> if (opposingColor == PieceColor.BLACK) GameStatus.BLACK_CHECK else GameStatus.WHITE_CHECK
             inCheck && !hasValidMove -> GameStatus.CHECKMATE
             !inCheck && !hasValidMove -> GameStatus.STALEMATE
+            promotable -> if (opposingColor == PieceColor.BLACK) GameStatus.WHITE_PROMOTION else GameStatus.BLACK_PROMOTION
             else -> if (opposingColor == PieceColor.BLACK) GameStatus.BLACK_TURN else GameStatus.WHITE_TURN
         }
     }
 
-    private fun updateGameStatus(game: Game, newStatus: GameStatus): Game {
+    fun updateGameStatus(game: Game, newStatus: GameStatus): Game {
         if (newStatus == GameStatus.CHECKMATE) {
             game.winner = if (game.status === GameStatus.WHITE_TURN) game.whitePlayer else game.blackPlayer
         }

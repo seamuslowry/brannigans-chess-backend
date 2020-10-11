@@ -2,6 +2,7 @@ package com.seamuslowry.branniganschess.backend.controllers
 
 import com.seamuslowry.branniganschess.backend.dtos.PieceIdentifierDto
 import com.seamuslowry.branniganschess.backend.models.*
+import com.seamuslowry.branniganschess.backend.services.GameService
 import com.seamuslowry.branniganschess.backend.services.PieceService
 import io.swagger.annotations.ApiOperation
 import io.swagger.annotations.ApiResponse
@@ -12,7 +13,8 @@ import org.springframework.web.bind.annotation.*
 @RestController
 @RequestMapping("pieces")
 class PieceController(
-        private val pieceService: PieceService
+        private val pieceService: PieceService,
+        private val gameService: GameService
 ) {
     @GetMapping("/{gameId}")
     @ApiOperation("Gets all pieces for a given game", response = Piece::class, responseContainer = "List")
@@ -39,6 +41,8 @@ class PieceController(
     fun promotePiece(@PathVariable type: PieceType,
             @RequestBody pieceIdentifierDto: PieceIdentifierDto)
             : ResponseEntity<Piece> {
-        return ResponseEntity.ok(pieceService.promote(pieceIdentifierDto, type))
+        val promotedPiece = pieceService.promote(pieceIdentifierDto, type)
+        gameService.updateGameStatus(pieceIdentifierDto.gameId, promotedPiece.color)
+        return ResponseEntity.ok(promotedPiece)
     }
 }

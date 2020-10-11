@@ -2,6 +2,7 @@ package com.seamuslowry.branniganschess.backend.integration
 
 import com.seamuslowry.branniganschess.backend.dtos.MoveRequest
 import com.seamuslowry.branniganschess.backend.models.Game
+import com.seamuslowry.branniganschess.backend.models.GameStatus
 import com.seamuslowry.branniganschess.backend.models.Move
 import com.seamuslowry.branniganschess.backend.services.GameService
 import com.seamuslowry.branniganschess.backend.services.PieceService
@@ -26,6 +27,9 @@ class EnPassantMoveTypeIntegrationTests(
         // set up a valid test by performing an invalid move through the service
         // move white pawn into a position where it could en passant
         pieceService.movePiece(board[6][3]!!, 3,3)
+
+        // set it to be black's turn
+        gameService.updateGameStatus(game, GameStatus.BLACK_TURN)
 
         // move the target pawn in prep for the take
         restTemplate.postForEntity(

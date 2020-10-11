@@ -7,7 +7,6 @@ import com.seamuslowry.branniganschess.backend.models.pieces.*
 import com.seamuslowry.branniganschess.backend.repos.PieceRepository
 import com.seamuslowry.branniganschess.backend.utils.Utils
 import org.springframework.data.jpa.domain.Specification
-import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 
 @Service
