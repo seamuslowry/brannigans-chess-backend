@@ -37,7 +37,7 @@ class StandardMoveIntegrationTests(
     fun `moves a black piece`() {
         var game = createGame()
         // set it to be black's turn
-        gameService.updateGameStatus(game, GameStatus.BLACK_TURN)
+        gameService.updateGameStatusForNextPlayer(game, GameStatus.BLACK_TURN)
         val response = restTemplate.postForEntity(
                 "/moves/${game.id}",
                 MoveRequest(1,0,2,0),

@@ -19,6 +19,12 @@ class GameService (
         private val pieceService: PieceService,
         private val moveService: MoveService
 ) {
+    /**
+     * Create a new game.
+     * Creates all the pieces at the appropriate locations.
+     *
+     * @return the created game
+     */
     fun createGame(): Game {
         val newGame = gameRepository.save(Game(UUID.randomUUID().toString()))
 
@@ -62,6 +68,12 @@ class GameService (
         return newGame
     }
 
+    /**
+     * Find all games by active or inactive.
+     * @param active if true, only active games will be shown
+     *
+     * @return a [Page] of all games matching the criteria
+     */
     fun findAllBy(active: Boolean?, pageable: Pageable): Page<Game> {
         var spec: Specification<Game> = Specification.where(null)!!
 
@@ -70,15 +82,32 @@ class GameService (
         return gameRepository.findAll(spec, pageable)
     }
 
+    /**
+     * Attempt the requested move on the game with the provided ID.
+     *
+     * @param gameId the id of the game
+     * @param moveRequest the [MoveRequest] object describing the attempted move
+     *
+     * @return the completed move
+     * @throws [ChessRuleException] when the requested move is not valid
+     */
     fun move(gameId: Long, moveRequest: MoveRequest): Move {
         val game = gameRepository.getOne(gameId)
         return move(game, moveRequest)
     }
 
-    fun updateGameStatus(gameId: Long, movingColor: PieceColor): Game {
+    /**
+     * Update the game's status for the next player color.
+     *
+     * @param gameId the id of the game
+     * @param opposingColor the color of the player whose turn is next
+     *
+     * @return the game with the updated status
+     */
+    fun updateGameStatusForNextPlayer(gameId: Long, opposingColor: PieceColor): Game {
         val game = gameRepository.getOne(gameId)
-        val newStatus = getGameStatusForNextPlayer(game, Utils.getOpposingColor(movingColor))
-        return updateGameStatus(game, newStatus)
+        val newStatus = getGameStatusForNextPlayer(game, opposingColor)
+        return updateGameStatusForNextPlayer(game, newStatus)
     }
 
     private fun move(game: Game, moveRequest: MoveRequest): Move {
@@ -107,7 +136,7 @@ class GameService (
 
         // update the game state to reflect which player's turn and check status
         val newStatus = getGameStatusForNextPlayer(game, opposingColor)
-        updateGameStatus(game, newStatus)
+        updateGameStatusForNextPlayer(game, newStatus)
 
         return appliedMove
     }
@@ -358,7 +387,7 @@ class GameService (
         }
     }
 
-    fun updateGameStatus(game: Game, newStatus: GameStatus): Game {
+    fun updateGameStatusForNextPlayer(game: Game, newStatus: GameStatus): Game {
         if (newStatus == GameStatus.CHECKMATE) {
             game.winner = if (game.status === GameStatus.WHITE_TURN) game.whitePlayer else game.blackPlayer
         }

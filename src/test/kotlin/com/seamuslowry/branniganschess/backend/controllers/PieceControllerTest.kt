@@ -53,7 +53,7 @@ class PieceControllerTest(@Autowired val mockMvc: MockMvc) {
         val pieceIdRequest = ObjectMapper().writeValueAsString(PieceIdentifierDto(game.id, 7,0))
 
         every { pieceService.promote(any(), any()) } returns piece
-        every { gameService.updateGameStatus(any<Long>(), any()) } returns Game("Promote Game")
+        every { gameService.updateGameStatusForNextPlayer(any<Long>(), any()) } returns Game("Promote Game")
         mockMvc.perform(post("/pieces/promote/QUEEN")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(pieceIdRequest))

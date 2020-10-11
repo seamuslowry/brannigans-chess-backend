@@ -719,7 +719,7 @@ class GameServiceTest {
         every { pieceService.findAllBy(any(), PieceColor.BLACK, any(), PieceType.KING) } returns listOf(king)
         every { pieceService.findAllBy(any(), PieceColor.WHITE, any(), any()) } returns listOf(rookOne, rookTwo)
 
-        val savedGame = service.updateGameStatus(game.id, PieceColor.WHITE)
+        val savedGame = service.updateGameStatusForNextPlayer(game.id, PieceColor.BLACK)
 
         assertEquals(GameStatus.STALEMATE, savedGame.status)
     }
