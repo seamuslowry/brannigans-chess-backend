@@ -12,8 +12,23 @@ import org.springframework.stereotype.Service
 class MoveService (
         private val moveRepository: MoveRepository
 ) {
+    /**
+     * Create the provided move.
+     *
+     * @param move the move to save
+     *
+     * @return the saved move
+     */
     fun createMove(move: Move): Move = moveRepository.save(move)
 
+    /**
+     * Find all moved that match the given criteria.
+     *
+     * @param gameId the id move's game
+     * @param color the color of the piece that moved
+     *
+     * @return a list of matching moves
+     */
     fun findAllBy(gameId: Long, color: PieceColor? = null): Iterable<Move> {
         var spec: Specification<Move> = Specification.where(inGame(gameId))!!
 
@@ -22,11 +37,25 @@ class MoveService (
         return moveRepository.findAll(spec)
     }
 
+    /**
+     * Find the most recent move of the provided game.
+     *
+     * @param gameId the id of the game to get the move from
+     *
+     * @return the most recent move; null if there are no moves
+     */
     fun findLastMove(gameId: Long): Move? {
         val allMoves = findAllBy(gameId)
         return if (allMoves.count() > 0) allMoves.last() else null
     }
 
+    /**
+     * Return whether the provided piece has moved already.
+     *
+     * @param piece the piece to check moves for
+     *
+     * @return true if the piece has moved already; false otherwise
+     */
     fun hasMoved(piece: Piece): Boolean = moveRepository.findAll(Specification.where(fromPiece(piece))).isNotEmpty()
 
     private fun inGame(id: Long): Specification<Move> = Specification {

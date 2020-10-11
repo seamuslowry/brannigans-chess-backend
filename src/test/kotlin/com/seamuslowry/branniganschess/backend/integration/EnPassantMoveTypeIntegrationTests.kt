@@ -29,7 +29,7 @@ class EnPassantMoveTypeIntegrationTests(
         pieceService.movePiece(board[6][3]!!, 3,3)
 
         // set it to be black's turn
-        gameService.updateGameStatus(game, GameStatus.BLACK_TURN)
+        gameService.updateGameStatusForNextPlayer(game, GameStatus.BLACK_TURN)
 
         // move the target pawn in prep for the take
         restTemplate.postForEntity(

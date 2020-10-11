@@ -4,6 +4,7 @@ import com.seamuslowry.branniganschess.backend.dtos.PieceIdentifierDto
 import com.seamuslowry.branniganschess.backend.models.*
 import com.seamuslowry.branniganschess.backend.services.GameService
 import com.seamuslowry.branniganschess.backend.services.PieceService
+import com.seamuslowry.branniganschess.backend.utils.Utils
 import io.swagger.annotations.ApiOperation
 import io.swagger.annotations.ApiResponse
 import io.swagger.annotations.ApiResponses
@@ -42,7 +43,7 @@ class PieceController(
             @RequestBody pieceIdentifierDto: PieceIdentifierDto)
             : ResponseEntity<Piece> {
         val promotedPiece = pieceService.promote(pieceIdentifierDto, type)
-        gameService.updateGameStatus(pieceIdentifierDto.gameId, promotedPiece.color)
+        gameService.updateGameStatusForNextPlayer(pieceIdentifierDto.gameId, Utils.getOpposingColor(promotedPiece.color))
         return ResponseEntity.ok(promotedPiece)
     }
 }

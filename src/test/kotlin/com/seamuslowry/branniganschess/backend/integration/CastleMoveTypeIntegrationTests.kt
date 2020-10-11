@@ -91,7 +91,7 @@ class CastleMoveTypeIntegrationTests (
         pieceService.takePiece(board[0][6]!!)
 
         // set it to be black's turn
-        gameService.updateGameStatus(game, GameStatus.BLACK_TURN)
+        gameService.updateGameStatusForNextPlayer(game, GameStatus.BLACK_TURN)
 
         // castle
         val response = restTemplate.postForEntity(
@@ -124,7 +124,7 @@ class CastleMoveTypeIntegrationTests (
         pieceService.takePiece(board[0][3]!!)
 
         // set it to be black's turn
-        gameService.updateGameStatus(game, GameStatus.BLACK_TURN)
+        gameService.updateGameStatusForNextPlayer(game, GameStatus.BLACK_TURN)
 
         // castle
         val response = restTemplate.postForEntity(

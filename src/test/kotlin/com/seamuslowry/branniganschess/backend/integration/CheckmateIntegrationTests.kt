@@ -65,7 +65,7 @@ class CheckmateIntegrationTests(
         pieceService.movePiece(board[0][0]!!, 6, 0)
 
         // set it to be black's turn
-        gameService.updateGameStatus(game, GameStatus.BLACK_TURN)
+        gameService.updateGameStatusForNextPlayer(game, GameStatus.BLACK_TURN)
 
         // move other rook to checkmate
         val response = restTemplate.postForEntity(
