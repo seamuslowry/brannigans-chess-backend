@@ -277,7 +277,8 @@ class GameService (
         if (move.moveType == MoveType.EN_PASSANT) {
             newPieces = newPieces.filter { !(it.positionCol == move.dstCol && it.positionRow == move.srcRow) }
         }
-        // castle checks are NOT necessary here; method used only to calculate check
+        // castle checks are NOT necessary here; method used only to evaluate if moving player is in check
+        // placement of castle is not relevant as the player would be in check beforehand if it were
 
         return newPieces
     }
