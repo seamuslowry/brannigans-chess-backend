@@ -10,17 +10,17 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
 @EnableWebSocketMessageBroker
 class WebSocketConfig : WebSocketMessageBrokerConfigurer {
     override fun registerStompEndpoints(registry: StompEndpointRegistry) {
-        registry.addEndpoint("/game")
+        registry.addEndpoint("/ws")
                 .setAllowedOrigins("*") // TODO use correct allowed origins
                 .withSockJS()
     }
 
     override fun configureMessageBroker(registry: MessageBrokerRegistry) {
         registry.enableSimpleBroker(MESSAGE_PREFIX)
-        registry.setApplicationDestinationPrefixes("/gameStatus")
+        registry.setApplicationDestinationPrefixes("/status")
     }
 
     companion object {
-        const val MESSAGE_PREFIX = "/topic"
+        const val MESSAGE_PREFIX = "/game"
     }
 }

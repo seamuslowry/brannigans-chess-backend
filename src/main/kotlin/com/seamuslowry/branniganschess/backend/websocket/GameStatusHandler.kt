@@ -16,6 +16,6 @@ class GameStatusHandler(
     @PostPersist
     @PostUpdate
     fun onAfterSave(game: Game) {
-        socket.convertAndSend("$MESSAGE_PREFIX/gameStatus/${game.id}", game.status)
+        socket.convertAndSend("$MESSAGE_PREFIX/status/${game.id}", game.status.toString())
     }
 }
