@@ -17,7 +17,7 @@ class WebSocketConfig : WebSocketMessageBrokerConfigurer {
 
     override fun configureMessageBroker(registry: MessageBrokerRegistry) {
         registry.enableSimpleBroker(MESSAGE_PREFIX)
-        registry.setApplicationDestinationPrefixes("/status")
+        registry.setApplicationDestinationPrefixes(MESSAGE_PREFIX)
     }
 
     companion object {
