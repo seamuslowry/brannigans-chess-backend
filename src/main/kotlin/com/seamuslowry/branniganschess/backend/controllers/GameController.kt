@@ -10,6 +10,8 @@ import org.springframework.data.domain.Pageable
 import org.springframework.data.domain.Sort
 import org.springframework.data.web.PageableDefault
 import org.springframework.http.ResponseEntity
+import org.springframework.messaging.handler.annotation.DestinationVariable
+import org.springframework.messaging.simp.annotation.SubscribeMapping
 import org.springframework.web.bind.annotation.*
 
 @RestController
@@ -35,4 +37,10 @@ class GameController(
     fun getGames(@RequestParam(required = false) active: Boolean?,
                  @PageableDefault(size = 10, sort = ["id"], direction = Sort.Direction.DESC) pageable: Pageable
     ): ResponseEntity<Page<Game>> = ResponseEntity.ok(gameService.findAllBy(active, pageable))
+
+    @SubscribeMapping("/status/{gameId}")
+    fun getInitialStatus(@DestinationVariable gameId: Long): String {
+        val game = gameService.getById(gameId)
+        return game.status.toString()
+    }
 }
