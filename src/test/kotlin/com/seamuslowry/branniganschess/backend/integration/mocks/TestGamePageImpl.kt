@@ -1,4 +1,4 @@
-package com.seamuslowry.branniganschess.backend.integration
+package com.seamuslowry.branniganschess.backend.integration.mocks
 
 import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonProperty

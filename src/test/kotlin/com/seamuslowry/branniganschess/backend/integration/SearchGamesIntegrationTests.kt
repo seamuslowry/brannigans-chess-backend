@@ -1,5 +1,6 @@
 package com.seamuslowry.branniganschess.backend.integration
 
+import com.seamuslowry.branniganschess.backend.integration.mocks.TestGamePageImpl
 import com.seamuslowry.branniganschess.backend.models.*
 import com.seamuslowry.branniganschess.backend.repos.GameRepository
 import com.seamuslowry.branniganschess.backend.repos.PlayerRepository
