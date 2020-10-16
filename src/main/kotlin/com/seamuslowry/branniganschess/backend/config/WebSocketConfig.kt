@@ -1,5 +1,6 @@
 package com.seamuslowry.branniganschess.backend.config
 
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.messaging.simp.config.MessageBrokerRegistry
 import org.springframework.stereotype.Component
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker
@@ -8,10 +9,12 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
 
 @Component
 @EnableWebSocketMessageBroker
-class WebSocketConfig : WebSocketMessageBrokerConfigurer {
+class WebSocketConfig(
+        @Value("\${cors.allowed-origin}") private val allowedOrigin: String
+) : WebSocketMessageBrokerConfigurer {
     override fun registerStompEndpoints(registry: StompEndpointRegistry) {
         registry.addEndpoint("/ws")
-                .setAllowedOrigins("*") // TODO use correct allowed origins
+                .setAllowedOrigins(*allowedOrigin.split(",").toTypedArray())
                 .withSockJS()
     }
 
