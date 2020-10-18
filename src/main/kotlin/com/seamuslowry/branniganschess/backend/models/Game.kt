@@ -1,8 +1,10 @@
 package com.seamuslowry.branniganschess.backend.models
 
+import com.seamuslowry.branniganschess.backend.websocket.GameStatusHandler
 import javax.persistence.*
 
 @Entity
+@EntityListeners(GameStatusHandler::class)
 class Game (
         var uuid: String = "",
         @ManyToOne

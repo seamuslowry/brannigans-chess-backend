@@ -63,6 +63,16 @@ class GameServiceTest {
     }
 
     @Test
+    fun `gets a single game`() {
+        val game = Game("New Game")
+
+        every { gameRepository.getOne(any()) } returns game
+        val newGame = service.getById(game.id)
+
+        assertEquals(game , newGame)
+    }
+
+    @Test
     fun `searches for games`() {
         val game = Game("Search Game")
         every { gameRepository.findAll(any<Specification<Game>>(), any<Pageable>()) } returns PageImpl(listOf(game))

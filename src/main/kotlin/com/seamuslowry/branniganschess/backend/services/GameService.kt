@@ -83,6 +83,15 @@ class GameService (
     }
 
     /**
+     * Get a single game by id.
+     *
+     * @return the [Game] with that id
+     */
+    fun getById(id: Long): Game {
+        return gameRepository.getOne(id)
+    }
+
+    /**
      * Attempt the requested move on the game with the provided ID.
      *
      * @param gameId the id of the game
