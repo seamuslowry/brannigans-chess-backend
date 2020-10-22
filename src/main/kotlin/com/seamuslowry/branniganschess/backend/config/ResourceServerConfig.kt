@@ -34,6 +34,7 @@ class ResourceServerConfig(
                 .and().formLogin().disable()
                 .logout().disable()
                 .authorizeRequests()
+                    .antMatchers("/ws/**").permitAll()
                     .antMatchers("/game*").permitAll()
                     .anyRequest().authenticated()
                 .and().oauth2ResourceServer().jwt().jwtAuthenticationConverter(grantedAuthoritiesExtractor())
