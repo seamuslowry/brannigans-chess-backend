@@ -12,6 +12,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.Pageable
 import org.springframework.http.MediaType
+import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
@@ -21,6 +22,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.*
 @ExtendWith(SpringExtension::class)
 @WebMvcTest(GameController::class)
 @AutoConfigureMockMvc(addFilters = false)
+@ActiveProfiles("unsecured")
 class GameControllerTest(@Autowired val mockMvc: MockMvc) {
 
     @MockkBean

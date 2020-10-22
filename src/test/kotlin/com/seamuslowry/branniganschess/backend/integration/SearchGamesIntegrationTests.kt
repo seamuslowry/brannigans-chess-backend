@@ -22,7 +22,7 @@ class SearchGamesIntegrationTests(
         val activeGame = gameRepository.save(Game("Piece Search I-Test Active Game One"))
 
         val wonGame = gameRepository.save(Game("Piece Search I-Test Game Two"))
-        val winner = playerRepository.save(Player())
+        val winner = playerRepository.save(Player(System.nanoTime().toString()))
         wonGame.winner = winner
         gameRepository.save(wonGame)
 
@@ -38,7 +38,7 @@ class SearchGamesIntegrationTests(
         val activeGame = gameRepository.save(Game("Piece Search I-Test Active Game One"))
 
         var wonGame = gameRepository.save(Game("Piece Search I-Test Game Two"))
-        val winner = playerRepository.save(Player())
+        val winner = playerRepository.save(Player(System.nanoTime().toString()))
         wonGame.winner = winner
         wonGame = gameRepository.save(wonGame)
 
@@ -54,7 +54,7 @@ class SearchGamesIntegrationTests(
         val activeGame = gameRepository.save(Game("Piece Search I-Test Active Game One"))
 
         val wonGame = gameRepository.save(Game("Piece Search I-Test Game Two"))
-        val winner = playerRepository.save(Player())
+        val winner = playerRepository.save(Player(System.nanoTime().toString()))
         wonGame.winner = winner
         gameRepository.save(wonGame)
 

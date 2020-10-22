@@ -18,15 +18,18 @@ import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
+import org.springframework.context.annotation.Profile
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.domain.Specification
+import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.junit.jupiter.SpringExtension
 
 
 @ExtendWith(SpringExtension::class)
 @WebMvcTest(GameService::class)
 @AutoConfigureMockMvc(addFilters = false)
+@ActiveProfiles("unsecured")
 class GameServiceTest {
     @MockkBean
     lateinit var gameRepository: GameRepository

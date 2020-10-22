@@ -2,9 +2,9 @@ package com.seamuslowry.branniganschess.backend.config
 
 import com.seamuslowry.branniganschess.backend.models.PieceColor
 import com.seamuslowry.branniganschess.backend.services.PlayerService
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Configuration
+import org.springframework.context.annotation.Profile
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
@@ -15,9 +15,10 @@ import org.springframework.web.cors.CorsConfiguration
 
 @Configuration
 @EnableGlobalMethodSecurity(prePostEnabled = true)
+@Profile("!unsecured")
 class ResourceServerConfig(
         @Value("\${cors.allowed-origin}") private val allowedOrigin: String,
-        @Autowired private val playerService: PlayerService
+        private val playerService: PlayerService
 ): WebSecurityConfigurerAdapter() {
     override fun configure(http: HttpSecurity) {
         http
