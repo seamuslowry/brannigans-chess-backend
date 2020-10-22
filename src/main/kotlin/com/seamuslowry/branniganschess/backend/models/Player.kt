@@ -7,9 +7,7 @@ import javax.persistence.Id
 
 @Entity
 class Player (
-        var username: String = "",
-        var password: String = "",
-        var email: String = "",
+        var authId: String,
         @Id
         @GeneratedValue(strategy = GenerationType.IDENTITY)
         private var id: Long = -1

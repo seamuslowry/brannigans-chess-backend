@@ -12,7 +12,12 @@ import org.springframework.data.web.PageableDefault
 import org.springframework.http.ResponseEntity
 import org.springframework.messaging.handler.annotation.DestinationVariable
 import org.springframework.messaging.simp.annotation.SubscribeMapping
+import org.springframework.security.access.prepost.PreAuthorize
+import org.springframework.security.core.annotation.AuthenticationPrincipal
+import org.springframework.security.oauth2.jwt.Jwt
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken
 import org.springframework.web.bind.annotation.*
+import java.security.Principal
 
 @RestController
 @RequestMapping("games")
@@ -37,6 +42,10 @@ class GameController(
     fun getGames(@RequestParam(required = false) active: Boolean?,
                  @PageableDefault(size = 10, sort = ["id"], direction = Sort.Direction.DESC) pageable: Pageable
     ): ResponseEntity<Page<Game>> = ResponseEntity.ok(gameService.findAllBy(active, pageable))
+
+    @GetMapping("/user")
+    @PreAuthorize("authentication.principal.subject == #principal.subject")
+    fun getUser(@AuthenticationPrincipal principal: Jwt): ResponseEntity<String> = ResponseEntity.ok(principal.subject)
 
     @SubscribeMapping("/status/{gameId}")
     fun getCurrentStatus(@DestinationVariable gameId: Long): String {
