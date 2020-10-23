@@ -16,7 +16,7 @@ import org.springframework.web.cors.CorsConfiguration
 @Configuration
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 @Profile("!unsecured")
-class ResourceServerConfig(
+class WebSecurityConfig(
         @Value("\${cors.allowed-origin}") private val allowedOrigin: String,
         private val playerService: PlayerService
 ): WebSecurityConfigurerAdapter() {
