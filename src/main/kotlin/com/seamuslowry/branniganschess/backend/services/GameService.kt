@@ -90,6 +90,7 @@ class GameService (
      *
      * @return a [Page] of all games matching the criteria
      */
+    // TODO itest on this
     fun findPlayerGames(player: Player, color: PieceColor? = null, active: Boolean? = null): List<Game> {
         var spec: Specification<Game> = Specification.where(null)!!
 

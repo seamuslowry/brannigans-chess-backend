@@ -10,6 +10,7 @@ class PlayerService (
         private val playerRepository: PlayerRepository,
         private val gameService: GameService
 ) {
+    // TODO itest on this
     fun getOrCreate(authId: String): Player {
         var player: Player?
 
