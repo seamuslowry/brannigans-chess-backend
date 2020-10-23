@@ -39,6 +39,7 @@ dependencies {
 	testImplementation("com.h2database:h2")
 	testImplementation("com.ninja-squad:springmockk:2.0.1")
 	testImplementation("org.awaitility:awaitility-kotlin:4.0.0")
+	testImplementation("org.springframework.security:spring-security-test:5.2.2.RELEASE")
 
 }
 
