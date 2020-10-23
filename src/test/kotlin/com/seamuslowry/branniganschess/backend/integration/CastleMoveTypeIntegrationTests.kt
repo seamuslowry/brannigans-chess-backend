@@ -1,8 +1,8 @@
 package com.seamuslowry.branniganschess.backend.integration
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import com.seamuslowry.branniganschess.backend.dtos.MoveRequest
 import com.seamuslowry.branniganschess.backend.models.GameStatus
-import com.seamuslowry.branniganschess.backend.models.Move
 import com.seamuslowry.branniganschess.backend.models.MoveType
 import com.seamuslowry.branniganschess.backend.models.pieces.King
 import com.seamuslowry.branniganschess.backend.models.pieces.Rook
@@ -11,13 +11,17 @@ import com.seamuslowry.branniganschess.backend.services.PieceService
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.boot.test.web.client.TestRestTemplate
-import org.springframework.http.HttpStatus
+import org.springframework.http.MediaType
+import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors
+import org.springframework.test.web.servlet.MockMvc
+import org.springframework.test.web.servlet.post
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@AutoConfigureMockMvc
 class CastleMoveTypeIntegrationTests (
-        @Autowired val restTemplate: TestRestTemplate,
+        @Autowired val mockMvc: MockMvc,
         @Autowired val gameService: GameService,
         @Autowired val pieceService: PieceService
 ) {
@@ -33,18 +37,20 @@ class CastleMoveTypeIntegrationTests (
         pieceService.takePiece(board[7][6]!!)
 
         // castle
-        val response = restTemplate.postForEntity(
-                "/moves/${game.id}",
-                MoveRequest(7,4,7,6),
-                Move::class.java
-        )
+        mockMvc.post("/moves/${game.id}") {
+            contentType = MediaType.APPLICATION_JSON
+            content = ObjectMapper().writeValueAsString(MoveRequest(7,4,7,6))
+            accept = MediaType.APPLICATION_JSON
+            with(SecurityMockMvcRequestPostProcessors.jwt())
+        }.andExpect {
+            status { isOk }
+            jsonPath("movingPiece") { isNotEmpty }
+            jsonPath("takenPiece") { isEmpty }
+            jsonPath("moveType") { value(MoveType.KING_SIDE_CASTLE.toString()) }
+        }
 
         board = pieceService.getPiecesAsBoard(game.id)
 
-        Assertions.assertEquals(HttpStatus.OK, response.statusCode)
-        Assertions.assertNotNull(response.body?.movingPiece)
-        Assertions.assertNull(response.body?.takenPiece)
-        Assertions.assertEquals(MoveType.KING_SIDE_CASTLE, response.body?.moveType)
         Assertions.assertTrue(board[7][5] is Rook)
         Assertions.assertTrue(board[7][6] is King)
     }
@@ -63,18 +69,20 @@ class CastleMoveTypeIntegrationTests (
         pieceService.takePiece(board[7][3]!!)
 
         // castle
-        val response = restTemplate.postForEntity(
-                "/moves/${game.id}",
-                MoveRequest(7,4,7,2),
-                Move::class.java
-        )
+        mockMvc.post("/moves/${game.id}") {
+            contentType = MediaType.APPLICATION_JSON
+            content = ObjectMapper().writeValueAsString(MoveRequest(7,4,7,2))
+            accept = MediaType.APPLICATION_JSON
+            with(SecurityMockMvcRequestPostProcessors.jwt())
+        }.andExpect {
+            status { isOk }
+            jsonPath("movingPiece") { isNotEmpty }
+            jsonPath("takenPiece") { isEmpty }
+            jsonPath("moveType") { value(MoveType.QUEEN_SIDE_CASTLE.toString()) }
+        }
 
         board = pieceService.getPiecesAsBoard(game.id)
 
-        Assertions.assertEquals(HttpStatus.OK, response.statusCode)
-        Assertions.assertNotNull(response.body?.movingPiece)
-        Assertions.assertNull(response.body?.takenPiece)
-        Assertions.assertEquals(MoveType.QUEEN_SIDE_CASTLE, response.body?.moveType)
         Assertions.assertTrue(board[7][3] is Rook)
         Assertions.assertTrue(board[7][2] is King)
     }
@@ -94,18 +102,20 @@ class CastleMoveTypeIntegrationTests (
         gameService.updateGameStatusForNextPlayer(game, GameStatus.BLACK_TURN)
 
         // castle
-        val response = restTemplate.postForEntity(
-                "/moves/${game.id}",
-                MoveRequest(0,4,0,6),
-                Move::class.java
-        )
+        mockMvc.post("/moves/${game.id}") {
+            contentType = MediaType.APPLICATION_JSON
+            content = ObjectMapper().writeValueAsString(MoveRequest(0,4,0,6))
+            accept = MediaType.APPLICATION_JSON
+            with(SecurityMockMvcRequestPostProcessors.jwt())
+        }.andExpect {
+            status { isOk }
+            jsonPath("movingPiece") { isNotEmpty }
+            jsonPath("takenPiece") { isEmpty }
+            jsonPath("moveType") { value(MoveType.KING_SIDE_CASTLE.toString()) }
+        }
 
         board = pieceService.getPiecesAsBoard(game.id)
 
-        Assertions.assertEquals(HttpStatus.OK, response.statusCode)
-        Assertions.assertNotNull(response.body?.movingPiece)
-        Assertions.assertNull(response.body?.takenPiece)
-        Assertions.assertEquals(MoveType.KING_SIDE_CASTLE, response.body?.moveType)
         Assertions.assertTrue(board[0][5] is Rook)
         Assertions.assertTrue(board[0][6] is King)
     }
@@ -127,18 +137,20 @@ class CastleMoveTypeIntegrationTests (
         gameService.updateGameStatusForNextPlayer(game, GameStatus.BLACK_TURN)
 
         // castle
-        val response = restTemplate.postForEntity(
-                "/moves/${game.id}",
-                MoveRequest(0,4,0,2),
-                Move::class.java
-        )
+        mockMvc.post("/moves/${game.id}") {
+            contentType = MediaType.APPLICATION_JSON
+            content = ObjectMapper().writeValueAsString(MoveRequest(0,4,0,2))
+            accept = MediaType.APPLICATION_JSON
+            with(SecurityMockMvcRequestPostProcessors.jwt())
+        }.andExpect {
+            status { isOk }
+            jsonPath("movingPiece") { isNotEmpty }
+            jsonPath("takenPiece") { isEmpty }
+            jsonPath("moveType") { value(MoveType.QUEEN_SIDE_CASTLE.toString()) }
+        }
 
         board = pieceService.getPiecesAsBoard(game.id)
 
-        Assertions.assertEquals(HttpStatus.OK, response.statusCode)
-        Assertions.assertNotNull(response.body?.movingPiece)
-        Assertions.assertNull(response.body?.takenPiece)
-        Assertions.assertEquals(MoveType.QUEEN_SIDE_CASTLE, response.body?.moveType)
         Assertions.assertTrue(board[0][3] is Rook)
         Assertions.assertTrue(board[0][2] is King)
     }
