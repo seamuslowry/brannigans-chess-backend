@@ -14,7 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.MediaType
-import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors
+import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.post
 
@@ -41,7 +41,7 @@ class CastleMoveTypeIntegrationTests (
             contentType = MediaType.APPLICATION_JSON
             content = ObjectMapper().writeValueAsString(MoveRequest(7,4,7,6))
             accept = MediaType.APPLICATION_JSON
-            with(SecurityMockMvcRequestPostProcessors.jwt())
+            with(jwt())
         }.andExpect {
             status { isOk }
             jsonPath("movingPiece") { isNotEmpty }
@@ -73,7 +73,7 @@ class CastleMoveTypeIntegrationTests (
             contentType = MediaType.APPLICATION_JSON
             content = ObjectMapper().writeValueAsString(MoveRequest(7,4,7,2))
             accept = MediaType.APPLICATION_JSON
-            with(SecurityMockMvcRequestPostProcessors.jwt())
+            with(jwt())
         }.andExpect {
             status { isOk }
             jsonPath("movingPiece") { isNotEmpty }
@@ -106,7 +106,7 @@ class CastleMoveTypeIntegrationTests (
             contentType = MediaType.APPLICATION_JSON
             content = ObjectMapper().writeValueAsString(MoveRequest(0,4,0,6))
             accept = MediaType.APPLICATION_JSON
-            with(SecurityMockMvcRequestPostProcessors.jwt())
+            with(jwt())
         }.andExpect {
             status { isOk }
             jsonPath("movingPiece") { isNotEmpty }
@@ -141,7 +141,7 @@ class CastleMoveTypeIntegrationTests (
             contentType = MediaType.APPLICATION_JSON
             content = ObjectMapper().writeValueAsString(MoveRequest(0,4,0,2))
             accept = MediaType.APPLICATION_JSON
-            with(SecurityMockMvcRequestPostProcessors.jwt())
+            with(jwt())
         }.andExpect {
             status { isOk }
             jsonPath("movingPiece") { isNotEmpty }

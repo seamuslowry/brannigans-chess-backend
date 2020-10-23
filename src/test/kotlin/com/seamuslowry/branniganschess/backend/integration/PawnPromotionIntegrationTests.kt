@@ -1,23 +1,27 @@
 package com.seamuslowry.branniganschess.backend.integration
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import com.seamuslowry.branniganschess.backend.dtos.PieceIdentifierDto
 import com.seamuslowry.branniganschess.backend.models.GameStatus
-import com.seamuslowry.branniganschess.backend.models.Piece
 import com.seamuslowry.branniganschess.backend.models.PieceStatus
-import com.seamuslowry.branniganschess.backend.models.pieces.Queen
+import com.seamuslowry.branniganschess.backend.models.PieceType
 import com.seamuslowry.branniganschess.backend.repos.GameRepository
 import com.seamuslowry.branniganschess.backend.services.GameService
 import com.seamuslowry.branniganschess.backend.services.PieceService
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.boot.test.web.client.TestRestTemplate
-import org.springframework.http.HttpStatus
+import org.springframework.http.MediaType
+import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt
+import org.springframework.test.web.servlet.MockMvc
+import org.springframework.test.web.servlet.post
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@AutoConfigureMockMvc
 class PawnPromotionIntegrationTests(
-        @Autowired val restTemplate: TestRestTemplate,
+        @Autowired val mockMvc: MockMvc,
         @Autowired val gameService: GameService,
         @Autowired val pieceService: PieceService,
         @Autowired val gameRepository: GameRepository
@@ -35,18 +39,20 @@ class PawnPromotionIntegrationTests(
         pieceService.movePiece(pawn, 0, 3)
 
         // promote
-        val response = restTemplate.postForEntity(
-                "/pieces/promote/QUEEN",
-                PieceIdentifierDto(game.id, 0, 3),
-                Piece::class.java
-        )
+        mockMvc.post("/pieces/promote/QUEEN") {
+            contentType = MediaType.APPLICATION_JSON
+            content = ObjectMapper().writeValueAsString(PieceIdentifierDto(game.id, 0, 3))
+            accept = MediaType.APPLICATION_JSON
+            with(jwt())
+        }.andExpect {
+            status { isOk }
+            jsonPath("type") { value(PieceType.QUEEN.toString()) }
+        }
 
         val savedPawn = pieceService.findAllBy(game.id, status = PieceStatus.REMOVED).first()
         val savedGame = gameRepository.getOne(game.id)
 
-        assertEquals(HttpStatus.OK, response.statusCode)
         assertEquals(pawn.id, savedPawn.id)
-        assertTrue(response.body is Queen)
         assertEquals(GameStatus.BLACK_CHECK, savedGame.status)
     }
 
@@ -63,18 +69,20 @@ class PawnPromotionIntegrationTests(
         pieceService.movePiece(pawn, 7, 3)
 
         // promote
-        val response = restTemplate.postForEntity(
-                "/pieces/promote/QUEEN",
-                PieceIdentifierDto(game.id, 7, 3),
-                Piece::class.java
-        )
+        mockMvc.post("/pieces/promote/QUEEN") {
+            contentType = MediaType.APPLICATION_JSON
+            content = ObjectMapper().writeValueAsString(PieceIdentifierDto(game.id, 7, 3))
+            accept = MediaType.APPLICATION_JSON
+            with(jwt())
+        }.andExpect {
+            status { isOk }
+            jsonPath("type") { value(PieceType.QUEEN.toString()) }
+        }
 
         val savedPawn = pieceService.findAllBy(game.id, status = PieceStatus.REMOVED).first()
         val savedGame = gameRepository.getOne(game.id)
 
-        assertEquals(HttpStatus.OK, response.statusCode)
         assertEquals(pawn.id, savedPawn.id)
-        assertTrue(response.body is Queen)
         assertEquals(GameStatus.WHITE_CHECK, savedGame.status)
     }
 
@@ -91,18 +99,20 @@ class PawnPromotionIntegrationTests(
         pieceService.movePiece(pawn, 0, 2)
 
         // promote
-        val response = restTemplate.postForEntity(
-                "/pieces/promote/QUEEN",
-                PieceIdentifierDto(game.id, 0, 2),
-                Piece::class.java
-        )
+        mockMvc.post("/pieces/promote/QUEEN") {
+            contentType = MediaType.APPLICATION_JSON
+            content = ObjectMapper().writeValueAsString(PieceIdentifierDto(game.id, 0, 2))
+            accept = MediaType.APPLICATION_JSON
+            with(jwt())
+        }.andExpect {
+            status { isOk }
+            jsonPath("type") { value(PieceType.QUEEN.toString()) }
+        }
 
         val savedPawn = pieceService.findAllBy(game.id, status = PieceStatus.REMOVED).first()
         val savedGame = gameRepository.getOne(game.id)
 
-        assertEquals(HttpStatus.OK, response.statusCode)
         assertEquals(pawn.id, savedPawn.id)
-        assertTrue(response.body is Queen)
         assertEquals(GameStatus.BLACK_TURN, savedGame.status)
     }
 
@@ -119,18 +129,20 @@ class PawnPromotionIntegrationTests(
         pieceService.movePiece(pawn, 7, 2)
 
         // promote
-        val response = restTemplate.postForEntity(
-                "/pieces/promote/QUEEN",
-                PieceIdentifierDto(game.id, 7, 2),
-                Piece::class.java
-        )
+        mockMvc.post("/pieces/promote/QUEEN") {
+            contentType = MediaType.APPLICATION_JSON
+            content = ObjectMapper().writeValueAsString(PieceIdentifierDto(game.id, 7, 2))
+            accept = MediaType.APPLICATION_JSON
+            with(jwt())
+        }.andExpect {
+            status { isOk }
+            jsonPath("type") { value(PieceType.QUEEN.toString()) }
+        }
 
         val savedPawn = pieceService.findAllBy(game.id, status = PieceStatus.REMOVED).first()
         val savedGame = gameRepository.getOne(game.id)
 
-        assertEquals(HttpStatus.OK, response.statusCode)
         assertEquals(pawn.id, savedPawn.id)
-        assertTrue(response.body is Queen)
         assertEquals(GameStatus.WHITE_TURN, savedGame.status)
     }
 }
