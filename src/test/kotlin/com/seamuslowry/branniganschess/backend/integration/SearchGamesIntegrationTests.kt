@@ -1,19 +1,19 @@
 package com.seamuslowry.branniganschess.backend.integration
 
-import com.seamuslowry.branniganschess.backend.integration.mocks.TestGamePageImpl
 import com.seamuslowry.branniganschess.backend.models.*
 import com.seamuslowry.branniganschess.backend.repos.GameRepository
 import com.seamuslowry.branniganschess.backend.repos.PlayerRepository
-import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.boot.test.web.client.TestRestTemplate
-import org.springframework.http.HttpStatus
+import org.springframework.test.web.servlet.MockMvc
+import org.springframework.test.web.servlet.get
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@AutoConfigureMockMvc
 class SearchGamesIntegrationTests(
-        @Autowired val restTemplate: TestRestTemplate,
+        @Autowired val mockMvc: MockMvc,
         @Autowired val playerRepository: PlayerRepository,
         @Autowired val gameRepository: GameRepository
 ) {
@@ -26,11 +26,12 @@ class SearchGamesIntegrationTests(
         wonGame.winner = winner
         gameRepository.save(wonGame)
 
-        val entity = restTemplate.getForEntity("/games?active=true&size=${gameRepository.count()}", TestGamePageImpl::class.java)
-
-        Assertions.assertEquals(HttpStatus.OK, entity.statusCode)
-        Assertions.assertNotNull(entity.body?.content?.find { it.id == activeGame.id })
-        Assertions.assertNull(entity.body?.content?.find { it.id == wonGame.id })
+        mockMvc.get("/games?active=true&size=${gameRepository.count()}")
+            .andExpect {
+                status { isOk }
+                jsonPath("content[?(@.id == ${activeGame.id})]") { isNotEmpty }
+                jsonPath("content[?(@.id == ${wonGame.id})]") { isEmpty }
+            }
     }
 
     @Test
@@ -42,11 +43,12 @@ class SearchGamesIntegrationTests(
         wonGame.winner = winner
         wonGame = gameRepository.save(wonGame)
 
-        val entity = restTemplate.getForEntity("/games?active=false&size=${gameRepository.count()}", TestGamePageImpl::class.java)
-
-        Assertions.assertEquals(HttpStatus.OK, entity.statusCode)
-        Assertions.assertNull(entity.body?.content?.find { it.id == activeGame.id })
-        Assertions.assertNotNull(entity.body?.content?.find { it.id == wonGame.id })
+        mockMvc.get("/games?active=false&size=${gameRepository.count()}")
+            .andExpect {
+                status { isOk }
+                jsonPath("content[?(@.id == ${activeGame.id})]") { isEmpty }
+                jsonPath("content[?(@.id == ${wonGame.id})]") { isNotEmpty }
+            }
     }
 
     @Test
@@ -58,10 +60,11 @@ class SearchGamesIntegrationTests(
         wonGame.winner = winner
         gameRepository.save(wonGame)
 
-        val entity = restTemplate.getForEntity("/games?size=${gameRepository.count()}", TestGamePageImpl::class.java)
-
-        Assertions.assertEquals(HttpStatus.OK, entity.statusCode)
-        Assertions.assertNotNull(entity.body?.content?.find { it.id == activeGame.id })
-        Assertions.assertNotNull(entity.body?.content?.find { it.id == wonGame.id })
+        mockMvc.get("/games?size=${gameRepository.count()}")
+            .andExpect {
+                status { isOk }
+                jsonPath("content[?(@.id == ${activeGame.id})]") { isNotEmpty }
+                jsonPath("content[?(@.id == ${wonGame.id})]") { isNotEmpty }
+            }
     }
 }
