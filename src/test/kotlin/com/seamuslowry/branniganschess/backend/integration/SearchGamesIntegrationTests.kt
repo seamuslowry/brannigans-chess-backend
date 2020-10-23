@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.get
 
@@ -66,5 +67,125 @@ class SearchGamesIntegrationTests(
                 jsonPath("content[?(@.id == ${activeGame.id})]") { isNotEmpty }
                 jsonPath("content[?(@.id == ${wonGame.id})]") { isNotEmpty }
             }
+    }
+
+    @Test
+    fun `Finds all a player's games`() {
+        val playerAuthId = System.nanoTime().toString()
+        val playerOne = playerRepository.save(Player(playerAuthId))
+        val whiteActiveGame = gameRepository.save(Game("1 - Player White Active Game", whitePlayer = playerOne))
+        val blackActiveGame = gameRepository.save(Game("1 - Player Black Active Game", blackPlayer = playerOne))
+        val whiteInactiveGame = gameRepository.save(Game("1 - Player White Inactive Game", whitePlayer = playerOne, winner = playerOne))
+        val blackInactiveGame = gameRepository.save(Game("1 - Player Black Inactive Game", blackPlayer = playerOne, winner = playerOne))
+        val playerTwo = playerRepository.save(Player(System.nanoTime().toString()))
+        val noMatchGame = gameRepository.save(Game("1 - Player Game Search No Match", whitePlayer = playerTwo))
+
+        mockMvc.get("/players/games") {
+            with(jwt().jwt { it.claim("sub", playerAuthId) })
+        }.andExpect {
+            status { isOk }
+            jsonPath("$.length()") { value(4) }
+            jsonPath("$[?(@.id == ${whiteActiveGame.id})]") { isNotEmpty }
+            jsonPath("$[?(@.id == ${blackActiveGame.id})]") { isNotEmpty }
+            jsonPath("$[?(@.id == ${blackInactiveGame.id})]") { isNotEmpty }
+            jsonPath("$[?(@.id == ${whiteInactiveGame.id})]") { isNotEmpty }
+            jsonPath("$[?(@.id == ${noMatchGame.id})]") { isEmpty }
+        }
+    }
+
+    @Test
+    fun `Finds all a player's active games`() {
+        val playerAuthId = System.nanoTime().toString()
+        val playerOne = playerRepository.save(Player(playerAuthId))
+        val whiteActiveGame = gameRepository.save(Game("2 - Player White Active Game", whitePlayer = playerOne))
+        val blackActiveGame = gameRepository.save(Game("2 - Player Black Active Game", blackPlayer = playerOne))
+        val whiteInactiveGame = gameRepository.save(Game("2 - Player White Inactive Game", whitePlayer = playerOne, winner = playerOne))
+        val blackInactiveGame = gameRepository.save(Game("2 - Player Black Inactive Game", blackPlayer = playerOne, winner = playerOne))
+        val playerTwo = playerRepository.save(Player(System.nanoTime().toString()))
+        val noMatchGame = gameRepository.save(Game("2 - Player Game Search No Match", whitePlayer = playerTwo))
+
+        mockMvc.get("/players/games?active=true") {
+            with(jwt().jwt { it.claim("sub", playerAuthId) })
+        }.andExpect {
+            status { isOk }
+            jsonPath("$.length()") { value(2) }
+            jsonPath("$[?(@.id == ${whiteActiveGame.id})]") { isNotEmpty }
+            jsonPath("$[?(@.id == ${blackActiveGame.id})]") { isNotEmpty }
+            jsonPath("$[?(@.id == ${blackInactiveGame.id})]") { isEmpty }
+            jsonPath("$[?(@.id == ${whiteInactiveGame.id})]") { isEmpty }
+            jsonPath("$[?(@.id == ${noMatchGame.id})]") { isEmpty }
+        }
+    }
+
+    @Test
+    fun `Finds all a player's inactive games`() {
+        val playerAuthId = System.nanoTime().toString()
+        val playerOne = playerRepository.save(Player(playerAuthId))
+        val whiteActiveGame = gameRepository.save(Game("2 - Player White Active Game", whitePlayer = playerOne))
+        val blackActiveGame = gameRepository.save(Game("2 - Player Black Active Game", blackPlayer = playerOne))
+        val whiteInactiveGame = gameRepository.save(Game("2 - Player White Inactive Game", whitePlayer = playerOne, winner = playerOne))
+        val blackInactiveGame = gameRepository.save(Game("2 - Player Black Inactive Game", blackPlayer = playerOne, winner = playerOne))
+        val playerTwo = playerRepository.save(Player(System.nanoTime().toString()))
+        val noMatchGame = gameRepository.save(Game("2 - Player Game Search No Match", whitePlayer = playerTwo))
+
+        mockMvc.get("/players/games?active=false") {
+            with(jwt().jwt { it.claim("sub", playerAuthId) })
+        }.andExpect {
+            status { isOk }
+            jsonPath("$.length()") { value(2) }
+            jsonPath("$[?(@.id == ${whiteActiveGame.id})]") { isEmpty }
+            jsonPath("$[?(@.id == ${blackActiveGame.id})]") { isEmpty }
+            jsonPath("$[?(@.id == ${blackInactiveGame.id})]") { isNotEmpty }
+            jsonPath("$[?(@.id == ${whiteInactiveGame.id})]") { isNotEmpty }
+            jsonPath("$[?(@.id == ${noMatchGame.id})]") { isEmpty }
+        }
+    }
+
+    @Test
+    fun `Finds all a player's color active games`() {
+        val playerAuthId = System.nanoTime().toString()
+        val playerOne = playerRepository.save(Player(playerAuthId))
+        val whiteActiveGame = gameRepository.save(Game("2 - Player White Active Game", whitePlayer = playerOne))
+        val blackActiveGame = gameRepository.save(Game("2 - Player Black Active Game", blackPlayer = playerOne))
+        val whiteInactiveGame = gameRepository.save(Game("2 - Player White Inactive Game", whitePlayer = playerOne, winner = playerOne))
+        val blackInactiveGame = gameRepository.save(Game("2 - Player Black Inactive Game", blackPlayer = playerOne, winner = playerOne))
+        val playerTwo = playerRepository.save(Player(System.nanoTime().toString()))
+        val noMatchGame = gameRepository.save(Game("2 - Player Game Search No Match", whitePlayer = playerTwo))
+
+        mockMvc.get("/players/games?active=true&color=BLACK") {
+            with(jwt().jwt { it.claim("sub", playerAuthId) })
+        }.andExpect {
+            status { isOk }
+            jsonPath("$.length()") { value(1) }
+            jsonPath("$[?(@.id == ${whiteActiveGame.id})]") { isEmpty }
+            jsonPath("$[?(@.id == ${blackActiveGame.id})]") { isNotEmpty }
+            jsonPath("$[?(@.id == ${blackInactiveGame.id})]") { isEmpty }
+            jsonPath("$[?(@.id == ${whiteInactiveGame.id})]") { isEmpty }
+            jsonPath("$[?(@.id == ${noMatchGame.id})]") { isEmpty }
+        }
+    }
+
+    @Test
+    fun `Finds all a player's color inactive games`() {
+        val playerAuthId = System.nanoTime().toString()
+        val playerOne = playerRepository.save(Player(playerAuthId))
+        val whiteActiveGame = gameRepository.save(Game("2 - Player White Active Game", whitePlayer = playerOne))
+        val blackActiveGame = gameRepository.save(Game("2 - Player Black Active Game", blackPlayer = playerOne))
+        val whiteInactiveGame = gameRepository.save(Game("2 - Player White Inactive Game", whitePlayer = playerOne, winner = playerOne))
+        val blackInactiveGame = gameRepository.save(Game("2 - Player Black Inactive Game", blackPlayer = playerOne, winner = playerOne))
+        val playerTwo = playerRepository.save(Player(System.nanoTime().toString()))
+        val noMatchGame = gameRepository.save(Game("2 - Player Game Search No Match", whitePlayer = playerTwo))
+
+        mockMvc.get("/players/games?active=false&color=BLACK") {
+            with(jwt().jwt { it.claim("sub", playerAuthId) })
+        }.andExpect {
+            status { isOk }
+            jsonPath("$.length()") { value(1) }
+            jsonPath("$[?(@.id == ${whiteActiveGame.id})]") { isEmpty }
+            jsonPath("$[?(@.id == ${blackActiveGame.id})]") { isEmpty }
+            jsonPath("$[?(@.id == ${blackInactiveGame.id})]") { isNotEmpty }
+            jsonPath("$[?(@.id == ${whiteInactiveGame.id})]") { isEmpty }
+            jsonPath("$[?(@.id == ${noMatchGame.id})]") { isEmpty }
+        }
     }
 }

@@ -75,7 +75,7 @@ class PlayerServiceTest {
         val game = Game()
         every { gameService.findPlayerGames(any(), any(), any()) } returns listOf(game)
 
-        val foundGames = service.getGames(newPlayer, PieceColor.WHITE, true)
+        val foundGames = service.getGames(newPlayer.authId, PieceColor.WHITE, true)
 
         verify(exactly = 1) { gameService.findPlayerGames(any(), any(), any()) }
         assertEquals(listOf(game), foundGames)

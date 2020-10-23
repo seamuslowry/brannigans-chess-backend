@@ -46,8 +46,8 @@ class ResourceServerConfig(
 
         jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter { jwt ->
             val player = playerService.getOrCreate(jwt.subject)
-            val whiteGames = playerService.getGames(player, PieceColor.WHITE, true)
-            val blackGames = playerService.getGames(player, PieceColor.BLACK, true)
+            val whiteGames = playerService.getGames(player.authId, PieceColor.WHITE, true)
+            val blackGames = playerService.getGames(player.authId, PieceColor.BLACK, true)
 
             whiteGames
                 .map { SimpleGrantedAuthority("WHITE_${it.id}") }
