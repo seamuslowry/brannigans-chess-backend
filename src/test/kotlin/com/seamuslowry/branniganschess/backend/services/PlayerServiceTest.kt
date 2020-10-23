@@ -73,6 +73,7 @@ class PlayerServiceTest {
         val authId = "games-id"
         val newPlayer = Player(authId)
         val game = Game()
+        every { playerRepository.findOne(any()) } returns Optional.of(newPlayer)
         every { gameService.findPlayerGames(any(), any(), any()) } returns listOf(game)
 
         val foundGames = service.getGames(newPlayer.authId, PieceColor.WHITE, true)
