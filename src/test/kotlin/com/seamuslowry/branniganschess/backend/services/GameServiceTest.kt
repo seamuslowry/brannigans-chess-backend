@@ -18,13 +18,11 @@ import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
-import org.springframework.context.annotation.Profile
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.domain.Specification
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.junit.jupiter.SpringExtension
-
 
 @ExtendWith(SpringExtension::class)
 @WebMvcTest(GameService::class)
@@ -83,6 +81,42 @@ class GameServiceTest {
         val foundPieces = service.findAllBy(true, Pageable.unpaged())
 
         verify(exactly = 1) { gameRepository.findAll(any<Specification<Game>>(), any<Pageable>()) }
+        assertEquals(1 , foundPieces.count())
+    }
+
+    @Test
+    fun `searches for black color games by a player`() {
+        val game = Game("Search Game")
+        val player = Player(System.nanoTime().toString())
+        every { gameRepository.findAll(any<Specification<Game>>()) } returns listOf(game)
+
+        val foundPieces = service.findPlayerGames(player, PieceColor.BLACK, true)
+
+        verify(exactly = 1) { gameRepository.findAll(any<Specification<Game>>()) }
+        assertEquals(1 , foundPieces.count())
+    }
+
+    @Test
+    fun `searches for white color games by a player`() {
+        val game = Game("Search Game")
+        val player = Player(System.nanoTime().toString())
+        every { gameRepository.findAll(any<Specification<Game>>()) } returns listOf(game)
+
+        val foundPieces = service.findPlayerGames(player, PieceColor.WHITE, true)
+
+        verify(exactly = 1) { gameRepository.findAll(any<Specification<Game>>()) }
+        assertEquals(1 , foundPieces.count())
+    }
+
+    @Test
+    fun `searches for games by a player`() {
+        val game = Game("Search Game")
+        val player = Player(System.nanoTime().toString())
+        every { gameRepository.findAll(any<Specification<Game>>()) } returns listOf(game)
+
+        val foundPieces = service.findPlayerGames(player)
+
+        verify(exactly = 1) { gameRepository.findAll(any<Specification<Game>>()) }
         assertEquals(1 , foundPieces.count())
     }
 
