@@ -3,7 +3,6 @@ package com.seamuslowry.branniganschess.backend.services
 import com.seamuslowry.branniganschess.backend.models.*
 import com.seamuslowry.branniganschess.backend.repos.PlayerRepository
 import org.springframework.data.jpa.domain.Specification
-import org.springframework.security.oauth2.jwt.Jwt
 import org.springframework.stereotype.Service
 
 @Service
@@ -27,8 +26,6 @@ class PlayerService (
     fun getGames(player: Player, color: PieceColor?, active: Boolean?) = gameService.findPlayerGames(player, color, active)
 
     private fun getByAuthId(authId: String): Player? = playerRepository.findOne(Specification.where(withAuthId(authId))).orElse(null)
-
-    private fun getFromJwt(jwt: Jwt): Player? = playerRepository.findOne(Specification.where(withAuthId(jwt.subject))).orElse(null)
 
     private fun withAuthId(authId: String): Specification<Player> = Specification {
         root,
