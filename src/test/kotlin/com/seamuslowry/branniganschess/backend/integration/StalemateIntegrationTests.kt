@@ -1,9 +1,9 @@
 package com.seamuslowry.branniganschess.backend.integration
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import com.seamuslowry.branniganschess.backend.dtos.MoveRequest
 import com.seamuslowry.branniganschess.backend.models.Game
 import com.seamuslowry.branniganschess.backend.models.GameStatus
-import com.seamuslowry.branniganschess.backend.models.Move
 import com.seamuslowry.branniganschess.backend.models.PieceColor
 import com.seamuslowry.branniganschess.backend.models.pieces.Bishop
 import com.seamuslowry.branniganschess.backend.models.pieces.King
@@ -14,13 +14,17 @@ import com.seamuslowry.branniganschess.backend.services.PieceService
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.boot.test.web.client.TestRestTemplate
-import org.springframework.http.HttpStatus
+import org.springframework.http.MediaType
+import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt
+import org.springframework.test.web.servlet.MockMvc
+import org.springframework.test.web.servlet.post
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@AutoConfigureMockMvc
 class StalemateIntegrationTests(
-        @Autowired val restTemplate: TestRestTemplate,
+        @Autowired val mockMvc: MockMvc,
         @Autowired val gameService: GameService,
         @Autowired val pieceService: PieceService,
         @Autowired val gameRepository: GameRepository
@@ -42,15 +46,17 @@ class StalemateIntegrationTests(
         pieceService.movePiece(board[7][0]!!, 7, 1)
 
         // move other rook to stalemate
-        val response = restTemplate.postForEntity(
-                "/moves/${game.id}",
-                MoveRequest(7,7,1,7),
-                Move::class.java
-        )
+        mockMvc.post("/moves/${game.id}") {
+            contentType = MediaType.APPLICATION_JSON
+            content = ObjectMapper().writeValueAsString(MoveRequest(7,7,1,7))
+            accept = MediaType.APPLICATION_JSON
+            with(jwt())
+        }.andExpect {
+            status { isOk }
+        }
 
         game = gameRepository.getOne(game.id)
 
-        assertEquals(HttpStatus.OK, response.statusCode)
         assertEquals(GameStatus.STALEMATE, game.status)
     }
 
@@ -77,15 +83,17 @@ class StalemateIntegrationTests(
         pieceService.movePiece(board[7][4]!!, 2, 1)
 
         // move white rook to stalemate
-        val response = restTemplate.postForEntity(
-                "/moves/${game.id}",
-                MoveRequest(7,7,0,7),
-                Move::class.java
-        )
+        mockMvc.post("/moves/${game.id}") {
+            contentType = MediaType.APPLICATION_JSON
+            content = ObjectMapper().writeValueAsString(MoveRequest(7,7,0,7))
+            accept = MediaType.APPLICATION_JSON
+            with(jwt())
+        }.andExpect {
+            status { isOk }
+        }
 
         game = gameRepository.getOne(game.id)
 
-        assertEquals(HttpStatus.OK, response.statusCode)
         assertEquals(GameStatus.STALEMATE, game.status)
     }
 

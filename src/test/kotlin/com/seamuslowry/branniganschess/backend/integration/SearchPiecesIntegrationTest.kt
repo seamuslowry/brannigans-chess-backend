@@ -14,7 +14,7 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors
+import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.get
 
@@ -35,17 +35,12 @@ class SearchPiecesIntegrationTest(
         pieceService.createPiece(Pawn(PieceColor.WHITE, gameTwo))
 
         mockMvc.get("/pieces/${gameOne.id}") {
-            with(SecurityMockMvcRequestPostProcessors.jwt())
+            with(jwt())
         }.andExpect {
             status { isOk }
             jsonPath("$.length()") { value(1) }
             jsonPath("$[?(@.id == ${searchPiece.id})]") { isNotEmpty }
         }
-//        val entity = restTemplate.getForEntity("/pieces/${gameOne.id}", Iterable::class.java)
-//
-//        Assertions.assertEquals(HttpStatus.OK, entity.statusCode)
-//        Assertions.assertEquals(1, entity.body?.count())
-//        Assertions.assertTrue(entity.body?.first().toString().contains("id=${searchPiece.id}"))
     }
 
     @Test
@@ -56,17 +51,12 @@ class SearchPiecesIntegrationTest(
         pieceService.createPiece(Pawn(PieceColor.WHITE, gameOne))
 
         mockMvc.get("/pieces/${gameOne.id}?color=BLACK") {
-            with(SecurityMockMvcRequestPostProcessors.jwt())
+            with(jwt())
         }.andExpect {
             status { isOk }
             jsonPath("$.length()") { value(1) }
             jsonPath("$[?(@.id == ${searchPiece.id})]") { isNotEmpty }
         }
-//        val entity = restTemplate.getForEntity("/pieces/${gameOne.id}?color=BLACK", Iterable::class.java)
-//
-//        Assertions.assertEquals(HttpStatus.OK, entity.statusCode)
-//        Assertions.assertEquals(1, entity.body?.count())
-//        Assertions.assertTrue(entity.body?.first().toString().contains("id=${searchPiece.id}"))
     }
 
     @Test
@@ -77,17 +67,12 @@ class SearchPiecesIntegrationTest(
         pieceService.createPiece(Pawn(PieceColor.BLACK, gameOne))
 
         mockMvc.get("/pieces/${gameOne.id}?status=TAKEN") {
-            with(SecurityMockMvcRequestPostProcessors.jwt())
+            with(jwt())
         }.andExpect {
             status { isOk }
             jsonPath("$.length()") { value(1) }
             jsonPath("$[?(@.id == ${searchPiece.id})]") { isNotEmpty }
         }
-//        val entity = restTemplate.getForEntity("/pieces/${gameOne.id}?status=TAKEN", Iterable::class.java)
-//
-//        Assertions.assertEquals(HttpStatus.OK, entity.statusCode)
-//        Assertions.assertEquals(1, entity.body?.count())
-//        Assertions.assertTrue(entity.body?.first().toString().contains("id=${searchPiece.id}"))
     }
 
     @Test
@@ -104,17 +89,12 @@ class SearchPiecesIntegrationTest(
         pieceService.createPiece(Pawn(PieceColor.BLACK, gameTwo, 0, 0, PieceStatus.TAKEN))
 
         mockMvc.get("/pieces/${gameOne.id}?color=BLACK&status=TAKEN") {
-            with(SecurityMockMvcRequestPostProcessors.jwt())
+            with(jwt())
         }.andExpect {
             status { isOk }
             jsonPath("$.length()") { value(1) }
             jsonPath("$[?(@.id == ${searchPiece.id})]") { isNotEmpty }
         }
-//        val entity = restTemplate.getForEntity("/pieces/${gameOne.id}?color=BLACK&status=TAKEN", Iterable::class.java)
-//
-//        Assertions.assertEquals(HttpStatus.OK, entity.statusCode)
-//        Assertions.assertEquals(1, entity.body?.count())
-//        Assertions.assertTrue(entity.body?.first().toString().contains("id=${searchPiece.id}"))
     }
 
     @Test
