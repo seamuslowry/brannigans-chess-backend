@@ -1,9 +1,9 @@
 package com.seamuslowry.branniganschess.backend.integration
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import com.seamuslowry.branniganschess.backend.dtos.MoveRequest
 import com.seamuslowry.branniganschess.backend.models.Game
 import com.seamuslowry.branniganschess.backend.models.GameStatus
-import com.seamuslowry.branniganschess.backend.models.Move
 import com.seamuslowry.branniganschess.backend.models.pieces.King
 import com.seamuslowry.branniganschess.backend.models.pieces.Rook
 import com.seamuslowry.branniganschess.backend.repos.GameRepository
@@ -12,13 +12,17 @@ import com.seamuslowry.branniganschess.backend.services.PieceService
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.boot.test.web.client.TestRestTemplate
-import org.springframework.http.HttpStatus
+import org.springframework.http.MediaType
+import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors
+import org.springframework.test.web.servlet.MockMvc
+import org.springframework.test.web.servlet.post
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@AutoConfigureMockMvc
 class CheckmateIntegrationTests(
-        @Autowired val restTemplate: TestRestTemplate,
+        @Autowired val mockMvc: MockMvc,
         @Autowired val gameService: GameService,
         @Autowired val pieceService: PieceService,
         @Autowired val gameRepository: GameRepository
@@ -37,15 +41,17 @@ class CheckmateIntegrationTests(
         pieceService.movePiece(board[7][0]!!, 1, 0)
 
         // move other rook to checkmate
-        val response = restTemplate.postForEntity(
-                "/moves/${game.id}",
-                MoveRequest(7,7,0,7),
-                Move::class.java
-        )
+        mockMvc.post("/moves/${game.id}") {
+            contentType = MediaType.APPLICATION_JSON
+            content = ObjectMapper().writeValueAsString(MoveRequest(7,7,0,7))
+            accept = MediaType.APPLICATION_JSON
+            with(SecurityMockMvcRequestPostProcessors.jwt())
+        }.andExpect {
+            status { isOk }
+        }
 
         game = gameRepository.getOne(game.id)
 
-        assertEquals(HttpStatus.OK, response.statusCode)
         assertEquals(GameStatus.CHECKMATE, game.status)
     }
 
@@ -68,15 +74,17 @@ class CheckmateIntegrationTests(
         gameService.updateGameStatusForNextPlayer(game, GameStatus.BLACK_TURN)
 
         // move other rook to checkmate
-        val response = restTemplate.postForEntity(
-                "/moves/${game.id}",
-                MoveRequest(0,7,7,7),
-                Move::class.java
-        )
+        mockMvc.post("/moves/${game.id}") {
+            contentType = MediaType.APPLICATION_JSON
+            content = ObjectMapper().writeValueAsString(MoveRequest(0,7,7,7))
+            accept = MediaType.APPLICATION_JSON
+            with(SecurityMockMvcRequestPostProcessors.jwt())
+        }.andExpect {
+            status { isOk }
+        }
 
         game = gameRepository.getOne(game.id)
 
-        assertEquals(HttpStatus.OK, response.statusCode)
         assertEquals(GameStatus.CHECKMATE, game.status)
     }
 
