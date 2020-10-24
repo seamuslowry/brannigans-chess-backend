@@ -12,6 +12,5 @@ class Player (
         @GeneratedValue(strategy = GenerationType.IDENTITY)
         private var id: Long = -1
 ) {
-        val authId: String
-                get() = googleId
+        val authId get() = googleId
 }
