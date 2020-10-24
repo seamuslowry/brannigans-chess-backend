@@ -11,19 +11,34 @@ class PlayerService (
         private val playerRepository: PlayerRepository,
         private val gameService: GameService
 ) {
-    fun getOrCreate(authId: String): Player {
+    /**
+     * Given an google ID, get or create the player.
+     *
+     * @param googleId the google ID to search for
+     * @return the found or created player
+     */
+    fun getOrCreate(googleId: String): Player {
         var player: Player?
 
         try {
-            player = getByAuthId(authId)
-            player = player ?: playerRepository.save(Player(authId))
+            player = getByAuthId(googleId)
+            player = player ?: playerRepository.save(Player(googleId))
         } catch (e: Exception) {
-            player = getByAuthId(authId)
+            player = getByAuthId(googleId)
         }
 
         return player ?: throw NoSuchElementException("Player cannot be found or created.")
     }
 
+    /**
+     * Get all the games that meet the passed criteria for the player with the provided auth id.
+     *
+     * @param authId the auth id of the player
+     * @param color the color the player must be in the games
+     * @param active the status of the games
+     *
+     * @return the list of games
+     */
     fun getGames(authId: String, color: PieceColor?, active: Boolean?): Iterable<Game> {
         val player = getByAuthId(authId) ?: throw EntityNotFoundException("No player with that authorization ID")
         return getGames(player, color, active)
