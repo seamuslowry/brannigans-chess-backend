@@ -437,8 +437,8 @@ class GameService (
 
     private fun hasBlackPlayer(p: Player): Specification<Game> = Specification {
         root,
-            _,
-            criteriaBuilder -> criteriaBuilder.equal(root.get<Player>("blackPlayer"), p)
+        _,
+        criteriaBuilder -> criteriaBuilder.equal(root.get<Player>("blackPlayer"), p)
     }
 
     private fun isWon(): Specification<Game> = Specification {
