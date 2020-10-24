@@ -1,6 +1,5 @@
 package com.seamuslowry.branniganschess.backend.config
 
-import com.seamuslowry.branniganschess.backend.models.PieceColor
 import com.seamuslowry.branniganschess.backend.services.PlayerService
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Configuration
@@ -9,13 +8,12 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
 import org.springframework.security.config.http.SessionCreationPolicy
-import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter
 import org.springframework.web.cors.CorsConfiguration
 
 @Configuration
 @EnableGlobalMethodSecurity(prePostEnabled = true)
-@Profile("!unsecured")
+@Profile("!unsecured") // mostly so PlayerService doesn't need to be mocked in most tests
 class WebSecurityConfig(
         @Value("\${cors.allowed-origin}") private val allowedOrigin: String,
         private val playerService: PlayerService
