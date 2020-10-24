@@ -33,8 +33,15 @@ class WebSecurityConfig(
                 .and().formLogin().disable()
                 .logout().disable()
                 .authorizeRequests()
+                    // websocket
                     .antMatchers("/ws/**").permitAll()
+                    // swagger
+                    .antMatchers("/swagger-resources/**", "/v2/api-docs", "/swagger-ui/**").permitAll()
+                    // health check
+                    .antMatchers("/health*").permitAll()
+                    // list of games
                     .antMatchers("/game*").permitAll()
+                    // any other request
                     .anyRequest().authenticated()
                 .and().oauth2ResourceServer().jwt().jwtAuthenticationConverter(grantedAuthoritiesExtractor())
     }
