@@ -34,13 +34,13 @@ class WebSecurityConfig(
                 .logout().disable()
                 .authorizeRequests()
                     // websocket
-                    .antMatchers("/ws/**").permitAll()
+                    .mvcMatchers("/ws/**").permitAll()
                     // swagger
-                    .antMatchers("/swagger-resources/**", "/v2/api-docs", "/swagger-ui/**").permitAll()
+                    .mvcMatchers("/swagger-resources/**", "/v2/api-docs", "/swagger-ui/**").permitAll()
                     // health check
-                    .antMatchers("/health*").permitAll()
+                    .mvcMatchers("/health*").permitAll()
                     // list of games
-                    .antMatchers("/game*").permitAll()
+                    .mvcMatchers("/game*").permitAll()
                     // any other request
                     .anyRequest().authenticated()
                 .and().oauth2ResourceServer().jwt().jwtAuthenticationConverter(grantedAuthoritiesExtractor())
