@@ -11,7 +11,6 @@ class PlayerService (
         private val playerRepository: PlayerRepository,
         private val gameService: GameService
 ) {
-    // TODO itest on this
     fun getOrCreate(authId: String): Player {
         var player: Player?
 
@@ -37,6 +36,7 @@ class PlayerService (
     private fun withAuthId(authId: String): Specification<Player> = Specification {
         root,
         _,
-        criteriaBuilder -> criteriaBuilder.equal(root.get<Player>("authId"), authId)
+        // cannot use authId as that does not actually exist on the table
+        criteriaBuilder -> criteriaBuilder.equal(root.get<Player>("googleId"), authId)
     }
 }
