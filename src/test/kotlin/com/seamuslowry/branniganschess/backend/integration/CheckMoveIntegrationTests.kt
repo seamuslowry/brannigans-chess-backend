@@ -1,22 +1,26 @@
 package com.seamuslowry.branniganschess.backend.integration
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import com.seamuslowry.branniganschess.backend.dtos.MoveRequest
 import com.seamuslowry.branniganschess.backend.models.Game
 import com.seamuslowry.branniganschess.backend.models.GameStatus
-import com.seamuslowry.branniganschess.backend.models.Move
 import com.seamuslowry.branniganschess.backend.repos.GameRepository
 import com.seamuslowry.branniganschess.backend.services.GameService
 import com.seamuslowry.branniganschess.backend.services.PieceService
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.boot.test.web.client.TestRestTemplate
-import org.springframework.http.HttpStatus
+import org.springframework.http.MediaType
+import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt
+import org.springframework.test.web.servlet.MockMvc
+import org.springframework.test.web.servlet.post
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@AutoConfigureMockMvc
 class CheckMoveIntegrationTests(
-        @Autowired val restTemplate: TestRestTemplate,
+        @Autowired val mockMvc: MockMvc,
         @Autowired val gameService: GameService,
         @Autowired val pieceService: PieceService,
         @Autowired val gameRepository: GameRepository
@@ -32,17 +36,19 @@ class CheckMoveIntegrationTests(
         // move a rook into ready to check
         pieceService.movePiece(board[7][0]!!, 4,3)
 
-        val response = restTemplate.postForEntity(
-                "/moves/${game.id}",
-                MoveRequest(4,3,4,4),
-                Move::class.java
-        )
+        mockMvc.post("/moves/${game.id}") {
+            contentType = MediaType.APPLICATION_JSON
+            content = ObjectMapper().writeValueAsString(MoveRequest(4,3,4,4))
+            accept = MediaType.APPLICATION_JSON
+            with(jwt())
+        }.andExpect {
+            status { isOk }
+            jsonPath("movingPiece") { isNotEmpty }
+            jsonPath("takenPiece") { isEmpty }
+        }
 
         game = gameRepository.getOne(game.id)
 
-        assertEquals(HttpStatus.OK, response.statusCode)
-        assertNotNull(response.body?.movingPiece)
-        assertNull(response.body?.takenPiece)
         assertEquals(GameStatus.BLACK_CHECK, game.status)
     }
 
@@ -59,17 +65,19 @@ class CheckMoveIntegrationTests(
 
         // set it to be black's turn
         gameService.updateGameStatusForNextPlayer(game, GameStatus.BLACK_TURN)
-        val response = restTemplate.postForEntity(
-                "/moves/${game.id}",
-                MoveRequest(4,3,4,4),
-                Move::class.java
-        )
+        mockMvc.post("/moves/${game.id}") {
+            contentType = MediaType.APPLICATION_JSON
+            content = ObjectMapper().writeValueAsString(MoveRequest(4,3,4,4))
+            accept = MediaType.APPLICATION_JSON
+            with(jwt())
+        }.andExpect {
+            status { isOk }
+            jsonPath("movingPiece") { isNotEmpty }
+            jsonPath("takenPiece") { isEmpty }
+        }
 
         game = gameRepository.getOne(game.id)
 
-        assertEquals(HttpStatus.OK, response.statusCode)
-        assertNotNull(response.body?.movingPiece)
-        assertNull(response.body?.takenPiece)
         assertEquals(GameStatus.WHITE_CHECK, game.status)
     }
 
@@ -89,24 +97,29 @@ class CheckMoveIntegrationTests(
         // set it to be black's turn
         gameService.updateGameStatusForNextPlayer(game, GameStatus.BLACK_TURN)
         // move the target pawn in prep for the take
-        restTemplate.postForEntity(
-                "/moves/${game.id}",
-                MoveRequest(1,2,3,2),
-                Move::class.java
-        )
+        mockMvc.post("/moves/${game.id}") {
+            contentType = MediaType.APPLICATION_JSON
+            content = ObjectMapper().writeValueAsString(MoveRequest(1,2,3,2))
+            accept = MediaType.APPLICATION_JSON
+            with(jwt())
+        }.andExpect {
+            status { isOk }
+        }
 
         // take with en passant
-        val response = restTemplate.postForEntity(
-                "/moves/${game.id}",
-                MoveRequest(3,3,2,2),
-                Move::class.java
-        )
+        mockMvc.post("/moves/${game.id}") {
+            contentType = MediaType.APPLICATION_JSON
+            content = ObjectMapper().writeValueAsString(MoveRequest(3,3,2,2))
+            accept = MediaType.APPLICATION_JSON
+            with(jwt())
+        }.andExpect {
+            status { isOk }
+            jsonPath("movingPiece") { isNotEmpty }
+            jsonPath("takenPiece") { isNotEmpty }
+        }
 
         game = gameRepository.getOne(game.id)
 
-        assertEquals(HttpStatus.OK, response.statusCode)
-        assertNotNull(response.body?.movingPiece)
-        assertNotNull(response.body?.takenPiece)
         assertEquals(GameStatus.BLACK_CHECK, game.status)
     }
 
@@ -122,13 +135,14 @@ class CheckMoveIntegrationTests(
         pieceService.movePiece(board[0][4]!!, 2,2)
 
         // attempt to move the king into check
-        val response = restTemplate.postForEntity(
-                "/moves/${game.id}",
-                MoveRequest(2,2,2,3),
-                String::class.java
-        )
-
-        assertEquals(HttpStatus.BAD_REQUEST, response.statusCode)
+        mockMvc.post("/moves/${game.id}") {
+            contentType = MediaType.APPLICATION_JSON
+            content = ObjectMapper().writeValueAsString(MoveRequest(2,2,2,3))
+            accept = MediaType.APPLICATION_JSON
+            with(jwt())
+        }.andExpect {
+            status { isBadRequest }
+        }
     }
 
     @Test
@@ -143,13 +157,14 @@ class CheckMoveIntegrationTests(
         pieceService.movePiece(board[0][4]!!, 3,2)
 
         // attempt to move an unrelated pawn
-        val response = restTemplate.postForEntity(
-                "/moves/${game.id}",
-                MoveRequest(1,6,2,6),
-                String::class.java
-        )
-
-        assertEquals(HttpStatus.BAD_REQUEST, response.statusCode)
+        mockMvc.post("/moves/${game.id}") {
+            contentType = MediaType.APPLICATION_JSON
+            content = ObjectMapper().writeValueAsString(MoveRequest(1,6,2,6))
+            accept = MediaType.APPLICATION_JSON
+            with(jwt())
+        }.andExpect {
+            status { isBadRequest }
+        }
     }
 
     @Test
@@ -164,17 +179,19 @@ class CheckMoveIntegrationTests(
         pieceService.takePiece(board[6][4]!!)
 
         // attempt to use queen to protect the king
-        val response = restTemplate.postForEntity(
-                "/moves/${game.id}",
-                MoveRequest(7,3,6,4),
-                Move::class.java
-        )
+        mockMvc.post("/moves/${game.id}") {
+            contentType = MediaType.APPLICATION_JSON
+            content = ObjectMapper().writeValueAsString(MoveRequest(7,3,6,4))
+            accept = MediaType.APPLICATION_JSON
+            with(jwt())
+        }.andExpect {
+            status { isOk }
+            jsonPath("movingPiece") { isNotEmpty }
+            jsonPath("takenPiece") { isEmpty }
+        }
 
         game = gameRepository.getOne(game.id)
 
-        assertEquals(HttpStatus.OK, response.statusCode)
-        assertNotNull(response.body?.movingPiece)
-        assertNull(response.body?.takenPiece)
         assertNotEquals(GameStatus.WHITE_CHECK, game.status)
     }
 
@@ -192,17 +209,19 @@ class CheckMoveIntegrationTests(
         // set it to be black's turn
         gameService.updateGameStatusForNextPlayer(game, GameStatus.BLACK_CHECK)
         // attempt to move the king out of check
-        val response = restTemplate.postForEntity(
-                "/moves/${game.id}",
-                MoveRequest(3,2,2,2),
-                Move::class.java
-        )
+        mockMvc.post("/moves/${game.id}") {
+            contentType = MediaType.APPLICATION_JSON
+            content = ObjectMapper().writeValueAsString(MoveRequest(3,2,2,2))
+            accept = MediaType.APPLICATION_JSON
+            with(jwt())
+        }.andExpect {
+            status { isOk }
+            jsonPath("movingPiece") { isNotEmpty }
+            jsonPath("takenPiece") { isEmpty }
+        }
 
         game = gameRepository.getOne(game.id)
 
-        assertEquals(HttpStatus.OK, response.statusCode)
-        assertNotNull(response.body?.movingPiece)
-        assertNull(response.body?.takenPiece)
         assertNotEquals(GameStatus.BLACK_CHECK, game.status)
     }
 
@@ -220,17 +239,19 @@ class CheckMoveIntegrationTests(
         // set it to be black's turn
         gameService.updateGameStatusForNextPlayer(game, GameStatus.BLACK_CHECK)
         // attempt to take rook
-        val response = restTemplate.postForEntity(
-                "/moves/${game.id}",
-                MoveRequest(3,2,3,3),
-                Move::class.java
-        )
+        mockMvc.post("/moves/${game.id}") {
+            contentType = MediaType.APPLICATION_JSON
+            content = ObjectMapper().writeValueAsString(MoveRequest(3,2,3,3))
+            accept = MediaType.APPLICATION_JSON
+            with(jwt())
+        }.andExpect {
+            status { isOk }
+            jsonPath("movingPiece") { isNotEmpty }
+            jsonPath("takenPiece") { isNotEmpty }
+        }
 
         game = gameRepository.getOne(game.id)
 
-        assertEquals(HttpStatus.OK, response.statusCode)
-        assertNotNull(response.body?.movingPiece)
-        assertNotNull(response.body?.takenPiece)
         assertNotEquals(GameStatus.BLACK_CHECK, game.status)
     }
 
@@ -246,17 +267,19 @@ class CheckMoveIntegrationTests(
         pieceService.movePiece(board[0][0]!!, 6,4)
 
         // use queen to take rook
-        val response = restTemplate.postForEntity(
-                "/moves/${game.id}",
-                MoveRequest(7,3,6,4),
-                Move::class.java
-        )
+        mockMvc.post("/moves/${game.id}") {
+            contentType = MediaType.APPLICATION_JSON
+            content = ObjectMapper().writeValueAsString(MoveRequest(7,3,6,4))
+            accept = MediaType.APPLICATION_JSON
+            with(jwt())
+        }.andExpect {
+            status { isOk }
+            jsonPath("movingPiece") { isNotEmpty }
+            jsonPath("takenPiece") { isNotEmpty }
+        }
 
         game = gameRepository.getOne(game.id)
 
-        assertEquals(HttpStatus.OK, response.statusCode)
-        assertNotNull(response.body?.movingPiece)
-        assertNotNull(response.body?.takenPiece)
         assertNotEquals(GameStatus.WHITE_CHECK, game.status)
     }
 
@@ -282,15 +305,17 @@ class CheckMoveIntegrationTests(
         // set it to be black's turn
         gameService.updateGameStatusForNextPlayer(game, GameStatus.BLACK_TURN)
         // castle
-        val response = restTemplate.postForEntity(
-                "/moves/${game.id}",
-                MoveRequest(0,4,0,6),
-                Move::class.java
-        )
+        mockMvc.post("/moves/${game.id}") {
+            contentType = MediaType.APPLICATION_JSON
+            content = ObjectMapper().writeValueAsString(MoveRequest(0,4,0,6))
+            accept = MediaType.APPLICATION_JSON
+            with(jwt())
+        }.andExpect {
+            status { isOk }
+        }
 
         game = gameRepository.getOne(game.id)
 
-        assertEquals(HttpStatus.OK, response.statusCode)
         assertEquals(GameStatus.WHITE_CHECK, game.status)
     }
 

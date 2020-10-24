@@ -7,13 +7,16 @@ import com.seamuslowry.branniganschess.backend.services.PieceService
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.boot.test.web.client.TestRestTemplate
-import org.springframework.http.HttpStatus
+import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt
+import org.springframework.test.web.servlet.MockMvc
+import org.springframework.test.web.servlet.get
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@AutoConfigureMockMvc
 class SearchMovesIntegrationTests(
-        @Autowired val restTemplate: TestRestTemplate,
+        @Autowired val mockMvc: MockMvc,
         @Autowired val gameService: GameService,
         @Autowired val moveService: MoveService,
         @Autowired val pieceService: PieceService
@@ -30,12 +33,14 @@ class SearchMovesIntegrationTests(
         // move white pawn up one
         gameService.move(noMatchGame.id, MoveRequest(6,0, 5, 0))
 
-        val entity = restTemplate.getForEntity("/moves/${game.id}", Iterable::class.java)
-
-        Assertions.assertEquals(HttpStatus.OK, entity.statusCode)
-        Assertions.assertEquals(2, entity.body?.count())
-        Assertions.assertTrue(entity.body?.toString().orEmpty().contains("id=${whiteMove.id}"))
-        Assertions.assertTrue(entity.body?.toString().orEmpty().contains("id=${blackMove.id}"))
+        mockMvc.get("/moves/${game.id}") {
+            with(jwt())
+        }.andExpect {
+            status { isOk }
+            jsonPath("$.length()") { value(2) }
+            jsonPath("$[?(@.id == ${whiteMove.id})]") { isNotEmpty }
+            jsonPath("$[?(@.id == ${blackMove.id})]") { isNotEmpty }
+        }
     }
 
     @Test
@@ -46,11 +51,13 @@ class SearchMovesIntegrationTests(
         // move black pawn one
         val blackMove = gameService.move(game.id, MoveRequest(1,0, 2, 0))
 
-        val entity = restTemplate.getForEntity("/moves/${game.id}?color=BLACK", Iterable::class.java)
-
-        Assertions.assertEquals(HttpStatus.OK, entity.statusCode)
-        Assertions.assertEquals(1, entity.body?.count())
-        Assertions.assertTrue(entity.body?.first().toString().contains("id=${blackMove.id}"))
+        mockMvc.get("/moves/${game.id}?color=BLACK") {
+            with(jwt())
+        }.andExpect {
+            status { isOk }
+            jsonPath("$.length()") { value(1) }
+            jsonPath("$[?(@.id == ${blackMove.id})]") { isNotEmpty }
+        }
     }
 
     @Test

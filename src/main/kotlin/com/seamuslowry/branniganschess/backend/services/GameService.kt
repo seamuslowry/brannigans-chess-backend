@@ -83,6 +83,25 @@ class GameService (
     }
 
     /**
+     * Find all of a player's games by active or inactive and player color.
+     * @param player the player to search by
+     * @param color the color the player must be in the game
+     * @param active if true, only active games will be shown
+     *
+     * @return a [Page] of all games matching the criteria
+     */
+    fun findPlayerGames(player: Player, color: PieceColor? = null, active: Boolean? = null): List<Game> {
+        var spec: Specification<Game> = Specification.where(null)!!
+
+        color?.let { spec = if (color == PieceColor.BLACK) spec.and(hasBlackPlayer(player))!! else spec.and(hasWhitePlayer(player))!! }
+        if (color == null) spec = spec.and(Specification.where(hasBlackPlayer(player).or(hasWhitePlayer(player))))!!
+
+        active?.let { spec = if (active) spec.and(isActive())!! else spec.and(isWon())!! }
+
+        return gameRepository.findAll(spec)
+    }
+
+    /**
      * Get a single game by id.
      *
      * @return the [Game] with that id
@@ -408,6 +427,18 @@ class GameService (
         root,
         _,
         criteriaBuilder -> criteriaBuilder.isNull(root.get<Player>("winner"))
+    }
+
+    private fun hasWhitePlayer(p: Player): Specification<Game> = Specification {
+        root,
+        _,
+        criteriaBuilder -> criteriaBuilder.equal(root.get<Player>("whitePlayer"), p)
+    }
+
+    private fun hasBlackPlayer(p: Player): Specification<Game> = Specification {
+        root,
+            _,
+            criteriaBuilder -> criteriaBuilder.equal(root.get<Player>("blackPlayer"), p)
     }
 
     private fun isWon(): Specification<Game> = Specification {
