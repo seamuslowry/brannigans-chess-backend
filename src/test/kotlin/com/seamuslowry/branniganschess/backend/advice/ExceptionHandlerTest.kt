@@ -1,6 +1,7 @@
 package com.seamuslowry.branniganschess.backend.advice
 
 import com.seamuslowry.branniganschess.backend.dtos.ChessRuleException
+import com.seamuslowry.branniganschess.backend.dtos.SignupException
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -21,6 +22,14 @@ class ExceptionHandlerTest {
     fun `Turns a ChessRuleException into a ResponseEntity`() {
         val ex = ChessRuleException("test exception")
         val entity = exceptionHandler.handleChessRuleException(ex)
+        assertEquals(ex.message, entity.body)
+        assertEquals(HttpStatus.BAD_REQUEST, entity.statusCode)
+    }
+
+    @Test
+    fun `Turns a SignupException into a ResponseEntity`() {
+        val ex = SignupException("test exception")
+        val entity = exceptionHandler.handleSignupException(ex)
         assertEquals(ex.message, entity.body)
         assertEquals(HttpStatus.BAD_REQUEST, entity.statusCode)
     }

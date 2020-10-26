@@ -1,5 +1,6 @@
 package com.seamuslowry.branniganschess.backend.services
 
+import com.seamuslowry.branniganschess.backend.dtos.SignupException
 import com.seamuslowry.branniganschess.backend.models.*
 import com.seamuslowry.branniganschess.backend.repos.PlayerRepository
 import org.springframework.data.jpa.domain.Specification
@@ -31,6 +32,18 @@ class PlayerService (
     }
 
     /**
+     * Given an google ID, create a player.
+     *
+     * @param googleId the google ID to create the player
+     * @return the found or created player
+     */
+    fun googleSignUp(googleId: String): Player {
+        if (playerRepository.findOne(withGoogleId(googleId)).isPresent) throw SignupException("Already signed up with google")
+
+        return playerRepository.save(Player(googleId = googleId))
+    }
+
+    /**
      * Get all the games that meet the passed criteria for the player with the provided auth id.
      *
      * @param authId the auth id of the player
@@ -48,10 +61,11 @@ class PlayerService (
 
     private fun getByAuthId(authId: String): Player? = playerRepository.findOne(Specification.where(withAuthId(authId))).orElse(null)
 
-    private fun withAuthId(authId: String): Specification<Player> = Specification {
+    private fun withAuthId(authId: String): Specification<Player> = Specification.where(withGoogleId(authId))!!
+
+    private fun withGoogleId(googleId: String): Specification<Player> = Specification {
         root,
         _,
-        // cannot use authId as that does not actually exist on the table
-        criteriaBuilder -> criteriaBuilder.equal(root.get<Player>("googleId"), authId)
+        criteriaBuilder -> criteriaBuilder.equal(root.get<Player>("googleId"), googleId)
     }
 }
