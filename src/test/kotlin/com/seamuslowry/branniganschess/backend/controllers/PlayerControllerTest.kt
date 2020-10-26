@@ -2,6 +2,7 @@ package com.seamuslowry.branniganschess.backend.controllers
 
 import com.ninjasquad.springmockk.MockkBean
 import com.seamuslowry.branniganschess.backend.models.Game
+import com.seamuslowry.branniganschess.backend.models.Player
 import com.seamuslowry.branniganschess.backend.services.PlayerService
 import io.mockk.every
 import org.junit.jupiter.api.Test
@@ -34,6 +35,18 @@ class PlayerControllerTest(@Autowired val mockMvc: MockMvc) {
         }.andExpect {
             status { isOk }
             jsonPath("$") { isArray }
+        }
+    }
+
+    @Test
+    fun `signs a player up using google`() {
+        val authId = "test-google-signup"
+        every { playerService.googleSignUp(any()) } returns Player(authId)
+
+        mockMvc.get("/players/signup/google") {
+            with(jwt())
+        }.andExpect {
+            status { isOk }
         }
     }
 }
