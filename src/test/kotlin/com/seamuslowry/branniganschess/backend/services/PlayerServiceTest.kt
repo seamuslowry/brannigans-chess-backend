@@ -1,12 +1,14 @@
 package com.seamuslowry.branniganschess.backend.services
 
 import com.ninjasquad.springmockk.MockkBean
+import com.seamuslowry.branniganschess.backend.dtos.SignupException
 import com.seamuslowry.branniganschess.backend.models.*
 import com.seamuslowry.branniganschess.backend.repos.PlayerRepository
 import io.mockk.every
 import io.mockk.verify
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
@@ -66,6 +68,28 @@ class PlayerServiceTest {
 
         verify(exactly = 1) { playerRepository.save(any<Player>()) }
         assertEquals(newPlayer , savedPlayer)
+    }
+
+    @Test
+    fun `already exists google signup`() {
+        val authId = "old-google-id"
+        val newPlayer = Player(authId)
+        every { playerRepository.findOne(any<Specification<Player>>()) } returns Optional.of(newPlayer)
+
+        assertThrows<SignupException> { service.googleSignUp(authId) }
+        verify(exactly = 0) { playerRepository.save(any<Player>()) }
+    }
+
+    @Test
+    fun `successful google signup`() {
+        val authId = "new-google-id"
+        val newPlayer = Player(authId)
+        every { playerRepository.findOne(any<Specification<Player>>()) } returns Optional.empty()
+        every { playerRepository.save(any<Player>()) } returns newPlayer
+
+        val savedPlayer = service.googleSignUp(authId)
+        verify(exactly = 1) { playerRepository.save(any<Player>()) }
+        assertEquals(newPlayer, savedPlayer)
     }
 
     @Test
