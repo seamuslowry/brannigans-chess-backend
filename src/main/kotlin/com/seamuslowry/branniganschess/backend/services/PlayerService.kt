@@ -35,12 +35,25 @@ class PlayerService (
      * Given an google ID, create a player.
      *
      * @param googleId the google ID to create the player
-     * @return the found or created player
+     * @return the created player
      */
-    fun googleSignUp(googleId: String): Player {
+    fun googleSignup(googleId: String): Player {
         if (playerRepository.findOne(withGoogleId(googleId)).isPresent) throw SignupException("Already signed up with google")
 
         return playerRepository.save(Player(googleId = googleId))
+    }
+
+    /**
+     * Given an google ID, ensure that a player exists.
+     *
+     * @param googleId the google ID to check for
+     * @return the found player
+     */
+    fun googleLogin(googleId: String): Player {
+        val player = playerRepository.findOne(withGoogleId(googleId))
+        if (player.isEmpty) throw SignupException("Not signed up with google")
+
+        return player.get()
     }
 
     /**
@@ -57,9 +70,9 @@ class PlayerService (
         return getGames(player, color, active)
     }
 
-    private fun getGames(player: Player, color: PieceColor?, active: Boolean?) = gameService.findPlayerGames(player, color, active)
-
     private fun getByAuthId(authId: String): Player? = playerRepository.findOne(Specification.where(withAuthId(authId))).orElse(null)
+
+    private fun getGames(player: Player, color: PieceColor?, active: Boolean?) = gameService.findPlayerGames(player, color, active)
 
     private fun withAuthId(authId: String): Specification<Player> = Specification.where(withGoogleId(authId))!!
 

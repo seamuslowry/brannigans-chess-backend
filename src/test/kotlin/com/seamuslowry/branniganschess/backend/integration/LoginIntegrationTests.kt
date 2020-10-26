@@ -6,15 +6,27 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt
 import org.springframework.test.web.servlet.MockMvc
+import org.springframework.test.web.servlet.get
 import org.springframework.test.web.servlet.put
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
-class SignupIntegrationTests(
+class LoginIntegrationTests(
     @Autowired val mockMvc: MockMvc
 ) {
     @Test
-    fun `only allows a single google signup`() {
+    fun `with not return a new player`() {
+        val playerAuthId = "noMatchAuthId"
+
+        mockMvc.get("/players/login/google") {
+            with(jwt().jwt { it.claim("sub", playerAuthId) })
+        }.andExpect {
+            status { isBadRequest }
+        }
+    }
+
+    @Test
+    fun `returns a player after signup`() {
         val playerAuthId = "matchingAuthId"
 
         mockMvc.put("/players/signup/google") {
@@ -23,17 +35,8 @@ class SignupIntegrationTests(
             status { isOk }
         }
 
-        mockMvc.put("/players/signup/google") {
+        mockMvc.get("/players/login/google") {
             with(jwt().jwt { it.claim("sub", playerAuthId) })
-        }.andExpect {
-            status { isBadRequest }
-        }
-    }
-
-    @Test
-    fun `allows google signup`() {
-        mockMvc.put("/players/signup/google") {
-            with(jwt())
         }.andExpect {
             status { isOk }
         }

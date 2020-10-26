@@ -76,7 +76,7 @@ class PlayerServiceTest {
         val newPlayer = Player(authId)
         every { playerRepository.findOne(any<Specification<Player>>()) } returns Optional.of(newPlayer)
 
-        assertThrows<SignupException> { service.googleSignUp(authId) }
+        assertThrows<SignupException> { service.googleSignup(authId) }
         verify(exactly = 0) { playerRepository.save(any<Player>()) }
     }
 
@@ -87,9 +87,28 @@ class PlayerServiceTest {
         every { playerRepository.findOne(any<Specification<Player>>()) } returns Optional.empty()
         every { playerRepository.save(any<Player>()) } returns newPlayer
 
-        val savedPlayer = service.googleSignUp(authId)
+        val savedPlayer = service.googleSignup(authId)
         verify(exactly = 1) { playerRepository.save(any<Player>()) }
         assertEquals(newPlayer, savedPlayer)
+    }
+
+    @Test
+    fun `does not exist google login`() {
+        val authId = "new-google-id"
+        every { playerRepository.findOne(any<Specification<Player>>()) } returns Optional.empty()
+
+        assertThrows<SignupException> { service.googleLogin(authId) }
+    }
+
+    @Test
+    fun `successful google login`() {
+        val authId = "old-google-id"
+        val oldPlayer = Player(authId)
+        every { playerRepository.findOne(any<Specification<Player>>()) } returns Optional.of(oldPlayer)
+
+        val returnedPlayer = service.googleLogin(authId)
+        verify(exactly = 0) { playerRepository.save(any<Player>()) }
+        assertEquals(oldPlayer, returnedPlayer)
     }
 
     @Test

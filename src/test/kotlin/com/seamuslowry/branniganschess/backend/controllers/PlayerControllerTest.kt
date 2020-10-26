@@ -15,6 +15,7 @@ import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.get
+import org.springframework.test.web.servlet.put
 
 @ExtendWith(SpringExtension::class)
 @WebMvcTest(PlayerController::class)
@@ -41,9 +42,21 @@ class PlayerControllerTest(@Autowired val mockMvc: MockMvc) {
     @Test
     fun `signs a player up using google`() {
         val authId = "test-google-signup"
-        every { playerService.googleSignUp(any()) } returns Player(authId)
+        every { playerService.googleSignup(any()) } returns Player(authId)
 
-        mockMvc.get("/players/signup/google") {
+        mockMvc.put("/players/signup/google") {
+            with(jwt())
+        }.andExpect {
+            status { isOk }
+        }
+    }
+
+    @Test
+    fun `logs a player in using google`() {
+        val authId = "test-google-login"
+        every { playerService.googleLogin(any()) } returns Player(authId)
+
+        mockMvc.get("/players/login/google") {
             with(jwt())
         }.andExpect {
             status { isOk }
