@@ -14,16 +14,13 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
 import org.springframework.data.jpa.domain.Specification
-import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import java.lang.Exception
 import java.util.*
 
-
 @ExtendWith(SpringExtension::class)
 @WebMvcTest(PlayerService::class)
 @AutoConfigureMockMvc(addFilters = false)
-@ActiveProfiles("unsecured")
 class PlayerServiceTest {
     @MockkBean
     lateinit var playerRepository: PlayerRepository
