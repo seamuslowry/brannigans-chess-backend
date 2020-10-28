@@ -12,6 +12,22 @@ spring:
       resourceserver:
         jwt:
           jwk-set-uri: https://www.googleapis.com/oauth2/v3/certs
+      client:
+        registration:
+          google:
+            client-id: #client-id
+            client-secret: #client-secret
+            authorization-grant-type: authorization_code
+            redirect-uri: #callback uri
+            scope:
+              - profile
+              - email
+        provider:
+          google:
+            authorization-uri: https://accounts.google.com/o/oauth2/auth
+            token-uri: https://www.googleapis.com/oauth2/v4/token
+            user-info-uri: https://www.googleapis.com/oauth2/v2/userinfo
+            unlink-uri: https://accounts.google.com/o/oauth2/revoke
 
 cors:
   allowed-origin: ${CHESS_ACCESS_CONTROL_ALLOW_ORIGIN:http://localhost:3000}
