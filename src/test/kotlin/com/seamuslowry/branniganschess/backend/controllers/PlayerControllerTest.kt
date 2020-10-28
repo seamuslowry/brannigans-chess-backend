@@ -2,6 +2,7 @@ package com.seamuslowry.branniganschess.backend.controllers
 
 import com.ninjasquad.springmockk.MockkBean
 import com.seamuslowry.branniganschess.backend.models.Game
+import com.seamuslowry.branniganschess.backend.models.Player
 import com.seamuslowry.branniganschess.backend.services.PlayerService
 import io.mockk.every
 import org.junit.jupiter.api.Test
@@ -10,15 +11,14 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt
-import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.get
+import org.springframework.test.web.servlet.put
 
 @ExtendWith(SpringExtension::class)
 @WebMvcTest(PlayerController::class)
 @AutoConfigureMockMvc
-@ActiveProfiles("unsecured")
 class PlayerControllerTest(@Autowired val mockMvc: MockMvc) {
 
     @MockkBean
@@ -34,6 +34,30 @@ class PlayerControllerTest(@Autowired val mockMvc: MockMvc) {
         }.andExpect {
             status { isOk }
             jsonPath("$") { isArray }
+        }
+    }
+
+    @Test
+    fun `signs a player up using google`() {
+        val authId = "test-google-signup"
+        every { playerService.googleSignup(any()) } returns Player(authId)
+
+        mockMvc.put("/players/signup/google") {
+            with(jwt())
+        }.andExpect {
+            status { isOk }
+        }
+    }
+
+    @Test
+    fun `logs a player in using google`() {
+        val authId = "test-google-login"
+        every { playerService.googleLogin(any()) } returns Player(authId)
+
+        mockMvc.get("/players/login/google") {
+            with(jwt())
+        }.andExpect {
+            status { isOk }
         }
     }
 }
