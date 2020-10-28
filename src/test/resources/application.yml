@@ -1,0 +1,15 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:testdb
+    username: sa
+    password: password
+  profiles:
+    active: clean
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: https://www.extremely-fake.com/oauth2/v3/certs
+
+cors:
+  allowed-origin: "*"
