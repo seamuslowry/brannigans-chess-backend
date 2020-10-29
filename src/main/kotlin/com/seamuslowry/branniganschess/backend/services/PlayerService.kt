@@ -1,6 +1,5 @@
 package com.seamuslowry.branniganschess.backend.services
 
-import com.seamuslowry.branniganschess.backend.dtos.SignupException
 import com.seamuslowry.branniganschess.backend.models.*
 import com.seamuslowry.branniganschess.backend.repos.PlayerRepository
 import org.springframework.data.jpa.domain.Specification
@@ -13,51 +12,36 @@ class PlayerService (
         private val gameService: GameService
 ) {
     /**
-     * Given an google ID, create a player.
+     * Get a player with the provided authentication id.
+     * If there is no player with that id, create one and return it.
      *
-     * @param googleId the google ID to create the player
-     * @return the created player
-     */
-    fun googleSignup(googleId: String): Player {
-        if (playerRepository.findOne(withGoogleId(googleId)).isPresent) throw SignupException("Already signed up with google")
-
-        return playerRepository.save(Player(googleId = googleId))
-    }
-
-    /**
-     * Given an google ID, ensure that a player exists.
+     * @param authId the authentication id
      *
-     * @param googleId the google ID to check for
-     * @return the found player
+     * @return a player with that authentication id
      */
-    fun googleLogin(googleId: String): Player {
-        val player = playerRepository.findOne(withGoogleId(googleId))
-        if (player.isEmpty) throw SignupException("Not signed up with google")
-
-        return player.get()
-    }
+    fun getPlayer(authId: String): Player = playerRepository.findOne(withAuthId(authId)).orElseGet { playerRepository.save(Player(authId)) }
 
     /**
      * Get all the games that meet the passed criteria for the player with the provided auth id.
      *
-     * @param googleId the google id of the player
+     * @param authId the auth id of the player
      * @param color the color the player must be in the games
      * @param active the status of the games
      *
      * @return the list of games
      */
-    fun getGames(googleId: String, color: PieceColor?, active: Boolean?): Iterable<Game> {
-        val player = getByGoogleId(googleId) ?: throw EntityNotFoundException("No player with that authorization ID")
+    fun getGames(authId: String, color: PieceColor?, active: Boolean?): Iterable<Game> {
+        val player = getByAuthId(authId) ?: throw EntityNotFoundException("No player with that authorization ID")
         return getGames(player, color, active)
     }
 
-    private fun getByGoogleId(googleId: String): Player? = playerRepository.findOne(Specification.where(withGoogleId(googleId))).orElse(null)
+    private fun getByAuthId(authId: String): Player? = playerRepository.findOne(Specification.where(withAuthId(authId))).orElse(null)
 
     private fun getGames(player: Player, color: PieceColor?, active: Boolean?) = gameService.findPlayerGames(player, color, active)
 
-    private fun withGoogleId(googleId: String): Specification<Player> = Specification {
+    private fun withAuthId(authId: String): Specification<Player> = Specification {
         root,
         _,
-        criteriaBuilder -> criteriaBuilder.equal(root.get<Player>("googleId"), googleId)
+        criteriaBuilder -> criteriaBuilder.equal(root.get<Player>("authId"), authId)
     }
 }

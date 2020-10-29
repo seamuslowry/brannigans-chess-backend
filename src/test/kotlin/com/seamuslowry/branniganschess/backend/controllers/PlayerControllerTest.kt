@@ -14,7 +14,6 @@ import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequ
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.get
-import org.springframework.test.web.servlet.put
 
 @ExtendWith(SpringExtension::class)
 @WebMvcTest(PlayerController::class)
@@ -38,23 +37,12 @@ class PlayerControllerTest(@Autowired val mockMvc: MockMvc) {
     }
 
     @Test
-    fun `signs a player up using google`() {
-        val googleId = "test-google-signup"
-        every { playerService.googleSignup(any()) } returns Player(googleId)
+    fun `gets a player`() {
+        val authId = "test-player-get"
+        val player = Player(authId)
+        every { playerService.getPlayer(any()) } returns player
 
-        mockMvc.put("/players/signup/google") {
-            with(jwt())
-        }.andExpect {
-            status { isOk }
-        }
-    }
-
-    @Test
-    fun `logs a player in using google`() {
-        val googleId = "test-google-login"
-        every { playerService.googleLogin(any()) } returns Player(googleId)
-
-        mockMvc.get("/players/login/google") {
+        mockMvc.get("/players/auth") {
             with(jwt())
         }.andExpect {
             status { isOk }

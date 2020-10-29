@@ -71,8 +71,8 @@ class SearchGamesIntegrationTests(
 
     @Test
     fun `Finds all a player's games`() {
-        val playerGoogleId = System.nanoTime().toString()
-        val playerOne = playerRepository.save(Player(playerGoogleId))
+        val playerAuthId = System.nanoTime().toString()
+        val playerOne = playerRepository.save(Player(playerAuthId))
         val whiteActiveGame = gameRepository.save(Game("1 - Player White Active Game", whitePlayer = playerOne))
         val blackActiveGame = gameRepository.save(Game("1 - Player Black Active Game", blackPlayer = playerOne))
         val whiteInactiveGame = gameRepository.save(Game("1 - Player White Inactive Game", whitePlayer = playerOne, winner = playerOne))
@@ -81,7 +81,7 @@ class SearchGamesIntegrationTests(
         val noMatchGame = gameRepository.save(Game("1 - Player Game Search No Match", whitePlayer = playerTwo))
 
         mockMvc.get("/players/games") {
-            with(jwt().jwt { it.claim("sub", playerGoogleId) })
+            with(jwt().jwt { it.claim("sub", playerAuthId) })
         }.andExpect {
             status { isOk }
             jsonPath("$.length()") { value(4) }
@@ -95,8 +95,8 @@ class SearchGamesIntegrationTests(
 
     @Test
     fun `Finds all a player's active games`() {
-        val playerGoogleId = System.nanoTime().toString()
-        val playerOne = playerRepository.save(Player(playerGoogleId))
+        val playerAuthId = System.nanoTime().toString()
+        val playerOne = playerRepository.save(Player(playerAuthId))
         val whiteActiveGame = gameRepository.save(Game("2 - Player White Active Game", whitePlayer = playerOne))
         val blackActiveGame = gameRepository.save(Game("2 - Player Black Active Game", blackPlayer = playerOne))
         val whiteInactiveGame = gameRepository.save(Game("2 - Player White Inactive Game", whitePlayer = playerOne, winner = playerOne))
@@ -105,7 +105,7 @@ class SearchGamesIntegrationTests(
         val noMatchGame = gameRepository.save(Game("2 - Player Game Search No Match", whitePlayer = playerTwo))
 
         mockMvc.get("/players/games?active=true") {
-            with(jwt().jwt { it.claim("sub", playerGoogleId) })
+            with(jwt().jwt { it.claim("sub", playerAuthId) })
         }.andExpect {
             status { isOk }
             jsonPath("$.length()") { value(2) }
@@ -119,8 +119,8 @@ class SearchGamesIntegrationTests(
 
     @Test
     fun `Finds all a player's inactive games`() {
-        val playerGoogleId = System.nanoTime().toString()
-        val playerOne = playerRepository.save(Player(playerGoogleId))
+        val playerAuthId = System.nanoTime().toString()
+        val playerOne = playerRepository.save(Player(playerAuthId))
         val whiteActiveGame = gameRepository.save(Game("2 - Player White Active Game", whitePlayer = playerOne))
         val blackActiveGame = gameRepository.save(Game("2 - Player Black Active Game", blackPlayer = playerOne))
         val whiteInactiveGame = gameRepository.save(Game("2 - Player White Inactive Game", whitePlayer = playerOne, winner = playerOne))
@@ -129,7 +129,7 @@ class SearchGamesIntegrationTests(
         val noMatchGame = gameRepository.save(Game("2 - Player Game Search No Match", whitePlayer = playerTwo))
 
         mockMvc.get("/players/games?active=false") {
-            with(jwt().jwt { it.claim("sub", playerGoogleId) })
+            with(jwt().jwt { it.claim("sub", playerAuthId) })
         }.andExpect {
             status { isOk }
             jsonPath("$.length()") { value(2) }
@@ -143,8 +143,8 @@ class SearchGamesIntegrationTests(
 
     @Test
     fun `Finds all a player's color active games`() {
-        val playerGoogleId = System.nanoTime().toString()
-        val playerOne = playerRepository.save(Player(playerGoogleId))
+        val playerAuthId = System.nanoTime().toString()
+        val playerOne = playerRepository.save(Player(playerAuthId))
         val whiteActiveGame = gameRepository.save(Game("2 - Player White Active Game", whitePlayer = playerOne))
         val blackActiveGame = gameRepository.save(Game("2 - Player Black Active Game", blackPlayer = playerOne))
         val whiteInactiveGame = gameRepository.save(Game("2 - Player White Inactive Game", whitePlayer = playerOne, winner = playerOne))
@@ -153,7 +153,7 @@ class SearchGamesIntegrationTests(
         val noMatchGame = gameRepository.save(Game("2 - Player Game Search No Match", whitePlayer = playerTwo))
 
         mockMvc.get("/players/games?active=true&color=BLACK") {
-            with(jwt().jwt { it.claim("sub", playerGoogleId) })
+            with(jwt().jwt { it.claim("sub", playerAuthId) })
         }.andExpect {
             status { isOk }
             jsonPath("$.length()") { value(1) }
@@ -167,8 +167,8 @@ class SearchGamesIntegrationTests(
 
     @Test
     fun `Finds all a player's color inactive games`() {
-        val playerGoogleId = System.nanoTime().toString()
-        val playerOne = playerRepository.save(Player(playerGoogleId))
+        val playerAuthId = System.nanoTime().toString()
+        val playerOne = playerRepository.save(Player(playerAuthId))
         val whiteActiveGame = gameRepository.save(Game("2 - Player White Active Game", whitePlayer = playerOne))
         val blackActiveGame = gameRepository.save(Game("2 - Player Black Active Game", blackPlayer = playerOne))
         val whiteInactiveGame = gameRepository.save(Game("2 - Player White Inactive Game", whitePlayer = playerOne, winner = playerOne))
@@ -177,7 +177,7 @@ class SearchGamesIntegrationTests(
         val noMatchGame = gameRepository.save(Game("2 - Player Game Search No Match", whitePlayer = playerTwo))
 
         mockMvc.get("/players/games?active=false&color=BLACK") {
-            with(jwt().jwt { it.claim("sub", playerGoogleId) })
+            with(jwt().jwt { it.claim("sub", playerAuthId) })
         }.andExpect {
             status { isOk }
             jsonPath("$.length()") { value(1) }
