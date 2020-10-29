@@ -1,3 +1,6 @@
+auth0:
+  audience: ""
+
 spring:
   datasource:
     url: jdbc:h2:mem:testdb
@@ -9,7 +12,7 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          jwk-set-uri: https://www.extremely-fake.com/oauth2/v3/certs
+          issuer-uri: https://brannigans-chess.us.auth0.com/ # maybe just reset to use a different bean?
 
 cors:
   allowed-origin: "*"

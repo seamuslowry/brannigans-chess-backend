@@ -1,3 +1,8 @@
+auth0:
+  audience: https://branniganschess.com
+
+debug: true
+
 spring:
   datasource:
     url: jdbc:postgresql://${BRANNIGANS_CHESS_DB_URL:localhost}:5432/${BRANNIGANS_CHESS_DB_NAME:brannigan}
@@ -11,7 +16,7 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          jwk-set-uri: https://www.googleapis.com/oauth2/v3/certs
+          issuer-uri: https://brannigans-chess.us.auth0.com/
 
 cors:
   allowed-origin: ${CHESS_ACCESS_CONTROL_ALLOW_ORIGIN:http://localhost:3000}

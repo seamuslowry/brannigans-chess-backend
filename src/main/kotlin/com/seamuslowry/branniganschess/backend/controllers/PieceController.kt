@@ -9,6 +9,9 @@ import io.swagger.annotations.ApiOperation
 import io.swagger.annotations.ApiResponse
 import io.swagger.annotations.ApiResponses
 import org.springframework.http.ResponseEntity
+import org.springframework.security.access.prepost.PreAuthorize
+import org.springframework.security.core.annotation.AuthenticationPrincipal
+import org.springframework.security.oauth2.jwt.Jwt
 import org.springframework.web.bind.annotation.*
 
 @RestController
@@ -26,7 +29,9 @@ class PieceController(
     )
     fun getPieces(@PathVariable gameId: Long,
                   @RequestParam(required = false) color: PieceColor?,
-                  @RequestParam(required = false) status: PieceStatus?)
+                  @RequestParam(required = false) status: PieceStatus?,
+        @AuthenticationPrincipal jwt: Jwt
+    )
             : ResponseEntity<Iterable<Piece>> {
         return ResponseEntity.ok(pieceService.findAllBy(gameId, color, status))
     }
