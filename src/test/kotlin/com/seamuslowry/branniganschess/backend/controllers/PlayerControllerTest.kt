@@ -39,8 +39,8 @@ class PlayerControllerTest(@Autowired val mockMvc: MockMvc) {
 
     @Test
     fun `signs a player up using google`() {
-        val authId = "test-google-signup"
-        every { playerService.googleSignup(any()) } returns Player(authId)
+        val googleId = "test-google-signup"
+        every { playerService.googleSignup(any()) } returns Player(googleId)
 
         mockMvc.put("/players/signup/google") {
             with(jwt())
@@ -51,8 +51,8 @@ class PlayerControllerTest(@Autowired val mockMvc: MockMvc) {
 
     @Test
     fun `logs a player in using google`() {
-        val authId = "test-google-login"
-        every { playerService.googleLogin(any()) } returns Player(authId)
+        val googleId = "test-google-login"
+        every { playerService.googleLogin(any()) } returns Player(googleId)
 
         mockMvc.get("/players/login/google") {
             with(jwt())

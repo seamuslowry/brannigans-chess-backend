@@ -16,10 +16,10 @@ class LoginIntegrationTests(
 ) {
     @Test
     fun `with not return a new player`() {
-        val playerAuthId = "noMatchAuthId"
+        val playerGoogleId = "noMatchGoogleId"
 
         mockMvc.get("/players/login/google") {
-            with(jwt().jwt { it.claim("sub", playerAuthId) })
+            with(jwt().jwt { it.claim("sub", playerGoogleId) })
         }.andExpect {
             status { isBadRequest }
         }
@@ -27,16 +27,16 @@ class LoginIntegrationTests(
 
     @Test
     fun `returns a player after signup`() {
-        val playerAuthId = "matchingAuthId"
+        val playerGoogleId = "matchingGoogleId"
 
         mockMvc.put("/players/signup/google") {
-            with(jwt().jwt { it.claim("sub", playerAuthId) })
+            with(jwt().jwt { it.claim("sub", playerGoogleId) })
         }.andExpect {
             status { isOk }
         }
 
         mockMvc.get("/players/login/google") {
-            with(jwt().jwt { it.claim("sub", playerAuthId) })
+            with(jwt().jwt { it.claim("sub", playerGoogleId) })
         }.andExpect {
             status { isOk }
         }

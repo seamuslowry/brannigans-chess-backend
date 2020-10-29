@@ -15,16 +15,16 @@ class SignupIntegrationTests(
 ) {
     @Test
     fun `only allows a single google signup`() {
-        val playerAuthId = "singleGoogleSignInAuthId"
+        val playerGoogleId = "singleGoogleSignInId"
 
         mockMvc.put("/players/signup/google") {
-            with(jwt().jwt { it.claim("sub", playerAuthId) })
+            with(jwt().jwt { it.claim("sub", playerGoogleId) })
         }.andExpect {
             status { isOk }
         }
 
         mockMvc.put("/players/signup/google") {
-            with(jwt().jwt { it.claim("sub", playerAuthId) })
+            with(jwt().jwt { it.claim("sub", playerGoogleId) })
         }.andExpect {
             status { isBadRequest }
         }

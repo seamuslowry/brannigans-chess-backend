@@ -7,10 +7,8 @@ import javax.persistence.Id
 
 @Entity
 class Player (
-        private val googleId: String,
+        val googleId: String,
         @Id
         @GeneratedValue(strategy = GenerationType.IDENTITY)
         private var id: Long = -1
-) {
-        val authId get() = googleId
-}
+)
