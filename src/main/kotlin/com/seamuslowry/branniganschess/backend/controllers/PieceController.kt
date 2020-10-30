@@ -29,7 +29,8 @@ class PieceController(
     )
     fun getPieces(@PathVariable gameId: Long,
                   @RequestParam(required = false) color: PieceColor?,
-                  @RequestParam(required = false) status: PieceStatus?)
+                  @RequestParam(required = false) status: PieceStatus?
+    )
             : ResponseEntity<Iterable<Piece>> {
         return ResponseEntity.ok(pieceService.findAllBy(gameId, color, status))
     }
