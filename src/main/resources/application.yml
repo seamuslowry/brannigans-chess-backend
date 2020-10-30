@@ -1,8 +1,6 @@
 auth0:
   audience: https://branniganschess.com
 
-debug: true
-
 spring:
   datasource:
     url: jdbc:postgresql://${BRANNIGANS_CHESS_DB_URL:localhost}:5432/${BRANNIGANS_CHESS_DB_NAME:brannigan}
