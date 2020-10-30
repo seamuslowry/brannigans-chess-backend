@@ -1,21 +1,18 @@
 package com.seamuslowry.branniganschess.backend.services
 
 import com.ninjasquad.springmockk.MockkBean
-import com.seamuslowry.branniganschess.backend.dtos.SignupException
 import com.seamuslowry.branniganschess.backend.models.*
 import com.seamuslowry.branniganschess.backend.repos.PlayerRepository
 import io.mockk.every
 import io.mockk.verify
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
 import org.springframework.data.jpa.domain.Specification
 import org.springframework.test.context.junit.jupiter.SpringExtension
-import java.lang.Exception
 import java.util.*
 
 @ExtendWith(SpringExtension::class)
@@ -31,81 +28,26 @@ class PlayerServiceTest {
     private lateinit var service: PlayerService
 
     @Test
-    fun `creates a player when it doesn't exist`() {
-        val authId = "new-id"
-        val newPlayer = Player(authId)
-        every { playerRepository.findOne(any<Specification<Player>>()) } returnsMany listOf(Optional.empty(), Optional.of(newPlayer))
+    fun `gets an existing player`() {
+        val authId = "old-auth-id"
+        val providedPlayer = Player(authId)
+        every { playerRepository.findOne(any<Specification<Player>>()) } returns Optional.of(providedPlayer)
 
-        val savedPlayer = service.getOrCreate(authId)
-
-        verify(exactly = 1) { playerRepository.save(any<Player>()) }
-        assertEquals(newPlayer , savedPlayer)
-    }
-
-    @Test
-    fun `does not create a player when it exists`() {
-        val authId = "exists-id"
-        val newPlayer = Player(authId)
-        every { playerRepository.findOne(any<Specification<Player>>()) } returns Optional.of(newPlayer)
-
-        val savedPlayer = service.getOrCreate(authId)
-
+        val player = service.getPlayer(authId)
         verify(exactly = 0) { playerRepository.save(any<Player>()) }
-        assertEquals(newPlayer , savedPlayer)
+        assertEquals(providedPlayer, player)
     }
 
     @Test
-    fun `handles creation in a separate thread`() {
-        val authId = "kinda-exists-id"
-        val newPlayer = Player(authId)
-        every { playerRepository.findOne(any<Specification<Player>>()) } returnsMany listOf(Optional.empty(), Optional.of(newPlayer))
-        every { playerRepository.save(any<Player>()) } throws Exception("message")
-
-        val savedPlayer = service.getOrCreate(authId)
-
-        verify(exactly = 1) { playerRepository.save(any<Player>()) }
-        assertEquals(newPlayer , savedPlayer)
-    }
-
-    @Test
-    fun `already exists google signup`() {
-        val authId = "old-google-id"
-        val newPlayer = Player(authId)
-        every { playerRepository.findOne(any<Specification<Player>>()) } returns Optional.of(newPlayer)
-
-        assertThrows<SignupException> { service.googleSignup(authId) }
-        verify(exactly = 0) { playerRepository.save(any<Player>()) }
-    }
-
-    @Test
-    fun `successful google signup`() {
-        val authId = "new-google-id"
-        val newPlayer = Player(authId)
+    fun `gets an new player`() {
+        val authId = "new-auth-id"
+        val providedPlayer = Player(authId)
         every { playerRepository.findOne(any<Specification<Player>>()) } returns Optional.empty()
-        every { playerRepository.save(any<Player>()) } returns newPlayer
+        every { playerRepository.save(any<Player>()) } returns providedPlayer
 
-        val savedPlayer = service.googleSignup(authId)
+        val player = service.getPlayer(authId)
         verify(exactly = 1) { playerRepository.save(any<Player>()) }
-        assertEquals(newPlayer, savedPlayer)
-    }
-
-    @Test
-    fun `does not exist google login`() {
-        val authId = "new-google-id"
-        every { playerRepository.findOne(any<Specification<Player>>()) } returns Optional.empty()
-
-        assertThrows<SignupException> { service.googleLogin(authId) }
-    }
-
-    @Test
-    fun `successful google login`() {
-        val authId = "old-google-id"
-        val oldPlayer = Player(authId)
-        every { playerRepository.findOne(any<Specification<Player>>()) } returns Optional.of(oldPlayer)
-
-        val returnedPlayer = service.googleLogin(authId)
-        verify(exactly = 0) { playerRepository.save(any<Player>()) }
-        assertEquals(oldPlayer, returnedPlayer)
+        assertEquals(providedPlayer, player)
     }
 
     @Test

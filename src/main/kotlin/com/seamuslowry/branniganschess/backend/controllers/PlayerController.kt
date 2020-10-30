@@ -7,6 +7,7 @@ import io.swagger.annotations.ApiResponse
 import io.swagger.annotations.ApiResponses
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.annotation.AuthenticationPrincipal
+import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.oauth2.jwt.Jwt
 import org.springframework.web.bind.annotation.*
 
@@ -29,27 +30,11 @@ class PlayerController(
         return ResponseEntity.ok(playerService.getGames(principal.subject , color, active))
     }
 
-    @PutMapping("/signup/google")
-    @ApiOperation("Signs up a player using their Google login", response = Player::class)
+    @GetMapping("/auth")
+    @ApiOperation("Retrieves the player that corresponds to the authenticated id", response = Player::class)
     @ApiResponses(
-        ApiResponse(code = 200, message =  "Successfully signed the player up."),
-        ApiResponse(code = 400, message =  "Player has already signed up with google."),
+        ApiResponse(code = 200, message =  "Successfully retrieved the player."),
         ApiResponse(code = 500, message =  "There was a problem with the service.")
     )
-    fun signupWithGoogle(@AuthenticationPrincipal principal: Jwt)
-        : ResponseEntity<Player> {
-        return ResponseEntity.ok(playerService.googleSignup(principal.subject))
-    }
-
-    @GetMapping("/login/google")
-    @ApiOperation("Validates that there is a player using this Google login", response = Player::class)
-    @ApiResponses(
-        ApiResponse(code = 200, message =  "Successfully logged the player in."),
-        ApiResponse(code = 400, message =  "Player has not signed up with google."),
-        ApiResponse(code = 500, message =  "There was a problem with the service.")
-    )
-    fun loginWithGoogle(@AuthenticationPrincipal principal: Jwt)
-        : ResponseEntity<Player> {
-        return ResponseEntity.ok(playerService.googleLogin(principal.subject))
-    }
+    fun auth(): ResponseEntity<Player> = ResponseEntity.ok(playerService.getPlayer(SecurityContextHolder.getContext().authentication.name))
 }

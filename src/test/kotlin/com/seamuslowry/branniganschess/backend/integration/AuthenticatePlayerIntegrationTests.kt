@@ -7,35 +7,34 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.get
-import org.springframework.test.web.servlet.put
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
-class LoginIntegrationTests(
+class AuthenticatePlayerIntegrationTests(
     @Autowired val mockMvc: MockMvc
 ) {
     @Test
-    fun `with not return a new player`() {
+    fun `will return a new player`() {
         val playerAuthId = "noMatchAuthId"
 
-        mockMvc.get("/players/login/google") {
+        mockMvc.get("/players/auth") {
             with(jwt().jwt { it.claim("sub", playerAuthId) })
         }.andExpect {
-            status { isBadRequest }
+            status { isOk }
         }
     }
 
     @Test
-    fun `returns a player after signup`() {
+    fun `returns an existing player`() {
         val playerAuthId = "matchingAuthId"
 
-        mockMvc.put("/players/signup/google") {
+        mockMvc.get("/players/auth") {
             with(jwt().jwt { it.claim("sub", playerAuthId) })
         }.andExpect {
             status { isOk }
         }
 
-        mockMvc.get("/players/login/google") {
+        mockMvc.get("/players/auth") {
             with(jwt().jwt { it.claim("sub", playerAuthId) })
         }.andExpect {
             status { isOk }

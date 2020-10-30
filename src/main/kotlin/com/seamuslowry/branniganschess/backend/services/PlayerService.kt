@@ -1,6 +1,5 @@
 package com.seamuslowry.branniganschess.backend.services
 
-import com.seamuslowry.branniganschess.backend.dtos.SignupException
 import com.seamuslowry.branniganschess.backend.models.*
 import com.seamuslowry.branniganschess.backend.repos.PlayerRepository
 import org.springframework.data.jpa.domain.Specification
@@ -13,48 +12,14 @@ class PlayerService (
         private val gameService: GameService
 ) {
     /**
-     * Given an google ID, get or create the player.
+     * Get a player with the provided authentication id.
+     * If there is no player with that id, create one and return it.
      *
-     * @param googleId the google ID to search for
-     * @return the found or created player
-     */
-    fun getOrCreate(googleId: String): Player {
-        var player: Player?
-
-        try {
-            player = getByAuthId(googleId)
-            player = player ?: playerRepository.save(Player(googleId))
-        } catch (e: Exception) {
-            player = getByAuthId(googleId)
-        }
-
-        return player ?: throw NoSuchElementException("Player cannot be found or created.")
-    }
-
-    /**
-     * Given an google ID, create a player.
+     * @param authId the authentication id
      *
-     * @param googleId the google ID to create the player
-     * @return the created player
+     * @return a player with that authentication id
      */
-    fun googleSignup(googleId: String): Player {
-        if (playerRepository.findOne(withGoogleId(googleId)).isPresent) throw SignupException("Already signed up with google")
-
-        return playerRepository.save(Player(googleId = googleId))
-    }
-
-    /**
-     * Given an google ID, ensure that a player exists.
-     *
-     * @param googleId the google ID to check for
-     * @return the found player
-     */
-    fun googleLogin(googleId: String): Player {
-        val player = playerRepository.findOne(withGoogleId(googleId))
-        if (player.isEmpty) throw SignupException("Not signed up with google")
-
-        return player.get()
-    }
+    fun getPlayer(authId: String): Player = playerRepository.findOne(withAuthId(authId)).orElseGet { playerRepository.save(Player(authId)) }
 
     /**
      * Get all the games that meet the passed criteria for the player with the provided auth id.
@@ -74,11 +39,9 @@ class PlayerService (
 
     private fun getGames(player: Player, color: PieceColor?, active: Boolean?) = gameService.findPlayerGames(player, color, active)
 
-    private fun withAuthId(authId: String): Specification<Player> = Specification.where(withGoogleId(authId))!!
-
-    private fun withGoogleId(googleId: String): Specification<Player> = Specification {
+    private fun withAuthId(authId: String): Specification<Player> = Specification {
         root,
         _,
-        criteriaBuilder -> criteriaBuilder.equal(root.get<Player>("googleId"), googleId)
+        criteriaBuilder -> criteriaBuilder.equal(root.get<Player>("authId"), authId)
     }
 }
