@@ -13,9 +13,8 @@ import java.time.Instant
 class AudienceValidatorTest {
     @Test
     fun `validates the audience - success`() {
-        val audience = "test-audience"
-        val validator = AudienceValidator(audience)
-        val jwt = Jwt("test-token", Instant.now(), Instant.now(), mapOf(Pair(JwtClaimNames.SUB, "test")), mapOf(Pair(JwtClaimNames.AUD, audience)))
+        val jwt = createJwt()
+        val validator = AudienceValidator(jwt.audience.first())
         val result = validator.validate(jwt)
 
         assertFalse(result.hasErrors())
@@ -23,11 +22,15 @@ class AudienceValidatorTest {
 
     @Test
     fun `validates the audience - failure`() {
-        val audience = "test-audience"
-        val validator = AudienceValidator(audience)
-        val jwt = Jwt("test-token", Instant.now(), Instant.now(), mapOf(Pair(JwtClaimNames.SUB, "test")), mapOf(Pair(JwtClaimNames.AUD, audience.capitalize())))
+        val jwt = createJwt()
+        val validator = AudienceValidator("invalid-${jwt.audience.first()}")
         val result = validator.validate(jwt)
 
         assertTrue(result.hasErrors())
     }
+
+    private fun createJwt() = Jwt.withTokenValue("test-token")
+        .audience(listOf("audience"))
+        .header("header", "test")
+        .build()
 }
