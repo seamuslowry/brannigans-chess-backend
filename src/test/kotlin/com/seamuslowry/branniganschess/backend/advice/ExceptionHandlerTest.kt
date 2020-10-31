@@ -1,6 +1,7 @@
 package com.seamuslowry.branniganschess.backend.advice
 
 import com.seamuslowry.branniganschess.backend.dtos.ChessRuleException
+import com.seamuslowry.branniganschess.backend.dtos.GameStateException
 import com.seamuslowry.branniganschess.backend.dtos.SignupException
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
@@ -30,5 +31,13 @@ class ExceptionHandlerTest {
         val entity = exceptionHandler.handleSignupException(ex)
         assertEquals(ex.message, entity.body)
         assertEquals(HttpStatus.BAD_REQUEST, entity.statusCode)
+    }
+
+    @Test
+    fun `Turns a GameStateException into a ResponseEntity`() {
+        val ex = GameStateException("test exception")
+        val entity = exceptionHandler.handleGameStateException(ex)
+        assertEquals(ex.message, entity.body)
+        assertEquals(HttpStatus.CONFLICT, entity.statusCode)
     }
 }
