@@ -138,6 +138,34 @@ class GameService (
         return updateGameStatusForNextPlayer(game, newStatus)
     }
 
+    /**
+     * Get the status of the game for the next player's turn. Player color is provided to identify the player.
+     *
+     * @param game the game
+     * @param opposingColor the color of the next player
+     *
+     * @return the next status of the game
+     */
+    fun getGameStatusForNextPlayer(game: Game, opposingColor: PieceColor): GameStatus {
+        val board = pieceService.getPiecesAsBoard(game.id)
+        val friendlyPieces = pieceService.findAllBy(game.id, opposingColor, PieceStatus.ACTIVE)
+        val opposingPieces = pieceService.findAllBy(game.id, Utils.getOpposingColor(opposingColor), PieceStatus.ACTIVE)
+        val king = pieceService.findAllBy(game.id, opposingColor, type = PieceType.KING).first()
+
+        val inCheck = canBeCaptured(board, king, opposingPieces)
+        val hasValidMove = haveAnyValidMoves(game, board, friendlyPieces)
+
+        val promotable = opposingPieces.any { it is Pawn && it.promotable() }
+
+        return when {
+            inCheck && hasValidMove -> if (opposingColor == PieceColor.BLACK) GameStatus.BLACK_CHECK else GameStatus.WHITE_CHECK
+            inCheck && !hasValidMove -> GameStatus.CHECKMATE
+            !inCheck && !hasValidMove -> GameStatus.STALEMATE
+            promotable -> if (opposingColor == PieceColor.BLACK) GameStatus.WHITE_PROMOTION else GameStatus.BLACK_PROMOTION
+            else -> if (opposingColor == PieceColor.BLACK) GameStatus.BLACK_TURN else GameStatus.WHITE_TURN
+        }
+    }
+
     private fun move(game: Game, moveRequest: MoveRequest): Move {
         val board = pieceService.getPiecesAsBoard(game.id)
         val (srcRow, srcCol, dstRow, dstCol) = moveRequest
@@ -395,27 +423,7 @@ class GameService (
         return null
     }
 
-    fun getGameStatusForNextPlayer(game: Game, opposingColor: PieceColor): GameStatus {
-        val board = pieceService.getPiecesAsBoard(game.id)
-        val friendlyPieces = pieceService.findAllBy(game.id, opposingColor, PieceStatus.ACTIVE)
-        val opposingPieces = pieceService.findAllBy(game.id, Utils.getOpposingColor(opposingColor), PieceStatus.ACTIVE)
-        val king = pieceService.findAllBy(game.id, opposingColor, type = PieceType.KING).first()
-
-        val inCheck = canBeCaptured(board, king, opposingPieces)
-        val hasValidMove = haveAnyValidMoves(game, board, friendlyPieces)
-
-        val promotable = opposingPieces.any { it is Pawn && it.promotable() }
-
-        return when {
-            inCheck && hasValidMove -> if (opposingColor == PieceColor.BLACK) GameStatus.BLACK_CHECK else GameStatus.WHITE_CHECK
-            inCheck && !hasValidMove -> GameStatus.CHECKMATE
-            !inCheck && !hasValidMove -> GameStatus.STALEMATE
-            promotable -> if (opposingColor == PieceColor.BLACK) GameStatus.WHITE_PROMOTION else GameStatus.BLACK_PROMOTION
-            else -> if (opposingColor == PieceColor.BLACK) GameStatus.BLACK_TURN else GameStatus.WHITE_TURN
-        }
-    }
-
-    fun updateGameStatusForNextPlayer(game: Game, newStatus: GameStatus): Game {
+    private fun updateGameStatusForNextPlayer(game: Game, newStatus: GameStatus): Game {
         if (newStatus == GameStatus.CHECKMATE) {
             game.winner = if (game.status === GameStatus.WHITE_TURN) game.whitePlayer else game.blackPlayer
         }
