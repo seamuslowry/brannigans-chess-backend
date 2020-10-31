@@ -39,8 +39,7 @@ class GameController(
     ): ResponseEntity<Page<Game>> = ResponseEntity.ok(gameService.findAllBy(active, pageable))
 
     @SubscribeMapping("/status/{gameId}")
-    fun getCurrentStatus(@DestinationVariable gameId: Long): String {
-        val game = gameService.getById(gameId)
-        return game.status.toString()
+    fun getCurrentStatus(@DestinationVariable gameId: Long): Game {
+        return gameService.getById(gameId)
     }
 }

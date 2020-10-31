@@ -2,8 +2,9 @@ package com.seamuslowry.branniganschess.backend.integration
 
 import com.seamuslowry.branniganschess.backend.integration.mocks.TestStompClient
 import org.awaitility.kotlin.await
-import com.seamuslowry.branniganschess.backend.integration.mocks.TestStompFrameHandler
+import com.seamuslowry.branniganschess.backend.integration.mocks.GameStompFrameHandler
 import com.seamuslowry.branniganschess.backend.integration.mocks.TestStompSessionHandler
+import com.seamuslowry.branniganschess.backend.models.Game
 import com.seamuslowry.branniganschess.backend.models.GameStatus
 import com.seamuslowry.branniganschess.backend.services.GameService
 import org.awaitility.kotlin.until
@@ -12,7 +13,7 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.web.server.LocalServerPort
-import org.springframework.messaging.converter.StringMessageConverter
+import org.springframework.messaging.converter.MappingJackson2MessageConverter
 import org.springframework.messaging.simp.stomp.StompSession
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -28,7 +29,7 @@ class WebSocketStatusIntegrationTests(
     @BeforeEach
     fun setUp() {
         val wsUrl = "ws://127.0.0.1:$port/ws"
-        stompClient.messageConverter = StringMessageConverter()
+        stompClient.messageConverter = MappingJackson2MessageConverter()
         stompSession = stompClient.connect(wsUrl, TestStompSessionHandler()).get()
     }
 
@@ -39,26 +40,26 @@ class WebSocketStatusIntegrationTests(
     }
 
     @Test
-    fun `gets status of game on subscribe`() {
+    fun `gets game on subscribe`() {
         val game = gameService.createGame()
-        val messages = mutableListOf<String>()
+        val messages = mutableListOf<Game>()
         stompSession.subscribe(
-                "/game/status/${game.id}",
-                TestStompFrameHandler(messages))
+            "/game/status/${game.id}",
+            GameStompFrameHandler(messages))
 
         await until { messages.count() == 1 }
 
-        assertEquals(game.status.toString(), messages.last())
+        assertEquals(game.id, messages.last().id)
     }
 
     @Test
-    fun `gets status of game when updated`() {
+    fun `gets game when updated`() {
         var game = gameService.createGame()
-        val messages = mutableListOf<String>()
+        val messages = mutableListOf<Game>()
 
         stompSession.subscribe(
-                "/game/status/${game.id}",
-                TestStompFrameHandler(messages))
+            "/game/status/${game.id}",
+            GameStompFrameHandler(messages))
 
         await until { messages.count() == 1 }
 
@@ -67,6 +68,6 @@ class WebSocketStatusIntegrationTests(
         await until { messages.count() == 2 }
 
         assertEquals(GameStatus.STALEMATE, game.status)
-        assertEquals(game.status.toString(), messages.last())
+        assertEquals(game.status, messages.last().status)
     }
 }
