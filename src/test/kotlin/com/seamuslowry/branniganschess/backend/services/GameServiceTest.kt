@@ -2,6 +2,7 @@ package com.seamuslowry.branniganschess.backend.services
 
 import com.ninjasquad.springmockk.MockkBean
 import com.seamuslowry.branniganschess.backend.dtos.ChessRuleException
+import com.seamuslowry.branniganschess.backend.dtos.GameStateException
 import com.seamuslowry.branniganschess.backend.dtos.MoveRequest
 import com.seamuslowry.branniganschess.backend.models.*
 import com.seamuslowry.branniganschess.backend.models.pieces.*
@@ -9,8 +10,7 @@ import com.seamuslowry.branniganschess.backend.repos.GameRepository
 import com.seamuslowry.branniganschess.backend.utils.Utils
 import io.mockk.every
 import io.mockk.verify
-import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertNull
+import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -767,5 +767,148 @@ class GameServiceTest {
         val savedGame = service.updateGameStatusForNextPlayer(game.id, PieceColor.BLACK)
 
         assertEquals(GameStatus.STALEMATE, savedGame.status)
+    }
+
+    @Test
+    fun `adds a white player as requested`() {
+        val player = Player("success-add-white")
+        val savedGame = service.addPlayer(1, player, PieceColor.WHITE)
+
+        assertEquals(GameStatus.WAITING_FOR_BLACK, savedGame.status)
+        assertEquals(player, savedGame.whitePlayer)
+    }
+
+    @Test
+    fun `adds a black player as requested`() {
+        val player = Player("success-add-black")
+        val savedGame = service.addPlayer(1, player, PieceColor.BLACK)
+
+        assertEquals(GameStatus.WAITING_FOR_WHITE, savedGame.status)
+        assertEquals(player, savedGame.blackPlayer)
+    }
+
+    @Test
+    fun `adds a white player by default`() {
+        val player = Player("success-default-white")
+
+        val savedGame = service.addPlayer(1, player)
+
+        assertEquals(GameStatus.WAITING_FOR_BLACK, savedGame.status)
+        assertEquals(player, savedGame.whitePlayer)
+    }
+
+    @Test
+    fun `adds a black player by default`() {
+        val player = Player("success-default-black")
+        val game = Game("white-filled-game", whitePlayer = Player("existing-white"))
+
+        every { gameRepository.getOne(any()) } returns game
+
+        val savedGame = service.addPlayer(1, player)
+
+        assertEquals(GameStatus.WHITE_TURN, savedGame.status)
+        assertEquals(player, savedGame.blackPlayer)
+    }
+
+    @Test
+    fun `will not add to a full game`() {
+        val game = Game("full-game", blackPlayer = Player("full-black"), whitePlayer = Player("full-white"))
+
+        every { gameRepository.getOne(any()) } returns game
+
+        assertThrows<GameStateException> { service.addPlayer(1, Player("disallow-full")) }
+    }
+
+    @Test
+    fun `will not add a white player when white is assigned`() {
+        val game = Game("white-filled-game", whitePlayer = Player("no-overwrite-white"))
+
+        every { gameRepository.getOne(any()) } returns game
+
+        assertThrows<GameStateException> { service.addPlayer(1, Player("try-overwrite-white"), PieceColor.WHITE) }
+    }
+
+    @Test
+    fun `will not add a black player when black is assigned`() {
+        val game = Game("black-filled-game", blackPlayer = Player("no-overwrite-black"))
+
+        every { gameRepository.getOne(any()) } returns game
+
+        assertThrows<GameStateException> { service.addPlayer(1, Player("try-overwrite-black"), PieceColor.BLACK) }
+    }
+
+    @Test
+    fun `swaps a player from white to black`() {
+        val player = Player("try-swap-black")
+        val game = Game("black-swap-game", whitePlayer = player)
+
+        every { gameRepository.getOne(any()) } returns game
+
+        val savedGame = service.addPlayer(1, player, PieceColor.BLACK)
+
+        assertEquals(GameStatus.WAITING_FOR_WHITE, savedGame.status)
+        assertEquals(player, savedGame.blackPlayer)
+    }
+
+    @Test
+    fun `swaps a player from black to white`() {
+        val player = Player("try-swap-white")
+        val game = Game("white-swap-game", blackPlayer = player)
+
+        every { gameRepository.getOne(any()) } returns game
+
+        val savedGame = service.addPlayer(1, player, PieceColor.WHITE)
+
+        assertEquals(GameStatus.WAITING_FOR_BLACK, savedGame.status)
+        assertEquals(player, savedGame.whitePlayer)
+    }
+
+    @Test
+    fun `does not try to re-add a player`() {
+        val player = Player("try-readd")
+        val game = Game("readd-game", blackPlayer = player)
+
+        every { gameRepository.getOne(any()) } returns game
+
+        val savedGame = service.addPlayer(1, player)
+
+        assertEquals(GameStatus.WAITING_FOR_WHITE, savedGame.status)
+        assertEquals(player, savedGame.blackPlayer)
+    }
+
+    @Test
+    fun `removes a black player`() {
+        val player = Player("remove-black")
+        val game = Game("remove-black-game", blackPlayer = player)
+
+        every { gameRepository.getOne(any()) } returns game
+
+        val savedGame = service.removePlayer(1, player)
+
+        assertEquals(GameStatus.WAITING_FOR_PLAYERS, savedGame.status)
+        assertNull(savedGame.blackPlayer)
+    }
+
+    @Test
+    fun `removes a white player`() {
+        val player = Player("remove-white")
+        val game = Game("remove-white-game", whitePlayer = player)
+
+        every { gameRepository.getOne(any()) } returns game
+
+        val savedGame = service.removePlayer(1, player)
+
+        assertEquals(GameStatus.WAITING_FOR_PLAYERS, savedGame.status)
+        assertNull(savedGame.whitePlayer)
+    }
+
+    @Test
+    fun `will not remove from a full game`() {
+        val player = Player("no-remove")
+        val game = Game("no-remove-game", whitePlayer = player, blackPlayer = Player("no-remove-black"))
+
+        every { gameRepository.getOne(any()) } returns game
+
+        assertThrows<GameStateException> { service.removePlayer(1, player) }
     }
 }

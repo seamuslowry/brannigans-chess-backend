@@ -14,6 +14,7 @@ import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequ
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.get
+import org.springframework.test.web.servlet.post
 
 @ExtendWith(SpringExtension::class)
 @WebMvcTest(PlayerController::class)
@@ -43,6 +44,32 @@ class PlayerControllerTest(@Autowired val mockMvc: MockMvc) {
         every { playerService.getPlayer(any()) } returns player
 
         mockMvc.get("/players/auth") {
+            with(jwt())
+        }.andExpect {
+            status { isOk }
+        }
+    }
+
+    @Test
+    fun `joins a game`() {
+        val game = Game("Player Controller Join Game")
+
+        every { playerService.joinGame(any(), any(), any()) } returns game
+
+        mockMvc.post("/players/join/1?color=BLACK") {
+            with(jwt())
+        }.andExpect {
+            status { isOk }
+        }
+    }
+
+    @Test
+    fun `leaves a game`() {
+        val game = Game("Player Controller Leave Game")
+
+        every { playerService.leaveGame(any(), any()) } returns game
+
+        mockMvc.post("/players/leave/1") {
             with(jwt())
         }.andExpect {
             status { isOk }

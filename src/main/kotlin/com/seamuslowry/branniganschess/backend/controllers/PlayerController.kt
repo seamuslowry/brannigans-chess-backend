@@ -6,9 +6,7 @@ import io.swagger.annotations.ApiOperation
 import io.swagger.annotations.ApiResponse
 import io.swagger.annotations.ApiResponses
 import org.springframework.http.ResponseEntity
-import org.springframework.security.core.annotation.AuthenticationPrincipal
-import org.springframework.security.core.context.SecurityContextHolder
-import org.springframework.security.oauth2.jwt.Jwt
+import org.springframework.security.core.Authentication
 import org.springframework.web.bind.annotation.*
 
 @RestController
@@ -23,11 +21,11 @@ class PlayerController(
             ApiResponse(code = 404, message =  "The player does not exist."),
             ApiResponse(code = 500, message =  "There was a problem with the service.")
     )
-    fun getGames(@AuthenticationPrincipal principal: Jwt,
-                  @RequestParam(required = false) color: PieceColor?,
-                  @RequestParam(required = false) active: Boolean?)
+    fun getGames(authentication: Authentication,
+                 @RequestParam(required = false) color: PieceColor?,
+                 @RequestParam(required = false) active: Boolean?)
             : ResponseEntity<Iterable<Game>> {
-        return ResponseEntity.ok(playerService.getGames(principal.subject , color, active))
+        return ResponseEntity.ok(playerService.getGames(authentication.name , color, active))
     }
 
     @GetMapping("/auth")
@@ -36,5 +34,28 @@ class PlayerController(
         ApiResponse(code = 200, message =  "Successfully retrieved the player."),
         ApiResponse(code = 500, message =  "There was a problem with the service.")
     )
-    fun auth(): ResponseEntity<Player> = ResponseEntity.ok(playerService.getPlayer(SecurityContextHolder.getContext().authentication.name))
+    fun auth(authentication: Authentication): ResponseEntity<Player> = ResponseEntity.ok(playerService.getPlayer(authentication.name))
+
+    @PostMapping("/join/{gameId}")
+    @ApiOperation("Adds the authenticated user to the specified game", response = Game::class)
+    @ApiResponses(
+        ApiResponse(code = 200, message =  "Successfully joined the game."),
+        ApiResponse(code = 409, message =  "Cannot join the game as requested."),
+        ApiResponse(code = 500, message =  "There was a problem with the service.")
+    )
+    fun join(authentication: Authentication,
+             @PathVariable gameId: Long,
+             @RequestParam(required = false) color: PieceColor?)
+        : ResponseEntity<Game> = ResponseEntity.ok(playerService.joinGame(gameId, authentication.name, color))
+
+    @PostMapping("/leave/{gameId}")
+    @ApiOperation("Removes the authenticated user to the specified game", response = Game::class)
+    @ApiResponses(
+        ApiResponse(code = 200, message =  "Successfully left the game."),
+        ApiResponse(code = 409, message =  "Cannot leave the game."),
+        ApiResponse(code = 500, message =  "There was a problem with the service.")
+    )
+    fun leave(authentication: Authentication,
+              @PathVariable gameId: Long)
+        : ResponseEntity<Game> = ResponseEntity.ok(playerService.leaveGame(gameId, authentication.name))
 }
