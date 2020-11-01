@@ -1,6 +1,7 @@
 package com.seamuslowry.branniganschess.backend.services
 
 import com.seamuslowry.branniganschess.backend.dtos.ChessRuleException
+import com.seamuslowry.branniganschess.backend.dtos.GameStateException
 import com.seamuslowry.branniganschess.backend.dtos.MoveRequest
 import com.seamuslowry.branniganschess.backend.models.*
 import com.seamuslowry.branniganschess.backend.models.pieces.*
@@ -137,6 +138,109 @@ class GameService (
         val newStatus = getGameStatusForNextPlayer(game, opposingColor)
         return updateGameStatusForNextPlayer(game, newStatus)
     }
+
+    /**
+     * Get the status of the game for the next player's turn. Player color is provided to identify the player.
+     *
+     * @param game the game
+     * @param opposingColor the color of the next player
+     *
+     * @return the next status of the game
+     */
+    fun getGameStatusForNextPlayer(game: Game, opposingColor: PieceColor): GameStatus {
+        val board = pieceService.getPiecesAsBoard(game.id)
+        val friendlyPieces = pieceService.findAllBy(game.id, opposingColor, PieceStatus.ACTIVE)
+        val opposingPieces = pieceService.findAllBy(game.id, Utils.getOpposingColor(opposingColor), PieceStatus.ACTIVE)
+        val king = pieceService.findAllBy(game.id, opposingColor, type = PieceType.KING).first()
+
+        val inCheck = canBeCaptured(board, king, opposingPieces)
+        val hasValidMove = haveAnyValidMoves(game, board, friendlyPieces)
+
+        val promotable = opposingPieces.any { it is Pawn && it.promotable() }
+
+        return when {
+            inCheck && hasValidMove -> if (opposingColor == PieceColor.BLACK) GameStatus.BLACK_CHECK else GameStatus.WHITE_CHECK
+            inCheck && !hasValidMove -> GameStatus.CHECKMATE
+            !inCheck && !hasValidMove -> GameStatus.STALEMATE
+            promotable -> if (opposingColor == PieceColor.BLACK) GameStatus.WHITE_PROMOTION else GameStatus.BLACK_PROMOTION
+            else -> if (opposingColor == PieceColor.BLACK) GameStatus.BLACK_TURN else GameStatus.WHITE_TURN
+        }
+    }
+
+    /**
+     * Update the game status to the new status.
+     * Will automatically set the winner if status is CHECKMATE.
+     *
+     * @param game the game
+     * @param newStatus the new status
+     *
+     * @return the new game
+     */
+    fun updateGameStatusForNextPlayer(game: Game, newStatus: GameStatus): Game {
+        if (newStatus == GameStatus.CHECKMATE) {
+            game.winner = if (game.status === GameStatus.WHITE_TURN) game.whitePlayer else game.blackPlayer
+        }
+        game.status = newStatus
+        return gameRepository.save(game)
+    }
+
+    /**
+     * Add a player to a game with an optional specified color.
+     *
+     * @param gameId the id of the game
+     * @param player the player to add
+     * @param color (optional) the color the player should be
+     *
+     * @return the updated game
+     */
+    fun addPlayer(gameId: Long, player: Player, color: PieceColor? = null): Game {
+        var game = getById(gameId)
+        game = addPlayer(game, player, color)
+        return updateGameForPlayerSearch(game)
+    }
+
+    /**
+     * Remove a player from a game
+     *
+     * @param gameId the id of the game
+     * @param player the player to add
+     *
+     * @return the updated game
+     */
+    fun removePlayer(gameId: Long, player: Player): Game {
+        var game = getById(gameId)
+        game = removePlayer(game, player)
+        return updateGameForPlayerSearch(game)
+    }
+
+    private fun removePlayer(game: Game, player: Player): Game {
+        if (game.whitePlayer != null && game.blackPlayer != null) throw GameStateException("Players cannot leave the game now")
+
+        if (isBlackPlayer(game, player)) game.blackPlayer = null
+        if (isWhitePlayer(game, player)) game.whitePlayer = null
+
+        return game
+    }
+
+    private fun addPlayer(game: Game, player: Player, color: PieceColor?): Game {
+        if (color == null && isEitherPlayer(game, player)) return game
+
+        val assignColor = color ?: if (game.whitePlayer == null) PieceColor.WHITE else PieceColor.BLACK
+        if (!(game.whitePlayer == null || game.blackPlayer == null)) throw GameStateException("Game is full")
+        if (assignColor == PieceColor.WHITE && game.whitePlayer != null) throw GameStateException("White player is taken")
+        if (assignColor == PieceColor.BLACK && game.blackPlayer != null) throw GameStateException("Black player is taken")
+
+        val newGame = removePlayer(game, player)
+
+        if (assignColor == PieceColor.BLACK) newGame.blackPlayer = player
+        if (assignColor == PieceColor.WHITE) newGame.whitePlayer = player
+
+        return newGame
+    }
+
+    private fun isWhitePlayer(game: Game, player: Player): Boolean = game.whitePlayer?.authId == player.authId
+    private fun isBlackPlayer(game: Game, player: Player): Boolean = game.blackPlayer?.authId == player.authId
+    private fun isEitherPlayer(game: Game, player: Player): Boolean = isWhitePlayer(game, player) || isBlackPlayer(game, player)
 
     private fun move(game: Game, moveRequest: MoveRequest): Move {
         val board = pieceService.getPiecesAsBoard(game.id)
@@ -395,31 +499,14 @@ class GameService (
         return null
     }
 
-    fun getGameStatusForNextPlayer(game: Game, opposingColor: PieceColor): GameStatus {
-        val board = pieceService.getPiecesAsBoard(game.id)
-        val friendlyPieces = pieceService.findAllBy(game.id, opposingColor, PieceStatus.ACTIVE)
-        val opposingPieces = pieceService.findAllBy(game.id, Utils.getOpposingColor(opposingColor), PieceStatus.ACTIVE)
-        val king = pieceService.findAllBy(game.id, opposingColor, type = PieceType.KING).first()
-
-        val inCheck = canBeCaptured(board, king, opposingPieces)
-        val hasValidMove = haveAnyValidMoves(game, board, friendlyPieces)
-
-        val promotable = opposingPieces.any { it is Pawn && it.promotable() }
-
-        return when {
-            inCheck && hasValidMove -> if (opposingColor == PieceColor.BLACK) GameStatus.BLACK_CHECK else GameStatus.WHITE_CHECK
-            inCheck && !hasValidMove -> GameStatus.CHECKMATE
-            !inCheck && !hasValidMove -> GameStatus.STALEMATE
-            promotable -> if (opposingColor == PieceColor.BLACK) GameStatus.WHITE_PROMOTION else GameStatus.BLACK_PROMOTION
-            else -> if (opposingColor == PieceColor.BLACK) GameStatus.BLACK_TURN else GameStatus.WHITE_TURN
+    private fun updateGameForPlayerSearch(game: Game): Game {
+        game.status = when {
+            game.blackPlayer != null && game.whitePlayer == null -> GameStatus.WAITING_FOR_WHITE
+            game.whitePlayer != null && game.blackPlayer == null -> GameStatus.WAITING_FOR_BLACK
+            game.whitePlayer != null && game.blackPlayer != null -> GameStatus.WHITE_TURN
+            else -> GameStatus.WAITING_FOR_PLAYERS
         }
-    }
 
-    fun updateGameStatusForNextPlayer(game: Game, newStatus: GameStatus): Game {
-        if (newStatus == GameStatus.CHECKMATE) {
-            game.winner = if (game.status === GameStatus.WHITE_TURN) game.whitePlayer else game.blackPlayer
-        }
-        game.status = newStatus
         return gameRepository.save(game)
     }
 

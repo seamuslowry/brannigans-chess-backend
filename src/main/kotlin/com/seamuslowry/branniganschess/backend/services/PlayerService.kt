@@ -31,11 +31,23 @@ class PlayerService (
      * @return the list of games
      */
     fun getGames(authId: String, color: PieceColor?, active: Boolean?): Iterable<Game> {
-        val player = getByAuthId(authId) ?: throw EntityNotFoundException("No player with that authorization ID")
+        val player = getByAuthId(authId)
         return getGames(player, color, active)
     }
 
-    private fun getByAuthId(authId: String): Player? = playerRepository.findOne(Specification.where(withAuthId(authId))).orElse(null)
+    fun joinGame(gameId: Long, authId: String, color: PieceColor?): Game {
+        val player = getByAuthId(authId)
+        return gameService.addPlayer(gameId, player, color)
+    }
+
+    fun leaveGame(gameId: Long, authId: String): Game {
+        val player = getByAuthId(authId)
+        return gameService.removePlayer(gameId, player)
+    }
+
+    private fun getByAuthId(authId: String): Player =
+        playerRepository.findOne(Specification.where(withAuthId(authId))).orElse(null)
+            ?: throw EntityNotFoundException("No player with that authorization ID")
 
     private fun getGames(player: Player, color: PieceColor?, active: Boolean?) = gameService.findPlayerGames(player, color, active)
 
