@@ -1,5 +1,6 @@
 package com.seamuslowry.branniganschess.backend.controllers
 
+import com.seamuslowry.branniganschess.backend.dtos.AdditionalPlayerInfo
 import com.seamuslowry.branniganschess.backend.models.*
 import com.seamuslowry.branniganschess.backend.services.PlayerService
 import io.swagger.annotations.ApiOperation
@@ -28,13 +29,13 @@ class PlayerController(
         return ResponseEntity.ok(playerService.getGames(authentication.name , color, active))
     }
 
-    @GetMapping("/auth")
+    @PostMapping("/auth")
     @ApiOperation("Retrieves the player that corresponds to the authenticated id", response = Player::class)
     @ApiResponses(
         ApiResponse(code = 200, message =  "Successfully retrieved the player."),
         ApiResponse(code = 500, message =  "There was a problem with the service.")
     )
-    fun auth(authentication: Authentication): ResponseEntity<Player> = ResponseEntity.ok(playerService.getPlayer(authentication.name))
+    fun auth(authentication: Authentication, @RequestBody additionalPlayerInfo: AdditionalPlayerInfo): ResponseEntity<Player> = ResponseEntity.ok(playerService.authPlayer(authentication.name, additionalPlayerInfo))
 
     @PostMapping("/join/{gameId}")
     @ApiOperation("Adds the authenticated user to the specified game", response = Game::class)
