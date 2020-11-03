@@ -21,7 +21,7 @@ class LeaveGameIntegrationTests(
     @Test
     fun `can leave a game with one player`() {
         val playerAuthId = "leave-game-itest"
-        val player = playerService.getPlayer(playerAuthId)
+        val player = playerService.authenticatePlayer(playerAuthId)
         val game = gameService.createGame()
 
         mockMvc.post("/players/join/${game.id}") {
@@ -42,8 +42,8 @@ class LeaveGameIntegrationTests(
     fun `cannot leave a game with two players`() {
         val playerOneAuthId = "cannot-leave-itest-one"
         val playerTwoAuthId = "cannot-leave-itest-two"
-        val playerOne = playerService.getPlayer(playerOneAuthId)
-        val playerTwo = playerService.getPlayer(playerTwoAuthId)
+        val playerOne = playerService.authenticatePlayer(playerOneAuthId)
+        val playerTwo = playerService.authenticatePlayer(playerTwoAuthId)
         val game = gameService.createGame()
 
         mockMvc.post("/players/join/${game.id}") {

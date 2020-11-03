@@ -1,6 +1,8 @@
 package com.seamuslowry.branniganschess.backend.controllers
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import com.ninjasquad.springmockk.MockkBean
+import com.seamuslowry.branniganschess.backend.dtos.AdditionalPlayerInfo
 import com.seamuslowry.branniganschess.backend.models.Game
 import com.seamuslowry.branniganschess.backend.models.Player
 import com.seamuslowry.branniganschess.backend.services.PlayerService
@@ -10,6 +12,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
+import org.springframework.http.MediaType
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.test.web.servlet.MockMvc
@@ -41,9 +44,12 @@ class PlayerControllerTest(@Autowired val mockMvc: MockMvc) {
     fun `gets a player`() {
         val authId = "test-player-get"
         val player = Player(authId)
-        every { playerService.getPlayer(any()) } returns player
+        every { playerService.authenticatePlayer(any()) } returns player
 
-        mockMvc.get("/players/auth") {
+        mockMvc.post("/players/auth") {
+            contentType = MediaType.APPLICATION_JSON
+            content = ObjectMapper().writeValueAsString(AdditionalPlayerInfo())
+            accept = MediaType.APPLICATION_JSON
             with(jwt())
         }.andExpect {
             status { isOk }

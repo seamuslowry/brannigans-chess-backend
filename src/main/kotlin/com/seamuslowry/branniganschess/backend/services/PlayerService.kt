@@ -1,5 +1,6 @@
 package com.seamuslowry.branniganschess.backend.services
 
+import com.seamuslowry.branniganschess.backend.dtos.AdditionalPlayerInfo
 import com.seamuslowry.branniganschess.backend.models.*
 import com.seamuslowry.branniganschess.backend.repos.PlayerRepository
 import org.springframework.data.jpa.domain.Specification
@@ -12,14 +13,23 @@ class PlayerService (
         private val gameService: GameService
 ) {
     /**
-     * Get a player with the provided authentication id.
+     * Process authentication information for a player with the provided authentication id.
      * If there is no player with that id, create one and return it.
+     * Will update the player to use new additional information.
      *
      * @param authId the authentication id
+     * @param additionalPlayerInfo additional information about the player
      *
-     * @return a player with that authentication id
+     * @return a player with that authentication id and information
      */
-    fun getPlayer(authId: String): Player = playerRepository.findOne(withAuthId(authId)).orElseGet { playerRepository.save(Player(authId)) }
+    fun authenticatePlayer(authId: String, additionalPlayerInfo: AdditionalPlayerInfo = AdditionalPlayerInfo()): Player {
+        val player = playerRepository.findOne(withAuthId(authId)).orElse(Player(authId))
+
+        player.name = additionalPlayerInfo.name
+        player.imageUrl = additionalPlayerInfo.imageUrl
+
+        return playerRepository.save(player)
+    }
 
     /**
      * Get all the games that meet the passed criteria for the player with the provided auth id.

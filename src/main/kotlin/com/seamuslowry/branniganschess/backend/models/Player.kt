@@ -8,6 +8,8 @@ import javax.persistence.Id
 @Entity
 class Player (
         val authId: String,
+        var name: String = "",
+        var imageUrl: String = "",
         @Id
         @GeneratedValue(strategy = GenerationType.IDENTITY)
         private var id: Long = -1
