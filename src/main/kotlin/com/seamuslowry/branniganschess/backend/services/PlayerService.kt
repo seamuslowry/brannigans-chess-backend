@@ -22,7 +22,7 @@ class PlayerService (
      *
      * @return a player with that authentication id and information
      */
-    fun authPlayer(authId: String, additionalPlayerInfo: AdditionalPlayerInfo = AdditionalPlayerInfo()): Player {
+    fun authenticatePlayer(authId: String, additionalPlayerInfo: AdditionalPlayerInfo = AdditionalPlayerInfo()): Player {
         val player = playerRepository.findOne(withAuthId(authId)).orElse(Player(authId))
 
         player.name = additionalPlayerInfo.name

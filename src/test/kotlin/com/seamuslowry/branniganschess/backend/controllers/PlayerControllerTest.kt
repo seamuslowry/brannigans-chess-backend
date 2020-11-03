@@ -44,7 +44,7 @@ class PlayerControllerTest(@Autowired val mockMvc: MockMvc) {
     fun `gets a player`() {
         val authId = "test-player-get"
         val player = Player(authId)
-        every { playerService.authPlayer(any()) } returns player
+        every { playerService.authenticatePlayer(any()) } returns player
 
         mockMvc.post("/players/auth") {
             contentType = MediaType.APPLICATION_JSON

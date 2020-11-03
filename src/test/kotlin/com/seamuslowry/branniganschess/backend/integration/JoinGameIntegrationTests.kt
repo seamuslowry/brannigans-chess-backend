@@ -1,6 +1,5 @@
 package com.seamuslowry.branniganschess.backend.integration
 
-import com.seamuslowry.branniganschess.backend.dtos.AdditionalPlayerInfo
 import com.seamuslowry.branniganschess.backend.models.GameStatus
 import com.seamuslowry.branniganschess.backend.services.GameService
 import com.seamuslowry.branniganschess.backend.services.PlayerService
@@ -22,7 +21,7 @@ class JoinGameIntegrationTests(
     @Test
     fun `will join a new game`() {
         val playerAuthId = "join-game-as-white-itest"
-        val player = playerService.authPlayer(playerAuthId)
+        val player = playerService.authenticatePlayer(playerAuthId)
         val game = gameService.createGame()
 
         mockMvc.post("/players/join/${game.id}") {
@@ -39,7 +38,7 @@ class JoinGameIntegrationTests(
     @Test
     fun `will join a new game as black`() {
         val playerAuthId = "join-game-as-black-itest"
-        val player = playerService.authPlayer(playerAuthId)
+        val player = playerService.authenticatePlayer(playerAuthId)
         val game = gameService.createGame()
 
         mockMvc.post("/players/join/${game.id}?color=BLACK") {
@@ -57,8 +56,8 @@ class JoinGameIntegrationTests(
     fun `filling a game starts play`() {
         val blackPlayerAuthId = "black-fill-game-itest"
         val whitePlayerAuthId = "white-fill-game-itest"
-        val blackPlayer = playerService.authPlayer(blackPlayerAuthId)
-        val whitePlayer = playerService.authPlayer(whitePlayerAuthId)
+        val blackPlayer = playerService.authenticatePlayer(blackPlayerAuthId)
+        val whitePlayer = playerService.authenticatePlayer(whitePlayerAuthId)
         val game = gameService.createGame()
 
         mockMvc.post("/players/join/${game.id}") {

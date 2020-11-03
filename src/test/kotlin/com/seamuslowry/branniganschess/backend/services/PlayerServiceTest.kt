@@ -36,7 +36,7 @@ class PlayerServiceTest {
         every { playerRepository.findOne(any<Specification<Player>>()) } returns Optional.of(providedPlayer)
         every { playerRepository.save(any<Player>()) } returns providedPlayer
 
-        val player = service.authPlayer(authId)
+        val player = service.authenticatePlayer(authId)
         verify(exactly = 1) { playerRepository.save(any<Player>()) }
         assertEquals(providedPlayer, player)
     }
@@ -48,7 +48,7 @@ class PlayerServiceTest {
         every { playerRepository.findOne(any<Specification<Player>>()) } returns Optional.empty()
         every { playerRepository.save(any<Player>()) } returns providedPlayer
 
-        val player = service.authPlayer(authId)
+        val player = service.authenticatePlayer(authId)
         verify(exactly = 1) { playerRepository.save(any<Player>()) }
         assertEquals(providedPlayer, player)
     }

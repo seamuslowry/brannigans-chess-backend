@@ -35,7 +35,7 @@ class PlayerController(
         ApiResponse(code = 200, message =  "Successfully retrieved the player."),
         ApiResponse(code = 500, message =  "There was a problem with the service.")
     )
-    fun auth(authentication: Authentication, @RequestBody additionalPlayerInfo: AdditionalPlayerInfo): ResponseEntity<Player> = ResponseEntity.ok(playerService.authPlayer(authentication.name, additionalPlayerInfo))
+    fun auth(authentication: Authentication, @RequestBody additionalPlayerInfo: AdditionalPlayerInfo): ResponseEntity<Player> = ResponseEntity.ok(playerService.authenticatePlayer(authentication.name, additionalPlayerInfo))
 
     @PostMapping("/join/{gameId}")
     @ApiOperation("Adds the authenticated user to the specified game", response = Game::class)
