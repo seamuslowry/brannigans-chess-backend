@@ -40,8 +40,6 @@ class PieceService (
      */
     fun takePiece(p: Piece): Piece {
         p.status = PieceStatus.TAKEN
-        p.positionRow = null
-        p.positionCol = null
         return updatePiece(p)
     }
 
@@ -56,8 +54,6 @@ class PieceService (
      */
     fun removePiece(p: Piece): Piece {
         p.status = PieceStatus.REMOVED
-        p.positionRow = null
-        p.positionCol = null
         return updatePiece(p)
     }
 
@@ -109,7 +105,7 @@ class PieceService (
         val array: Array<Array<Piece?>> = Utils.getEmptyBoard()
 
         for (piece in activePieces) {
-            array[piece.positionRow ?: continue][piece.positionCol ?: continue] = piece
+            array[piece.positionRow][piece.positionCol] = piece
         }
 
         return array
@@ -129,6 +125,7 @@ class PieceService (
                 .where(inGame(gameId))!!
                 .and(inRow(row))!!
                 .and(inCol(col))!!
+                .and(isStatus(PieceStatus.ACTIVE))!!
 
         return pieceRepository.findAll(spec).firstOrNull()
     }

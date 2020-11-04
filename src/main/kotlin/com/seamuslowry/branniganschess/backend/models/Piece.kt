@@ -36,8 +36,8 @@ abstract class Piece (
         // do NOT want to send it up to the client
         // cannot be saved as null
         open val game: Game?,
-        open var positionRow: Int? = null,
-        open var positionCol: Int? = null,
+        open var positionRow: Int = 0,
+        open var positionCol: Int = 0,
         @Enumerated(EnumType.STRING)
         open var status: PieceStatus = PieceStatus.ACTIVE,
         @Id
@@ -47,17 +47,13 @@ abstract class Piece (
     // need copy but cannot use data class
     abstract fun copy(): Piece
     abstract fun plausibleMoves(): Set<Position>
-    open fun isImmovable() = positionCol == null || positionRow == null || status != PieceStatus.ACTIVE
-    open fun position() = positionRow?.let {row ->
-        positionCol?.let {col ->
-            Position(row, col)
-        }
-    }
+    open fun isImmovable() = status != PieceStatus.ACTIVE
+    open fun position() = Position(positionRow, positionCol)
     open fun canMove(dst: Position) = !isImmovable() && Utils.tileOnBoard(dst.row, dst.col)
     open fun canCapture(dst: Position) = !isImmovable() && Utils.tileOnBoard(dst.row, dst.col)
     open fun requiresEmpty(dst: Position): Set<Position> {
         val set = HashSet<Position>()
-        val (row, col) = position() ?: return emptySet()
+        val (row, col) = position()
 
         val rowDiff = dst.row - row
         val colDiff = dst.col - col

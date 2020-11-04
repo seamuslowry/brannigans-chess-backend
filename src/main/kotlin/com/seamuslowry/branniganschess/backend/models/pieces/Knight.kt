@@ -11,14 +11,14 @@ import kotlin.math.abs
 class Knight(
         color: PieceColor,
         game: Game?,
-        positionRow: Int? = null,
-        positionCol: Int? = null,
+        positionRow: Int = 0,
+        positionCol: Int = 0,
         status: PieceStatus = PieceStatus.ACTIVE,
         id: Long? = null
 ): Piece(PieceType.KNIGHT, color, game, positionRow, positionCol, status, id) {
     override fun copy() = Knight(color, game, positionRow, positionCol, status, id)
     override fun plausibleMoves(): Set<Position> {
-        val (row, col) = position() ?: return emptySet()
+        val (row, col) = position()
 
         val set = HashSet<Position>()
         set.add(Position(row + 2, col + 1))
@@ -35,7 +35,7 @@ class Knight(
 
     override fun canMove(dst: Position): Boolean {
         if (!super.canMove(dst)) return false
-        val (row, col) = position() ?: return false
+        val (row, col) = position()
 
         val rowDiff = abs(dst.row - row)
         val colDiff = abs(dst.col - col)

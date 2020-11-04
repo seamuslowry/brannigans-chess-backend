@@ -11,14 +11,14 @@ import kotlin.math.abs
 class Queen(
         color: PieceColor,
         game: Game?,
-        positionRow: Int? = null,
-        positionCol: Int? = null,
+        positionRow: Int = 0,
+        positionCol: Int = 0,
         status: PieceStatus = PieceStatus.ACTIVE,
         id: Long? = null
 ): Piece(PieceType.QUEEN, color, game, positionRow, positionCol, status, id) {
     override fun copy() = Queen(color, game, positionRow, positionCol, status, id)
     override fun plausibleMoves(): Set<Position> {
-        val (row, col) = position() ?: return emptySet()
+        val (row, col) = position()
 
         val set = HashSet<Position>()
         for (d in 1..7) {
@@ -37,7 +37,7 @@ class Queen(
 
     override fun canMove(dst: Position): Boolean {
         if (!super.canMove(dst)) return false
-        val (row, col) = position() ?: return false
+        val (row, col) = position()
 
         val rowDiff = abs(dst.row - row)
         val colDiff = abs(dst.col - col)
