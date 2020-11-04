@@ -10,14 +10,14 @@ import javax.persistence.Entity
 class Rook(
         color: PieceColor,
         game: Game?,
-        positionRow: Int? = null,
-        positionCol: Int? = null,
+        positionRow: Int = 0,
+        positionCol: Int = 0,
         status: PieceStatus = PieceStatus.ACTIVE,
         id: Long? = null
 ): Piece(PieceType.ROOK, color, game, positionRow, positionCol, status, id) {
     override fun copy() = Rook(color, game, positionRow, positionCol, status, id)
     override fun plausibleMoves(): Set<Position> {
-        val (row, col) = position() ?: return emptySet()
+        val (row, col) = position()
 
         val set = HashSet<Position>()
         for (d in 1..7) {
@@ -32,7 +32,7 @@ class Rook(
 
     override fun canMove(dst: Position): Boolean {
         if (!super.canMove(dst)) return false
-        val (row, col) = position() ?: return false
+        val (row, col) = position()
 
         return row == dst.row || col == dst.col
     }

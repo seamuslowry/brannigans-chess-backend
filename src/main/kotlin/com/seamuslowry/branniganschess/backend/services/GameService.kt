@@ -450,7 +450,7 @@ class GameService (
         piece.plausibleMoves().any { pos ->
             try {
                 val piecePos = piece.position()
-                piecePos?.let { tryMove(game, board, piece, MoveRequest(it.row, it.col, pos.row, pos.col)) }
+                tryMove(game, board, piece, MoveRequest(piecePos.row, piecePos.col, pos.row, pos.col))
                 true
             } catch (ex: ChessRuleException) {
                 false
@@ -477,7 +477,7 @@ class GameService (
 
     private fun canBeCaptured(board: Array<Array<Piece?>>, king: Piece, pieces: Iterable<Piece>): Boolean {
         // get the after-move king's position
-        val kingPosition = king.position() ?: return false // should never happen
+        val kingPosition = king.position()
 
         // can any opposing piece capture the king if the move were applied
         return pieces.any { canCapture(board, it, kingPosition) }

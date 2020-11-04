@@ -11,8 +11,8 @@ import kotlin.math.abs
 class Pawn(
         color: PieceColor,
         game: Game?,
-        positionRow: Int? = null,
-        positionCol: Int? = null,
+        positionRow: Int = 0,
+        positionCol: Int = 0,
         status: PieceStatus = PieceStatus.ACTIVE,
         id: Long? = null
 ): Piece(PieceType.PAWN, color, game, positionRow, positionCol, status, id) {
@@ -20,7 +20,7 @@ class Pawn(
     override fun isImmovable(): Boolean = super.isImmovable() || positionRow == 0 || positionRow == 7
     override fun plausibleMoves(): Set<Position> {
         val direction = direction()
-        val (row, col) = position() ?: return emptySet()
+        val (row, col) = position()
         if (abs(row - startingRow()) == 6) return emptySet()
 
         val set = mutableSetOf(
@@ -36,7 +36,7 @@ class Pawn(
 
     override fun canMove(dst: Position): Boolean {
         if (!super.canMove(dst)) return false
-        val (row, col) = position() ?: return false
+        val (row, col) = position()
         val direction = direction()
 
         val rowDiff = dst.row - row
@@ -45,7 +45,7 @@ class Pawn(
 
     override fun canCapture(dst: Position): Boolean {
         if (!super.canCapture(dst)) return false
-        val (row, col) = position() ?: return false
+        val (row, col) = position()
         val direction = direction()
 
         val rowDiff = dst.row - row
