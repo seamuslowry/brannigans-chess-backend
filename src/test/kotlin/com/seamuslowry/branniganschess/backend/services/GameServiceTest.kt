@@ -43,7 +43,7 @@ class GameServiceTest {
         every { pieceService.getPiecesAsBoard(any()) } returns Utils.getEmptyBoard()
         every { gameRepository.getOne(any()) } answers { Game("Generic Game", id=firstArg()) }
         every { gameRepository.save(any<Game>()) } answers { firstArg() }
-        every { pieceService.findAllBy(any(), any(), any(), any()) } answers { listOf(King(secondArg(), null, id=100)) }
+        every { pieceService.findAllBy(any(), any(), any(), any()) } answers { listOf(King(secondArg(), null, positionCol = 4, positionRow = if (secondArg<PieceColor>() === PieceColor.BLACK) 0 else 7, id=100)) }
         every { moveService.hasMoved(any()) } returns false
     }
 
@@ -702,7 +702,7 @@ class GameServiceTest {
 
         every { pieceService.getPiecesAsBoard(any()) } returns gameBoard
         every { pieceService.movePiece(any(), any(), any()) } answers {firstArg()}
-        every { pieceService.findAllBy(any(), PieceColor.BLACK, any(), PieceType.KING) } returns listOf(king)
+        every { pieceService.findAllBy(any(), PieceColor.BLACK, any(), any()) } returns listOf(king)
         every { pieceService.findAllBy(any(), PieceColor.WHITE, any(), any()) } returns listOf(rookOne, rookTwo)
 
         val newStatus = service.getGameStatusForNextPlayer(game, PieceColor.BLACK)
@@ -761,7 +761,7 @@ class GameServiceTest {
 
         every { pieceService.getPiecesAsBoard(any()) } returns gameBoard
         every { pieceService.movePiece(any(), any(), any()) } answers {firstArg()}
-        every { pieceService.findAllBy(any(), PieceColor.BLACK, any(), PieceType.KING) } returns listOf(king)
+        every { pieceService.findAllBy(any(), PieceColor.BLACK, any(), any()) } returns listOf(king)
         every { pieceService.findAllBy(any(), PieceColor.WHITE, any(), any()) } returns listOf(rookOne, rookTwo)
 
         val savedGame = service.updateGameStatusForNextPlayer(game.id, PieceColor.BLACK)

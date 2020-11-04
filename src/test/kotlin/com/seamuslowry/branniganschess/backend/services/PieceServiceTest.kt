@@ -70,7 +70,7 @@ class PieceServiceTest {
         verify(exactly = 1) { pieceRepository.findAll(any<Specification<Piece>>()) }
 
         for (piece in pieces) {
-            assertNotNull(board[piece.positionRow!!][piece.positionCol!!])
+            assertNotNull(board[piece.positionRow][piece.positionCol])
         }
     }
 
@@ -86,8 +86,6 @@ class PieceServiceTest {
         verify(exactly = 1) { pieceRepository.save(any<Piece>()) }
 
         assertEquals(PieceStatus.TAKEN, takenPiece.status)
-        assertNull(takenPiece.positionCol)
-        assertNull(takenPiece.positionRow)
     }
 
     @Test
@@ -102,8 +100,6 @@ class PieceServiceTest {
         verify(exactly = 1) { pieceRepository.save(any<Piece>()) }
 
         assertEquals(PieceStatus.REMOVED, takenPiece.status)
-        assertNull(takenPiece.positionCol)
-        assertNull(takenPiece.positionRow)
     }
 
     @Test
