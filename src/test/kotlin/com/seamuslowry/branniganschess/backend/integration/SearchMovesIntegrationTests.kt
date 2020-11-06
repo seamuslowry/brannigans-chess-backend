@@ -61,6 +61,26 @@ class SearchMovesIntegrationTests(
     }
 
     @Test
+    fun `Finds any move that took a piece when searching for a specific color move from a game`() {
+        val game = gameService.createGame()
+        // move white pawn two
+        gameService.move(game.id, MoveRequest(6,0, 4, 0))
+        // move black pawn two
+        val blackMove = gameService.move(game.id, MoveRequest(1,1, 3, 1))
+        // take black pawn with white pawn
+        val whiteTake = gameService.move(game.id, MoveRequest(4,0, 3, 1))
+
+        mockMvc.get("/moves/${game.id}?color=BLACK") {
+            with(jwt())
+        }.andExpect {
+            status { isOk }
+            jsonPath("$.length()") { value(2) }
+            jsonPath("$[?(@.id == ${blackMove.id})]") { isNotEmpty }
+            jsonPath("$[?(@.id == ${whiteTake.id})]") { isNotEmpty }
+        }
+    }
+
+    @Test
     fun `Determines if a piece has moved`() {
         val game = gameService.createGame()
         // move white pawn one
