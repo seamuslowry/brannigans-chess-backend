@@ -32,7 +32,7 @@ class MoveService (
     fun findAllBy(gameId: Long, color: PieceColor? = null): Iterable<Move> {
         var spec: Specification<Move> = Specification.where(inGame(gameId))!!
 
-        color?.let { spec = spec.and(fromColor(it))!! }
+        color?.let { spec = spec.and(fromColor(it).or(isTake()))!! }
 
         return moveRepository.findAll(spec)
     }
@@ -68,6 +68,12 @@ class MoveService (
         root,
         _,
         criteriaBuilder -> criteriaBuilder.equal(root.get<Piece>("movingPiece").get<PieceColor>("color"), color)
+    }
+
+    private fun isTake(): Specification<Move> = Specification {
+        root,
+        _,
+        criteriaBuilder -> criteriaBuilder.isNotNull(root.get<Piece>("takenPiece"))
     }
 
     private fun fromPiece(piece: Piece): Specification<Move> = Specification {
