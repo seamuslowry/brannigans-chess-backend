@@ -1,8 +1,10 @@
 package com.seamuslowry.branniganschess.backend.models
 
+import com.seamuslowry.branniganschess.backend.websocket.SharedMovesHandler
 import javax.persistence.*
 
 @Entity
+@EntityListeners(SharedMovesHandler::class)
 class Move  (
         @ManyToOne
         val movingPiece: Piece,

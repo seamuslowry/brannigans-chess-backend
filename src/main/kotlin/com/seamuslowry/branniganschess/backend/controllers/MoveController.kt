@@ -1,7 +1,6 @@
 package com.seamuslowry.branniganschess.backend.controllers
 
 import com.seamuslowry.branniganschess.backend.dtos.MoveRequest
-import com.seamuslowry.branniganschess.backend.models.Game
 import com.seamuslowry.branniganschess.backend.models.Move
 import com.seamuslowry.branniganschess.backend.models.PieceColor
 import com.seamuslowry.branniganschess.backend.services.GameService
@@ -10,6 +9,8 @@ import io.swagger.annotations.ApiOperation
 import io.swagger.annotations.ApiResponse
 import io.swagger.annotations.ApiResponses
 import org.springframework.http.ResponseEntity
+import org.springframework.messaging.handler.annotation.DestinationVariable
+import org.springframework.messaging.simp.annotation.SubscribeMapping
 import org.springframework.web.bind.annotation.*
 
 @RestController
@@ -42,5 +43,22 @@ class MoveController (
                   @RequestParam(required = false) color: PieceColor?)
             : ResponseEntity<Iterable<Move>> {
         return ResponseEntity.ok(moveService.findAllBy(gameId, color))
+    }
+
+    /**
+     * When subscribing to the shared move topic, provide the last shared move.
+     * This is to handle disconnects and reconnects during which a shared move
+     * may have occurred.
+     *
+     * When returning `null`, no message is sent.
+     *
+     * @param gameId the id of the game to get the move of
+     *
+     * @return the last shared move or null if there is none
+     */
+    @SubscribeMapping("/moves/{gameId}")
+    fun getLastSharedMove(@DestinationVariable gameId: Long): Move? {
+        // does not send message with null body
+        return moveService.findSharedMoves(gameId).lastOrNull()
     }
 }

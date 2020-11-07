@@ -38,6 +38,13 @@ class GameController(
                  @PageableDefault(size = 10, sort = ["id"], direction = Sort.Direction.DESC) pageable: Pageable
     ): ResponseEntity<Page<Game>> = ResponseEntity.ok(gameService.findAllBy(active, pageable))
 
+    /**
+     * When subscribing to the game status topic, send the current game.
+     *
+     * @param gameId the game id
+     *
+     * @return the game
+     */
     @SubscribeMapping("/status/{gameId}")
     fun getCurrentStatus(@DestinationVariable gameId: Long): Game {
         return gameService.getById(gameId)
