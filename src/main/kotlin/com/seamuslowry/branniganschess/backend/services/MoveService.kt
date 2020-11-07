@@ -42,7 +42,7 @@ class MoveService (
      *
      * @param gameId the id move's game
      *
-     * @return a list of matching moves
+     * @return a list of shared moves
      */
     fun findSharedMoves(gameId: Long): Iterable<Move> {
         val spec: Specification<Move> = Specification.where(inGame(gameId).and((isTake())))!!

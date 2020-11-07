@@ -45,6 +45,17 @@ class MoveController (
         return ResponseEntity.ok(moveService.findAllBy(gameId, color))
     }
 
+    /**
+     * When subscribing to the shared move topic, provide the last shared move.
+     * This is to handle disconnects and reconnects during which a shared move
+     * may have occurred.
+     *
+     * When returning `null`, no message is sent.
+     *
+     * @param gameId the id of the game to get the move of
+     *
+     * @return the last shared move or null if there is none
+     */
     @SubscribeMapping("/moves/{gameId}")
     fun getLastSharedMove(@DestinationVariable gameId: Long): Move? {
         // does not send message with null body
