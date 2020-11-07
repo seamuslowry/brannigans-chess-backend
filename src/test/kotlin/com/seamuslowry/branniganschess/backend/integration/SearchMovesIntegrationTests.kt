@@ -22,6 +22,26 @@ class SearchMovesIntegrationTests(
         @Autowired val pieceService: PieceService
 ) {
     @Test
+    fun `Finds no moves from a game without colors`() {
+        val game = gameService.createGame()
+        // move white pawn up one
+        gameService.move(game.id, MoveRequest(6,0, 5, 0))
+        // move black pawn one
+        gameService.move(game.id, MoveRequest(1,0, 2, 0))
+
+        val noMatchGame = gameService.createGame()
+        // move white pawn up one
+        gameService.move(noMatchGame.id, MoveRequest(6,0, 5, 0))
+
+        mockMvc.get("/moves/${game.id}") {
+            with(jwt())
+        }.andExpect {
+            status { isOk }
+            jsonPath("$.length()") { value(0) }
+        }
+    }
+
+    @Test
     fun `Finds all moves from a specific game`() {
         val game = gameService.createGame()
         // move white pawn up one
@@ -33,7 +53,7 @@ class SearchMovesIntegrationTests(
         // move white pawn up one
         gameService.move(noMatchGame.id, MoveRequest(6,0, 5, 0))
 
-        mockMvc.get("/moves/${game.id}") {
+        mockMvc.get("/moves/${game.id}?color=WHITE&color=BLACK") {
             with(jwt())
         }.andExpect {
             status { isOk }
@@ -86,7 +106,7 @@ class SearchMovesIntegrationTests(
         // move white pawn two
         gameService.move(game.id, MoveRequest(6,0, 4, 0))
         // move black pawn two
-        val blackMove = gameService.move(game.id, MoveRequest(1,1, 3, 1))
+        gameService.move(game.id, MoveRequest(1,1, 3, 1))
         // take black pawn with white pawn
         val whiteTake = gameService.move(game.id, MoveRequest(4,0, 3, 1))
 

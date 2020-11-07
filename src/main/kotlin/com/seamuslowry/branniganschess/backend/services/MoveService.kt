@@ -25,17 +25,29 @@ class MoveService (
      * Find all moved that match the given criteria.
      *
      * @param gameId the id move's game
+     * @param colors the colors any involved piece should be
+     *
+     * @return a list of matching moves
+     */
+    fun findAllBy(gameId: Long, colors: Iterable<PieceColor> = listOf(PieceColor.BLACK, PieceColor.WHITE)): Iterable<Move> {
+        var spec: Specification<Move> = Specification.where(inGame(gameId))!!
+
+        var colorsSpec: Specification<Move> = Specification.where(fromColor(null))!!
+        colors.forEach { colorsSpec = colorsSpec.or(fromColor(it).or(isTake()))!! }
+
+        spec = spec.and(colorsSpec)!!
+        return moveRepository.findAll(spec)
+    }
+
+    /**
+     * Find all moved that match the given criteria.
+     *
+     * @param gameId the id move's game
      * @param color the color of the piece that moved
      *
      * @return a list of matching moves
      */
-    fun findAllBy(gameId: Long, color: PieceColor? = null): Iterable<Move> {
-        var spec: Specification<Move> = Specification.where(inGame(gameId))!!
-
-        color?.let { spec = spec.and(fromColor(it).or(isTake()))!! }
-
-        return moveRepository.findAll(spec)
-    }
+    fun findAllBy(gameId: Long, color: PieceColor): Iterable<Move> = findAllBy(gameId, listOf(color))
 
     /**
      * Find all moved that are shared between players in a game
@@ -76,7 +88,7 @@ class MoveService (
         criteriaBuilder -> criteriaBuilder.equal(root.get<Piece>("movingPiece").get<Game>("game").get<Long>("id"), id)
     }
 
-    private fun fromColor(color: PieceColor): Specification<Move> = Specification {
+    private fun fromColor(color: PieceColor?): Specification<Move> = Specification {
         root,
         _,
         criteriaBuilder -> criteriaBuilder.equal(root.get<Piece>("movingPiece").get<PieceColor>("color"), color)
