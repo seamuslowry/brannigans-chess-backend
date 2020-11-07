@@ -9,9 +9,6 @@ import io.swagger.annotations.ApiOperation
 import io.swagger.annotations.ApiResponse
 import io.swagger.annotations.ApiResponses
 import org.springframework.http.ResponseEntity
-import org.springframework.security.access.prepost.PreAuthorize
-import org.springframework.security.core.annotation.AuthenticationPrincipal
-import org.springframework.security.oauth2.jwt.Jwt
 import org.springframework.web.bind.annotation.*
 
 @RestController
@@ -28,11 +25,11 @@ class PieceController(
             ApiResponse(code = 500, message =  "There was a problem with the service.")
     )
     fun getPieces(@PathVariable gameId: Long,
-                  @RequestParam(required = false) color: PieceColor?,
+                  @RequestParam(name = "color", defaultValue = "") colors: List<PieceColor>,
                   @RequestParam(required = false) status: PieceStatus?
     )
             : ResponseEntity<Iterable<Piece>> {
-        return ResponseEntity.ok(pieceService.findAllBy(gameId, color, status))
+        return ResponseEntity.ok(pieceService.findAllBy(gameId, colors, status))
     }
 
     @PostMapping("/promote/{type}")

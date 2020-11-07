@@ -76,21 +76,36 @@ class PieceService (
      * Find all the pieces that meet the given criteria.
      *
      * @param gameId the id of the piece's game
-     * @param color the color of the piece
+     * @param colors a list of piece colors to retrieve; defaults to both colors
      * @param status the status of the piece
      * @param type the type of the piece
      *
      * @return the list of matching pieces
      */
-    fun findAllBy(gameId: Long, color: PieceColor? = null, status: PieceStatus? = null, type: PieceType? = null): Iterable<Piece> {
+    fun findAllBy(gameId: Long, colors: Iterable<PieceColor> = listOf(PieceColor.BLACK, PieceColor.WHITE), status: PieceStatus? = null, type: PieceType? = null): Iterable<Piece> {
         var spec: Specification<Piece> = Specification.where(inGame(gameId))!!
 
-        color?.let { spec = spec.and(isColor(it))!! }
+        var colorsSpec: Specification<Piece> = Specification.where(isColor(null))!!
+        colors.forEach { colorsSpec = colorsSpec.or(isColor(it))!! }
+
+        spec = spec.and(colorsSpec)!!
         status?.let { spec = spec.and(isStatus(it))!! }
         type?.let { spec = spec.and(isType(it))!! }
 
         return pieceRepository.findAll(spec)
     }
+
+    /**
+     * Find all the pieces that meet the given criteria.
+     *
+     * @param gameId the id of the piece's game
+     * @param color the color of the pieces to retrieve
+     * @param status the status of the piece
+     * @param type the type of the piece
+     *
+     * @return the list of matching pieces
+     */
+    fun findAllBy(gameId: Long, color: PieceColor, status: PieceStatus? = null, type: PieceType? = null): Iterable<Piece> = findAllBy(gameId, listOf(color), status, type)
 
     /**
      * Get the active pieces in a game as a 2D array denoting the board.
@@ -164,7 +179,7 @@ class PieceService (
         criteriaBuilder -> criteriaBuilder.equal(root.get<Game>("game").get<Long>("id"), id)
     }
 
-    private fun isColor(color: PieceColor): Specification<Piece> = Specification {
+    private fun isColor(color: PieceColor?): Specification<Piece> = Specification {
         root,
         _,
         criteriaBuilder -> criteriaBuilder.equal(root.get<PieceColor>("color"), color)

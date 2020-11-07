@@ -42,12 +42,34 @@ class PieceServiceTest {
     }
 
     @Test
-    fun `searches for a piece`() {
+    fun `searches for a piece without colors`() {
+        every { pieceRepository.findAll(any<Specification<Piece>>()) } returns emptyList()
+
+        val foundPieces = service.findAllBy(1, emptyList())
+
+        verify(exactly = 1) { pieceRepository.findAll(any<Specification<Piece>>()) }
+        assertEquals(0 , foundPieces.count())
+    }
+
+    @Test
+    fun `searches for a piece by one color`() {
         val game = Game("Piece Game")
         val piece = Pawn( PieceColor.BLACK, game, 0, 0)
         every { pieceRepository.findAll(any<Specification<Piece>>()) } returns listOf(piece)
 
         val foundPieces = service.findAllBy(1, piece.color, piece.status, piece.type)
+
+        verify(exactly = 1) { pieceRepository.findAll(any<Specification<Piece>>()) }
+        assertEquals(1 , foundPieces.count())
+    }
+
+    @Test
+    fun `searches for a piece by multiple colors`() {
+        val game = Game("Piece Game")
+        val piece = Pawn( PieceColor.BLACK, game, 0, 0)
+        every { pieceRepository.findAll(any<Specification<Piece>>()) } returns listOf(piece)
+
+        val foundPieces = service.findAllBy(1, listOf(PieceColor.BLACK, PieceColor.WHITE), piece.status, piece.type)
 
         verify(exactly = 1) { pieceRepository.findAll(any<Specification<Piece>>()) }
         assertEquals(1 , foundPieces.count())

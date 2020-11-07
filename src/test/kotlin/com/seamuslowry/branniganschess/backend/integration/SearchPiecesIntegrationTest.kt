@@ -27,19 +27,35 @@ class SearchPiecesIntegrationTest(
         @Autowired val gameService: GameService
 ) {
     @Test
-    fun `Finds pieces from a specific game`() {
+    fun `Will not finds pieces from a specific game without color specified`() {
         val gameOne = gameRepository.save(Game("Piece Search I-Test Game One"))
         val gameTwo = gameRepository.save(Game("Piece Search I-Test Game Two"))
 
-        val searchPiece = pieceService.createPiece(Pawn(PieceColor.BLACK, gameOne))
+        pieceService.createPiece(Pawn(PieceColor.BLACK, gameOne))
         pieceService.createPiece(Pawn(PieceColor.WHITE, gameTwo))
 
         mockMvc.get("/pieces/${gameOne.id}") {
             with(jwt())
         }.andExpect {
             status { isOk }
-            jsonPath("$.length()") { value(1) }
-            jsonPath("$[?(@.id == ${searchPiece.id})]") { isNotEmpty }
+            jsonPath("$.length()") { value(0) }
+        }
+    }
+
+    @Test
+    fun `Finds pieces of neither color from a game`() {
+        val gameOne = gameRepository.save(Game("Piece Search I-Test Game One"))
+
+        val blackPiece = pieceService.createPiece(Pawn(PieceColor.BLACK, gameOne))
+        val whitePiece = pieceService.createPiece(Pawn(PieceColor.WHITE, gameOne))
+
+        mockMvc.get("/pieces/${gameOne.id}") {
+            with(jwt())
+        }.andExpect {
+            status { isOk }
+            jsonPath("$.length()") { value(0) }
+            jsonPath("$[?(@.id == ${blackPiece.id})]") { isEmpty }
+            jsonPath("$[?(@.id == ${whitePiece.id})]") { isEmpty }
         }
     }
 
@@ -60,18 +76,34 @@ class SearchPiecesIntegrationTest(
     }
 
     @Test
-    fun `Finds taken pieces from a game`() {
+    fun `Finds pieces of both colors from a game`() {
         val gameOne = gameRepository.save(Game("Piece Search I-Test Game One"))
 
-        val searchPiece = pieceService.createPiece(Pawn(PieceColor.BLACK, gameOne, 0, 0, PieceStatus.TAKEN))
+        val blackPiece = pieceService.createPiece(Pawn(PieceColor.BLACK, gameOne))
+        val whitePiece = pieceService.createPiece(Pawn(PieceColor.WHITE, gameOne))
+
+        mockMvc.get("/pieces/${gameOne.id}?color=BLACK&color=WHITE") {
+            with(jwt())
+        }.andExpect {
+            status { isOk }
+            jsonPath("$.length()") { value(2) }
+            jsonPath("$[?(@.id == ${blackPiece.id})]") { isNotEmpty }
+            jsonPath("$[?(@.id == ${whitePiece.id})]") { isNotEmpty }
+        }
+    }
+
+    @Test
+    fun `Finds on taken pieces from a game without a specified color`() {
+        val gameOne = gameRepository.save(Game("Piece Search I-Test Game One"))
+
+        pieceService.createPiece(Pawn(PieceColor.BLACK, gameOne, 0, 0, PieceStatus.TAKEN))
         pieceService.createPiece(Pawn(PieceColor.BLACK, gameOne))
 
         mockMvc.get("/pieces/${gameOne.id}?status=TAKEN") {
             with(jwt())
         }.andExpect {
             status { isOk }
-            jsonPath("$.length()") { value(1) }
-            jsonPath("$[?(@.id == ${searchPiece.id})]") { isNotEmpty }
+            jsonPath("$.length()") { value(0) }
         }
     }
 
