@@ -4,7 +4,7 @@ import com.seamuslowry.branniganschess.backend.dtos.MoveRequest
 import com.seamuslowry.branniganschess.backend.services.GameService
 import com.seamuslowry.branniganschess.backend.services.MoveService
 import com.seamuslowry.branniganschess.backend.services.PieceService
-import org.junit.jupiter.api.Assertions
+import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
@@ -81,6 +81,22 @@ class SearchMovesIntegrationTests(
     }
 
     @Test
+    fun `Finds shared moves for a game`() {
+        val game = gameService.createGame()
+        // move white pawn two
+        gameService.move(game.id, MoveRequest(6,0, 4, 0))
+        // move black pawn two
+        val blackMove = gameService.move(game.id, MoveRequest(1,1, 3, 1))
+        // take black pawn with white pawn
+        val whiteTake = gameService.move(game.id, MoveRequest(4,0, 3, 1))
+
+        val result = moveService.findSharedMoves(game.id)
+
+        assertEquals(1, result.count())
+        assertEquals(whiteTake.id, result.first().id)
+    }
+
+    @Test
     fun `Determines if a piece has moved`() {
         val game = gameService.createGame()
         // move white pawn one
@@ -88,6 +104,6 @@ class SearchMovesIntegrationTests(
 
         val pawnMoved = moveService.hasMoved(whiteMove.movingPiece)
 
-        Assertions.assertTrue(pawnMoved)
+        assertTrue(pawnMoved)
     }
 }

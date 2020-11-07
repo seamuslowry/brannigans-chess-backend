@@ -38,6 +38,18 @@ class MoveService (
     }
 
     /**
+     * Find all moved that are shared between players in a game
+     *
+     * @param gameId the id move's game
+     *
+     * @return a list of matching moves
+     */
+    fun findSharedMoves(gameId: Long): Iterable<Move> {
+        val spec: Specification<Move> = Specification.where(inGame(gameId).and((isTake())))!!
+        return moveRepository.findAll(spec)
+    }
+
+    /**
      * Find the most recent move of the provided game.
      *
      * @param gameId the id of the game to get the move from

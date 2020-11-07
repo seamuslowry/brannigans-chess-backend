@@ -71,6 +71,19 @@ class MoveServiceTest {
     }
 
     @Test
+    fun `searches for shared moves`() {
+        val game = Game("Search Move Game")
+        val piece = Pawn( PieceColor.BLACK, game, 0, 0)
+        val move = Move(piece, 0,0,0,0)
+        every { moveRepository.findAll(any<Specification<Move>>()) } returns listOf(move)
+
+        val foundPieces = service.findSharedMoves(1)
+
+        verify(exactly = 1) { moveRepository.findAll(any<Specification<Move>>()) }
+        assertEquals(1 , foundPieces.count())
+    }
+
+    @Test
     fun `searches for the last move`() {
         val game = Game("Search Last Move Game")
         val piece = Pawn( PieceColor.BLACK, game, 0, 0)
