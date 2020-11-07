@@ -34,15 +34,42 @@ class PieceControllerTest(@Autowired val mockMvc: MockMvc) {
     private lateinit var gameService: GameService
 
     @Test
-    fun `Searches for pieces`() {
+    fun `Searches for pieces without a color`() {
         val game = Game("Piece Controller Test Game")
         game.id = 1
         val piece = Pawn(PieceColor.BLACK, game)
-        every { pieceService.findAllBy(game.id, piece.color, piece.status) } returns listOf(piece)
+        every { pieceService.findAllBy(game.id, emptyList(), piece.status) } returns emptyList()
+        mockMvc.perform(get("/pieces/${game.id}?status=${piece.status}").accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk)
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+            .andExpect(jsonPath("\$").isArray)
+            .andExpect(jsonPath("\$").isEmpty)
+    }
+
+    @Test
+    fun `Searches for pieces of a single color`() {
+        val game = Game("Piece Controller Test Game")
+        game.id = 1
+        val piece = Pawn(PieceColor.BLACK, game)
+        every { pieceService.findAllBy(game.id, listOf(PieceColor.BLACK), piece.status) } returns listOf(piece)
         mockMvc.perform(get("/pieces/${game.id}?color=${piece.color}&status=${piece.status}").accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk)
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("\$").isArray)
+                .andExpect(jsonPath("\$").isNotEmpty)
+    }
+
+    @Test
+    fun `Searches for pieces of both colors`() {
+        val game = Game("Piece Controller Test Game")
+        game.id = 1
+        val piece = Pawn(PieceColor.BLACK, game)
+        every { pieceService.findAllBy(game.id, listOf(PieceColor.WHITE, PieceColor.BLACK), piece.status) } returns listOf(piece)
+        mockMvc.perform(get("/pieces/${game.id}?color=WHITE&color=BLACK&status=${piece.status}").accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk)
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+            .andExpect(jsonPath("\$").isArray)
+            .andExpect(jsonPath("\$").isNotEmpty)
     }
 
     @Test
