@@ -31,7 +31,7 @@ class SearchPiecesIntegrationTest(
         val gameOne = gameRepository.save(Game("Piece Search I-Test Game One"))
         val gameTwo = gameRepository.save(Game("Piece Search I-Test Game Two"))
 
-        val searchPiece = pieceService.createPiece(Pawn(PieceColor.BLACK, gameOne))
+        pieceService.createPiece(Pawn(PieceColor.BLACK, gameOne))
         pieceService.createPiece(Pawn(PieceColor.WHITE, gameTwo))
 
         mockMvc.get("/pieces/${gameOne.id}") {
@@ -96,7 +96,7 @@ class SearchPiecesIntegrationTest(
     fun `Finds on taken pieces from a game without a specified color`() {
         val gameOne = gameRepository.save(Game("Piece Search I-Test Game One"))
 
-        val searchPiece = pieceService.createPiece(Pawn(PieceColor.BLACK, gameOne, 0, 0, PieceStatus.TAKEN))
+        pieceService.createPiece(Pawn(PieceColor.BLACK, gameOne, 0, 0, PieceStatus.TAKEN))
         pieceService.createPiece(Pawn(PieceColor.BLACK, gameOne))
 
         mockMvc.get("/pieces/${gameOne.id}?status=TAKEN") {
