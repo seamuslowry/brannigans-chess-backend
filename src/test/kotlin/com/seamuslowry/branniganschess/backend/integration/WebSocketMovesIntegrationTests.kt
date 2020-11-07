@@ -46,21 +46,21 @@ class WebSocketMovesIntegrationTests(
         gameService.move(game.id, MoveRequest(1,1,3,1)) // move black pawn 2
         val move = gameService.move(game.id, MoveRequest(4,0,3,1)) // take black pawn
 
-        val messages = mutableListOf<Move?>()
+        val messages = mutableListOf<Move>()
         stompSession.subscribe(
             "/game/moves/${game.id}",
             MoveStompFrameHandler(messages))
 
         await until { messages.count() == 1 }
 
-        assertEquals(move.id, messages.last()?.id)
+        assertEquals(move.id, messages.last().id)
     }
 
     @Test
     fun `gets no message if no shared moves on subscribe`() {
         val game = gameService.createGame()
 
-        val messages = mutableListOf<Move?>()
+        val messages = mutableListOf<Move>()
         stompSession.subscribe(
             "/game/moves/${game.id}",
             MoveStompFrameHandler(messages))
@@ -73,7 +73,7 @@ class WebSocketMovesIntegrationTests(
     @Test
     fun `gets a shared move when made`() {
         val game = gameService.createGame()
-        val messages = mutableListOf<Move?>()
+        val messages = mutableListOf<Move>()
 
         stompSession.subscribe(
             "/game/moves/${game.id}",
@@ -85,6 +85,6 @@ class WebSocketMovesIntegrationTests(
 
         await until { messages.count() == 1 }
 
-        assertEquals(move.id, messages.last()?.id)
+        assertEquals(move.id, messages.last().id)
     }
 }
