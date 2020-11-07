@@ -22,7 +22,7 @@ class MoveService (
     fun createMove(move: Move): Move = moveRepository.save(move)
 
     /**
-     * Find all moved that match the given criteria.
+     * Find all moves that match the given criteria.
      *
      * @param gameId the id move's game
      * @param colors the colors any involved piece should be
@@ -40,7 +40,7 @@ class MoveService (
     }
 
     /**
-     * Find all moved that match the given criteria.
+     * Find all moves that match the given criteria.
      *
      * @param gameId the id move's game
      * @param color the color of the piece that moved
