@@ -45,13 +45,23 @@ class MoveServiceTest {
     }
 
     @Test
-    fun `searches for moves`() {
+    fun `searches for moves without colors`() {
+        every { moveRepository.findAll(any<Specification<Move>>()) } returns emptyList()
+
+        val foundPieces = service.findAllBy(1, emptyList())
+
+        verify(exactly = 1) { moveRepository.findAll(any<Specification<Move>>()) }
+        assertEquals(0 , foundPieces.count())
+    }
+
+    @Test
+    fun `searches for moves by multiple colors`() {
         val game = Game("Search Move Game")
         val piece = Pawn( PieceColor.BLACK, game, 0, 0)
         val move = Move(piece, 0,0,0,0)
         every { moveRepository.findAll(any<Specification<Move>>()) } returns listOf(move)
 
-        val foundPieces = service.findAllBy(1)
+        val foundPieces = service.findAllBy(1, listOf(PieceColor.WHITE, PieceColor.BLACK))
 
         verify(exactly = 1) { moveRepository.findAll(any<Specification<Move>>()) }
         assertEquals(1 , foundPieces.count())
