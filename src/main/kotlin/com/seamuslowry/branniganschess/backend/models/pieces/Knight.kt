@@ -10,7 +10,7 @@ import kotlin.math.abs
 @DiscriminatorValue("KNIGHT")
 class Knight(
         color: PieceColor,
-        game: Game?,
+        game: Game,
         positionRow: Int = 0,
         positionCol: Int = 0,
         status: PieceStatus = PieceStatus.ACTIVE,

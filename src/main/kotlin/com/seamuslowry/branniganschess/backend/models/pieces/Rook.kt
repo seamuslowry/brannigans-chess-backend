@@ -9,7 +9,7 @@ import javax.persistence.Entity
 @DiscriminatorValue("ROOK")
 class Rook(
         color: PieceColor,
-        game: Game?,
+        game: Game,
         positionRow: Int = 0,
         positionCol: Int = 0,
         status: PieceStatus = PieceStatus.ACTIVE,

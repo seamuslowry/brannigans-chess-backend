@@ -296,7 +296,7 @@ class GameService (
             if (passantTarget !is Pawn) return null
             if (passantTarget.color == movingPiece.color) return null
 
-            val lastMove = moveService.findLastMove(movingPiece.game?.id ?: 0)
+            val lastMove = moveService.findLastMove(movingPiece.game.id)
             if (lastMove?.movingPiece?.id != passantTarget.id) return null
             if (lastMove?.dstRow?.minus(lastMove.srcRow)?.let { abs(it) } != 2) return null
 

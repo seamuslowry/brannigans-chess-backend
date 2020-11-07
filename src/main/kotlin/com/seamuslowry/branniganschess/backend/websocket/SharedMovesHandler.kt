@@ -16,6 +16,6 @@ class SharedMovesHandler(
     @PostPersist
     @PostUpdate
     fun onAfterSave(move: Move) {
-        if (move.takenPiece != null) socket.convertAndSend("$MESSAGE_PREFIX/moves/${move.movingPiece.game?.id}", move)
+        if (move.takenPiece != null) socket.convertAndSend("$MESSAGE_PREFIX/moves/${move.movingPiece.game.id}", move)
     }
 }

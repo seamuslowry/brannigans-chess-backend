@@ -31,11 +31,7 @@ abstract class Piece (
         @Enumerated(EnumType.STRING)
         open val color: PieceColor,
         @ManyToOne
-        @JsonIgnore
-        // nullable because of JsonIgnore
-        // do NOT want to send it up to the client
-        // cannot be saved as null
-        open val game: Game?,
+        open val game: Game,
         open var positionRow: Int = 0,
         open var positionCol: Int = 0,
         @Enumerated(EnumType.STRING)
