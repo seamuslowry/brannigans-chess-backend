@@ -43,7 +43,7 @@ class GameServiceTest {
         every { pieceService.getPiecesAsBoard(any()) } returns Utils.getEmptyBoard()
         every { gameRepository.getOne(any()) } answers { Game("Generic Game", id=firstArg()) }
         every { gameRepository.save(any<Game>()) } answers { firstArg() }
-        every { pieceService.findAllBy(any(), any<PieceColor>(), any(), any()) } answers { listOf(King(secondArg(), null, positionCol = 4, positionRow = if (secondArg<PieceColor>() === PieceColor.BLACK) 0 else 7, id=100)) }
+        every { pieceService.findAllBy(any(), any<PieceColor>(), any(), any()) } answers { listOf(King(secondArg(), Game(), positionCol = 4, positionRow = if (secondArg<PieceColor>() === PieceColor.BLACK) 0 else 7, id=100)) }
         every { moveService.hasMoved(any()) } returns false
     }
 
