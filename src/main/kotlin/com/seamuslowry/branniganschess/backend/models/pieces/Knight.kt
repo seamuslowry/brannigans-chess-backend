@@ -14,7 +14,7 @@ class Knight(
         positionRow: Int = 0,
         positionCol: Int = 0,
         status: PieceStatus = PieceStatus.ACTIVE,
-        id: Long? = null
+        id: Long = -1
 ): Piece(PieceType.KNIGHT, color, game, positionRow, positionCol, status, id) {
     override fun copy() = Knight(color, game, positionRow, positionCol, status, id)
     override fun plausibleMoves(): Set<Position> {

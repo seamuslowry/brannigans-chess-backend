@@ -1,12 +1,12 @@
 package com.seamuslowry.branniganschess.backend.services
 
 import com.seamuslowry.branniganschess.backend.dtos.ChessRuleException
-import com.seamuslowry.branniganschess.backend.dtos.PieceIdentifierDto
 import com.seamuslowry.branniganschess.backend.models.*
 import com.seamuslowry.branniganschess.backend.models.pieces.*
 import com.seamuslowry.branniganschess.backend.repos.PieceRepository
 import com.seamuslowry.branniganschess.backend.utils.Utils
 import org.springframework.data.jpa.domain.Specification
+import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 
 @Service
@@ -148,16 +148,15 @@ class PieceService (
     /**
      * Promote the piece identified to the given type.
      *
-     * @param pieceIdentifierDto a [PieceIdentifierDto] that uniquely identifies the piece that should be promoted
+     * @param pawnId the id of the pawn to promote
      * @param type the type of piece that the identified piece should be promoted to
      *
      * @return the new piece
      *
      * @throws [ChessRuleException] when the promotion request is not valid
      */
-    fun promote(pieceIdentifierDto: PieceIdentifierDto, type: PieceType): Piece {
-        val (gameId, row, col) = pieceIdentifierDto
-        val p = getPieceAt(gameId, row, col)
+    fun promote(pawnId: Long, type: PieceType): Piece {
+        val p = pieceRepository.findByIdOrNull(pawnId)
         if (p is Pawn && p.promotable()) {
             val piece = createPiece(when(type) {
                 PieceType.QUEEN -> Queen(p.color, p.game, p.positionRow, p.positionCol)

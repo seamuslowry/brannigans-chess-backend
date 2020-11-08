@@ -1,8 +1,6 @@
 package com.seamuslowry.branniganschess.backend.controllers
 
-import com.fasterxml.jackson.databind.ObjectMapper
 import com.ninjasquad.springmockk.MockkBean
-import com.seamuslowry.branniganschess.backend.dtos.PieceIdentifierDto
 import com.seamuslowry.branniganschess.backend.models.Game
 import com.seamuslowry.branniganschess.backend.models.PieceColor
 import com.seamuslowry.branniganschess.backend.models.pieces.Pawn
@@ -77,13 +75,10 @@ class PieceControllerTest(@Autowired val mockMvc: MockMvc) {
         val game = Game("Piece Controller Test Game")
         game.id = 1
         val piece = Queen(PieceColor.BLACK, game, 7, 0)
-        val pieceIdRequest = ObjectMapper().writeValueAsString(PieceIdentifierDto(game.id, 7,0))
 
         every { pieceService.promote(any(), any()) } returns piece
         every { gameService.updateGameStatusForNextPlayer(any<Long>(), any()) } returns Game("Promote Game")
-        mockMvc.perform(post("/pieces/promote/QUEEN")
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .content(pieceIdRequest))
+        mockMvc.perform(post("/pieces/promote/1/QUEEN"))
                 .andExpect(status().isOk)
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("\$").isNotEmpty)

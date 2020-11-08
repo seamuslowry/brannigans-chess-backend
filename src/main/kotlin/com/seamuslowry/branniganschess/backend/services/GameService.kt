@@ -298,7 +298,7 @@ class GameService (
 
             val lastMove = moveService.findLastMove(movingPiece.game.id)
             if (lastMove?.movingPiece?.id != passantTarget.id) return null
-            if (lastMove?.dstRow?.minus(lastMove.srcRow)?.let { abs(it) } != 2) return null
+            if (abs(lastMove.dstRow.minus(lastMove.srcRow)) != 2) return null
 
             return Move(
                     movingPiece,

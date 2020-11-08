@@ -38,7 +38,7 @@ abstract class Piece (
         open var status: PieceStatus = PieceStatus.ACTIVE,
         @Id
         @GeneratedValue(strategy = GenerationType.IDENTITY)
-        open var id: Long? = null
+        open var id: Long = -1
 ) {
     // need copy but cannot use data class
     abstract fun copy(): Piece

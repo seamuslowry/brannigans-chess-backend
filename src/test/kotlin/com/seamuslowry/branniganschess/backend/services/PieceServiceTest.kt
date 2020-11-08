@@ -2,7 +2,6 @@ package com.seamuslowry.branniganschess.backend.services
 
 import com.ninjasquad.springmockk.MockkBean
 import com.seamuslowry.branniganschess.backend.dtos.ChessRuleException
-import com.seamuslowry.branniganschess.backend.dtos.PieceIdentifierDto
 import com.seamuslowry.branniganschess.backend.models.*
 import com.seamuslowry.branniganschess.backend.models.pieces.*
 import com.seamuslowry.branniganschess.backend.repos.PieceRepository
@@ -16,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
 import org.springframework.data.jpa.domain.Specification
+import org.springframework.data.repository.findByIdOrNull
 import org.springframework.test.context.junit.jupiter.SpringExtension
 
 @ExtendWith(SpringExtension::class)
@@ -159,9 +159,9 @@ class PieceServiceTest {
         val piece = Pawn( PieceColor.BLACK, game, 7, 4)
 
         every { pieceRepository.save(any<Piece>()) } answers {firstArg()}
-        every { pieceRepository.findAll(any<Specification<Piece>>()) } returns listOf(piece)
+        every { pieceRepository.findByIdOrNull(any()) } returns piece
 
-        val promotedPiece = service.promote(PieceIdentifierDto(game.id, 7, 4), PieceType.QUEEN)
+        val promotedPiece = service.promote(piece.id, PieceType.QUEEN)
 
         verify(exactly = 2) { pieceRepository.save(any<Piece>()) }
         assertTrue(promotedPiece is Queen)
@@ -173,9 +173,9 @@ class PieceServiceTest {
         val piece = Pawn( PieceColor.BLACK, game, 7, 4)
 
         every { pieceRepository.save(any<Piece>()) } answers {firstArg()}
-        every { pieceRepository.findAll(any<Specification<Piece>>()) } returns listOf(piece)
+        every { pieceRepository.findByIdOrNull(any()) } returns piece
 
-        val promotedPiece = service.promote(PieceIdentifierDto(game.id, 7, 4), PieceType.KNIGHT)
+        val promotedPiece = service.promote(piece.id, PieceType.KNIGHT)
 
         verify(exactly = 2) { pieceRepository.save(any<Piece>()) }
         assertTrue(promotedPiece is Knight)
@@ -187,9 +187,9 @@ class PieceServiceTest {
         val piece = Pawn( PieceColor.BLACK, game, 7, 4)
 
         every { pieceRepository.save(any<Piece>()) } answers {firstArg()}
-        every { pieceRepository.findAll(any<Specification<Piece>>()) } returns listOf(piece)
+        every { pieceRepository.findByIdOrNull(any()) } returns piece
 
-        val promotedPiece = service.promote(PieceIdentifierDto(game.id, 7, 4), PieceType.BISHOP)
+        val promotedPiece = service.promote(piece.id, PieceType.BISHOP)
 
         verify(exactly = 2) { pieceRepository.save(any<Piece>()) }
         assertTrue(promotedPiece is Bishop)
@@ -201,9 +201,9 @@ class PieceServiceTest {
         val piece = Pawn( PieceColor.BLACK, game, 7, 4)
 
         every { pieceRepository.save(any<Piece>()) } answers {firstArg()}
-        every { pieceRepository.findAll(any<Specification<Piece>>()) } returns listOf(piece)
+        every { pieceRepository.findByIdOrNull(any()) } returns piece
 
-        val promotedPiece = service.promote(PieceIdentifierDto(game.id, 7, 4), PieceType.ROOK)
+        val promotedPiece = service.promote(piece.id, PieceType.ROOK)
 
         verify(exactly = 2) { pieceRepository.save(any<Piece>()) }
         assertTrue(promotedPiece is Rook)
@@ -215,9 +215,9 @@ class PieceServiceTest {
         val piece = Pawn( PieceColor.BLACK, game, 7, 4)
 
         every { pieceRepository.save(any<Piece>()) } answers {firstArg()}
-        every { pieceRepository.findAll(any<Specification<Piece>>()) } returns listOf(piece)
+        every { pieceRepository.findByIdOrNull(any()) } returns piece
 
-        assertThrows<ChessRuleException> { service.promote(PieceIdentifierDto(game.id, 7, 4), PieceType.KING) }
+        assertThrows<ChessRuleException> { service.promote(piece.id, PieceType.KING) }
     }
 
     @Test
@@ -226,9 +226,9 @@ class PieceServiceTest {
         val piece = Pawn( PieceColor.BLACK, game, 7, 4)
 
         every { pieceRepository.save(any<Piece>()) } answers {firstArg()}
-        every { pieceRepository.findAll(any<Specification<Piece>>()) } returns listOf(piece)
+        every { pieceRepository.findByIdOrNull(any()) } returns piece
 
-        assertThrows<ChessRuleException> { service.promote(PieceIdentifierDto(game.id, 7, 4), PieceType.KING) }
+        assertThrows<ChessRuleException> { service.promote(piece.id, PieceType.KING) }
     }
 
     @Test
@@ -237,9 +237,9 @@ class PieceServiceTest {
         val piece = Knight(PieceColor.BLACK, game, 7, 4)
 
         every { pieceRepository.save(any<Piece>()) } answers {firstArg()}
-        every { pieceRepository.findAll(any<Specification<Piece>>()) } returns listOf(piece)
+        every { pieceRepository.findByIdOrNull(any()) } returns piece
 
-        assertThrows<ChessRuleException> { service.promote(PieceIdentifierDto(game.id, 7, 4), PieceType.QUEEN) }
+        assertThrows<ChessRuleException> { service.promote(piece.id, PieceType.QUEEN) }
     }
 
     @Test
@@ -248,8 +248,8 @@ class PieceServiceTest {
         val piece = Knight(PieceColor.BLACK, game, 6, 4)
 
         every { pieceRepository.save(any<Piece>()) } answers {firstArg()}
-        every { pieceRepository.findAll(any<Specification<Piece>>()) } returns listOf(piece)
+        every { pieceRepository.findByIdOrNull(any()) } returns piece
 
-        assertThrows<ChessRuleException> { service.promote(PieceIdentifierDto(game.id, 6, 4), PieceType.QUEEN) }
+        assertThrows<ChessRuleException> { service.promote(piece.id, PieceType.QUEEN) }
     }
 }

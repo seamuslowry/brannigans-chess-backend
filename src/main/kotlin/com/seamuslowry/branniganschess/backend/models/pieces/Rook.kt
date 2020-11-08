@@ -13,7 +13,7 @@ class Rook(
         positionRow: Int = 0,
         positionCol: Int = 0,
         status: PieceStatus = PieceStatus.ACTIVE,
-        id: Long? = null
+        id: Long = -1
 ): Piece(PieceType.ROOK, color, game, positionRow, positionCol, status, id) {
     override fun copy() = Rook(color, game, positionRow, positionCol, status, id)
     override fun plausibleMoves(): Set<Position> {

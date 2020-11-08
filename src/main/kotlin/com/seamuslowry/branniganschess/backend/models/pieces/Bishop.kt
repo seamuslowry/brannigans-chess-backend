@@ -14,7 +14,7 @@ class Bishop(
         positionRow: Int = 0,
         positionCol: Int = 0,
         status: PieceStatus = PieceStatus.ACTIVE,
-        id: Long? = null
+        id: Long = -1
 ): Piece(PieceType.BISHOP, color, game, positionRow, positionCol, status, id) {
     override fun copy() = Bishop(color, game, positionRow, positionCol, status, id)
     override fun plausibleMoves(): Set<Position> {

@@ -14,7 +14,7 @@ class Pawn(
         positionRow: Int = 0,
         positionCol: Int = 0,
         status: PieceStatus = PieceStatus.ACTIVE,
-        id: Long? = null
+        id: Long = -1
 ): Piece(PieceType.PAWN, color, game, positionRow, positionCol, status, id) {
     override fun copy() = Pawn(color, game, positionRow, positionCol, status, id)
     override fun isImmovable(): Boolean = super.isImmovable() || positionRow == 0 || positionRow == 7
