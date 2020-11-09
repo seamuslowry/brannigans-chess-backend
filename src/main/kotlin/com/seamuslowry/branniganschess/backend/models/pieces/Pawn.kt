@@ -10,13 +10,13 @@ import kotlin.math.abs
 @DiscriminatorValue("PAWN")
 class Pawn(
         color: PieceColor,
-        game: Game?,
+        gameId: Long,
         positionRow: Int = 0,
         positionCol: Int = 0,
         status: PieceStatus = PieceStatus.ACTIVE,
-        id: Long? = null
-): Piece(PieceType.PAWN, color, game, positionRow, positionCol, status, id) {
-    override fun copy() = Pawn(color, game, positionRow, positionCol, status, id)
+        id: Long = -1
+): Piece(PieceType.PAWN, color, gameId, positionRow, positionCol, status, id) {
+    override fun copy() = Pawn(color, gameId, positionRow, positionCol, status, id)
     override fun isImmovable(): Boolean = super.isImmovable() || positionRow == 0 || positionRow == 7
     override fun plausibleMoves(): Set<Position> {
         val direction = direction()

@@ -1,7 +1,5 @@
 package com.seamuslowry.branniganschess.backend.integration
 
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.seamuslowry.branniganschess.backend.dtos.PieceIdentifierDto
 import com.seamuslowry.branniganschess.backend.models.GameStatus
 import com.seamuslowry.branniganschess.backend.models.PieceStatus
 import com.seamuslowry.branniganschess.backend.models.PieceType
@@ -13,7 +11,6 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.http.MediaType
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.post
@@ -39,10 +36,7 @@ class PawnPromotionIntegrationTests(
         pieceService.movePiece(pawn, 0, 3)
 
         // promote
-        mockMvc.post("/pieces/promote/QUEEN") {
-            contentType = MediaType.APPLICATION_JSON
-            content = ObjectMapper().writeValueAsString(PieceIdentifierDto(game.id, 0, 3))
-            accept = MediaType.APPLICATION_JSON
+        mockMvc.post("/pieces/promote/${pawn.id}/QUEEN") {
             with(jwt())
         }.andExpect {
             status { isOk }
@@ -69,10 +63,7 @@ class PawnPromotionIntegrationTests(
         pieceService.movePiece(pawn, 7, 3)
 
         // promote
-        mockMvc.post("/pieces/promote/QUEEN") {
-            contentType = MediaType.APPLICATION_JSON
-            content = ObjectMapper().writeValueAsString(PieceIdentifierDto(game.id, 7, 3))
-            accept = MediaType.APPLICATION_JSON
+        mockMvc.post("/pieces/promote/${pawn.id}/QUEEN") {
             with(jwt())
         }.andExpect {
             status { isOk }
@@ -99,10 +90,7 @@ class PawnPromotionIntegrationTests(
         pieceService.movePiece(pawn, 0, 2)
 
         // promote
-        mockMvc.post("/pieces/promote/QUEEN") {
-            contentType = MediaType.APPLICATION_JSON
-            content = ObjectMapper().writeValueAsString(PieceIdentifierDto(game.id, 0, 2))
-            accept = MediaType.APPLICATION_JSON
+        mockMvc.post("/pieces/promote/${pawn.id}/QUEEN") {
             with(jwt())
         }.andExpect {
             status { isOk }
@@ -129,10 +117,7 @@ class PawnPromotionIntegrationTests(
         pieceService.movePiece(pawn, 7, 2)
 
         // promote
-        mockMvc.post("/pieces/promote/QUEEN") {
-            contentType = MediaType.APPLICATION_JSON
-            content = ObjectMapper().writeValueAsString(PieceIdentifierDto(game.id, 7, 2))
-            accept = MediaType.APPLICATION_JSON
+        mockMvc.post("/pieces/promote/${pawn.id}/QUEEN") {
             with(jwt())
         }.andExpect {
             status { isOk }

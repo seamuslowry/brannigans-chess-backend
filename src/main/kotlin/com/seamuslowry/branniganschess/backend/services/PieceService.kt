@@ -1,12 +1,12 @@
 package com.seamuslowry.branniganschess.backend.services
 
 import com.seamuslowry.branniganschess.backend.dtos.ChessRuleException
-import com.seamuslowry.branniganschess.backend.dtos.PieceIdentifierDto
 import com.seamuslowry.branniganschess.backend.models.*
 import com.seamuslowry.branniganschess.backend.models.pieces.*
 import com.seamuslowry.branniganschess.backend.repos.PieceRepository
 import com.seamuslowry.branniganschess.backend.utils.Utils
 import org.springframework.data.jpa.domain.Specification
+import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 
 @Service
@@ -148,22 +148,21 @@ class PieceService (
     /**
      * Promote the piece identified to the given type.
      *
-     * @param pieceIdentifierDto a [PieceIdentifierDto] that uniquely identifies the piece that should be promoted
+     * @param pawnId the id of the pawn to promote
      * @param type the type of piece that the identified piece should be promoted to
      *
      * @return the new piece
      *
      * @throws [ChessRuleException] when the promotion request is not valid
      */
-    fun promote(pieceIdentifierDto: PieceIdentifierDto, type: PieceType): Piece {
-        val (gameId, row, col) = pieceIdentifierDto
-        val p = getPieceAt(gameId, row, col)
+    fun promote(pawnId: Long, type: PieceType): Piece {
+        val p = pieceRepository.findByIdOrNull(pawnId)
         if (p is Pawn && p.promotable()) {
             val piece = createPiece(when(type) {
-                PieceType.QUEEN -> Queen(p.color, p.game, p.positionRow, p.positionCol)
-                PieceType.ROOK -> Rook(p.color, p.game, p.positionRow, p.positionCol)
-                PieceType.BISHOP -> Bishop(p.color, p.game, p.positionRow, p.positionCol)
-                PieceType.KNIGHT -> Knight(p.color, p.game, p.positionRow, p.positionCol)
+                PieceType.QUEEN -> Queen(p.color, p.gameId, p.positionRow, p.positionCol)
+                PieceType.ROOK -> Rook(p.color, p.gameId, p.positionRow, p.positionCol)
+                PieceType.BISHOP -> Bishop(p.color, p.gameId, p.positionRow, p.positionCol)
+                PieceType.KNIGHT -> Knight(p.color, p.gameId, p.positionRow, p.positionCol)
                 else -> throw ChessRuleException("Kif, you have to follow the rules. I don't, but you do.")
             })
             removePiece(p)
@@ -176,7 +175,7 @@ class PieceService (
     private fun inGame(id: Long): Specification<Piece> = Specification {
         root,
         _,
-        criteriaBuilder -> criteriaBuilder.equal(root.get<Game>("game").get<Long>("id"), id)
+        criteriaBuilder -> criteriaBuilder.equal(root.get<Long>("gameId"), id)
     }
 
     private fun isColor(color: PieceColor?): Specification<Piece> = Specification {

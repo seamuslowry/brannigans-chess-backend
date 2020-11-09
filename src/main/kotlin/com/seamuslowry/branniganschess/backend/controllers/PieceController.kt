@@ -1,6 +1,5 @@
 package com.seamuslowry.branniganschess.backend.controllers
 
-import com.seamuslowry.branniganschess.backend.dtos.PieceIdentifierDto
 import com.seamuslowry.branniganschess.backend.models.*
 import com.seamuslowry.branniganschess.backend.services.GameService
 import com.seamuslowry.branniganschess.backend.services.PieceService
@@ -32,7 +31,7 @@ class PieceController(
         return ResponseEntity.ok(pieceService.findAllBy(gameId, colors, status))
     }
 
-    @PostMapping("/promote/{type}")
+    @PostMapping("/promote/{pawnId}/{type}")
     @ApiOperation("Promotes a piece in the given game", response = Piece::class, responseContainer = "List")
     @ApiResponses(
             ApiResponse(code = 200, message =  "Successfully promoted the piece."),
@@ -40,11 +39,12 @@ class PieceController(
             ApiResponse(code = 404, message =  "The piece does not exist."),
             ApiResponse(code = 500, message =  "There was a problem with the service.")
     )
-    fun promotePiece(@PathVariable type: PieceType,
-            @RequestBody pieceIdentifierDto: PieceIdentifierDto)
-            : ResponseEntity<Piece> {
-        val promotedPiece = pieceService.promote(pieceIdentifierDto, type)
-        gameService.updateGameStatusForNextPlayer(pieceIdentifierDto.gameId, Utils.getOpposingColor(promotedPiece.color))
+    fun promotePiece(
+        @PathVariable pawnId: Long,
+        @PathVariable type: PieceType
+    ): ResponseEntity<Piece> {
+        val promotedPiece = pieceService.promote(pawnId, type)
+        gameService.updateGameStatusForNextPlayer(promotedPiece.gameId, Utils.getOpposingColor(promotedPiece.color))
         return ResponseEntity.ok(promotedPiece)
     }
 }
