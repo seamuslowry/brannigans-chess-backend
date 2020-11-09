@@ -33,7 +33,7 @@ class MoveControllerTest(@Autowired val mockMvc: MockMvc) {
 
     @Test
     fun `Handles a move request`() {
-        val piece = Pawn(PieceColor.BLACK, Game("move piece game"))
+        val piece = Pawn(PieceColor.BLACK, 1L)
         val move =  Move(piece, 0,0,0,0)
 
         val moveRequest = ObjectMapper().writeValueAsString(MoveRequest(0,0,0,0))
@@ -47,12 +47,11 @@ class MoveControllerTest(@Autowired val mockMvc: MockMvc) {
 
     @Test
     fun `Searches for moves`() {
-        val game = Game("Move Controller Test Game")
-        game.id = 1
-        val piece = Pawn(PieceColor.BLACK, game)
+        val gameId = 1L
+        val piece = Pawn(PieceColor.BLACK, gameId)
         val move = Move(piece, 0,0,0,0)
-        every { moveService.findAllBy(game.id, listOf(piece.color)) } returns listOf(move)
-        mockMvc.perform(MockMvcRequestBuilders.get("/moves/${game.id}?color=${piece.color}").accept(MediaType.APPLICATION_JSON))
+        every { moveService.findAllBy(gameId, listOf(piece.color)) } returns listOf(move)
+        mockMvc.perform(MockMvcRequestBuilders.get("/moves/${gameId}?color=${piece.color}").accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk)
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("\$").isArray)

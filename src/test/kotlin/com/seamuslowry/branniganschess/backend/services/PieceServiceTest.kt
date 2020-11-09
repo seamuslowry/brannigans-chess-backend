@@ -30,15 +30,15 @@ class PieceServiceTest {
 
     @Test
     fun `creates a piece`() {
-        val game = Game("Piece Game")
-        val piece = Pawn( PieceColor.BLACK, game, 0, 0)
+        val gameId = 1L
+        val piece = Pawn( PieceColor.BLACK, gameId, 0, 0)
         every { pieceRepository.save(any<Piece>()) } returns piece
 
         val newPiece = service.createPiece(piece)
 
         verify(exactly = 1) { pieceRepository.save(any<Piece>()) }
         assertEquals(piece , newPiece)
-        assertEquals(piece.game, game)
+        assertEquals(piece.gameId, gameId)
     }
 
     @Test
@@ -53,8 +53,8 @@ class PieceServiceTest {
 
     @Test
     fun `searches for a piece by one color`() {
-        val game = Game("Piece Game")
-        val piece = Pawn( PieceColor.BLACK, game, 0, 0)
+        val gameId = 1L
+        val piece = Pawn( PieceColor.BLACK, gameId, 0, 0)
         every { pieceRepository.findAll(any<Specification<Piece>>()) } returns listOf(piece)
 
         val foundPieces = service.findAllBy(1, piece.color, piece.status, piece.type)
@@ -65,8 +65,8 @@ class PieceServiceTest {
 
     @Test
     fun `searches for a piece by multiple colors`() {
-        val game = Game("Piece Game")
-        val piece = Pawn( PieceColor.BLACK, game, 0, 0)
+        val gameId = 1L
+        val piece = Pawn( PieceColor.BLACK, gameId, 0, 0)
         every { pieceRepository.findAll(any<Specification<Piece>>()) } returns listOf(piece)
 
         val foundPieces = service.findAllBy(1, listOf(PieceColor.BLACK, PieceColor.WHITE), piece.status, piece.type)
@@ -77,12 +77,12 @@ class PieceServiceTest {
 
     @Test
     fun `returns active pieces as a 2D array`() {
-        val game = Game("2D Piece Game")
+        val gameId = 1L
         val pieces = listOf<Piece>(
-                Pawn( PieceColor.BLACK, game, 7, 3),
-                Pawn( PieceColor.BLACK, game, 0, 3),
-                Pawn( PieceColor.BLACK, game, 1, 0),
-                Pawn( PieceColor.BLACK, game, 4, 4)
+                Pawn( PieceColor.BLACK, gameId, 7, 3),
+                Pawn( PieceColor.BLACK, gameId, 0, 3),
+                Pawn( PieceColor.BLACK, gameId, 1, 0),
+                Pawn( PieceColor.BLACK, gameId, 4, 4)
         )
 
         every { pieceRepository.findAll(any<Specification<Piece>>()) } returns pieces
@@ -98,8 +98,7 @@ class PieceServiceTest {
 
     @Test
     fun `takes a piece`() {
-        val game = Game("2D Piece Game")
-        val piece = Pawn( PieceColor.BLACK, game, 4, 4)
+        val piece = Pawn( PieceColor.BLACK, 1L, 4, 4)
 
         every { pieceRepository.save(any<Piece>()) } answers {firstArg()}
 
@@ -112,8 +111,7 @@ class PieceServiceTest {
 
     @Test
     fun `removes a piece`() {
-        val game = Game("2D Piece Game")
-        val piece = Pawn( PieceColor.BLACK, game, 4, 4)
+        val piece = Pawn( PieceColor.BLACK, 1L, 4, 4)
 
         every { pieceRepository.save(any<Piece>()) } answers {firstArg()}
 
@@ -126,8 +124,7 @@ class PieceServiceTest {
 
     @Test
     fun `moves a piece`() {
-        val game = Game("2D Piece Game")
-        val piece = Pawn( PieceColor.BLACK, game, 4, 4)
+        val piece = Pawn( PieceColor.BLACK, 1L, 4, 4)
         val newRow = 5
         val newCol = 6
 
@@ -143,20 +140,20 @@ class PieceServiceTest {
 
     @Test
     fun `finds a piece by location`() {
-        val game = Game("Location Piece Game")
-        val piece = Pawn( PieceColor.BLACK, game, 4, 4)
+        val gameId = 1L
+        val piece = Pawn( PieceColor.BLACK, gameId, 4, 4)
 
         every { pieceRepository.findAll( any<Specification<Piece>>()) } returns listOf(piece)
 
-        val foundPiece = service.getPieceAt(game.id, 4, 4)
+        val foundPiece = service.getPieceAt(gameId, 4, 4)
 
         assertEquals(piece, foundPiece)
     }
 
     @Test
     fun `promotes a piece to queen`() {
-        val game = Game("2D Piece Game")
-        val piece = Pawn( PieceColor.BLACK, game, 7, 4)
+        val gameId = 1L
+        val piece = Pawn( PieceColor.BLACK, gameId, 7, 4)
 
         every { pieceRepository.save(any<Piece>()) } answers {firstArg()}
         every { pieceRepository.findByIdOrNull(any()) } returns piece
@@ -169,8 +166,7 @@ class PieceServiceTest {
 
     @Test
     fun `promotes a piece to knight`() {
-        val game = Game("2D Piece Game")
-        val piece = Pawn( PieceColor.BLACK, game, 7, 4)
+        val piece = Pawn( PieceColor.BLACK, 1L, 7, 4)
 
         every { pieceRepository.save(any<Piece>()) } answers {firstArg()}
         every { pieceRepository.findByIdOrNull(any()) } returns piece
@@ -183,8 +179,7 @@ class PieceServiceTest {
 
     @Test
     fun `promotes a piece to bishop`() {
-        val game = Game("2D Piece Game")
-        val piece = Pawn( PieceColor.BLACK, game, 7, 4)
+        val piece = Pawn( PieceColor.BLACK, 1L, 7, 4)
 
         every { pieceRepository.save(any<Piece>()) } answers {firstArg()}
         every { pieceRepository.findByIdOrNull(any()) } returns piece
@@ -197,8 +192,7 @@ class PieceServiceTest {
 
     @Test
     fun `promotes a piece to rook`() {
-        val game = Game("2D Piece Game")
-        val piece = Pawn( PieceColor.BLACK, game, 7, 4)
+        val piece = Pawn( PieceColor.BLACK, 1L, 7, 4)
 
         every { pieceRepository.save(any<Piece>()) } answers {firstArg()}
         every { pieceRepository.findByIdOrNull(any()) } returns piece
@@ -211,8 +205,7 @@ class PieceServiceTest {
 
     @Test
     fun `will not promote a piece to king`() {
-        val game = Game("2D Piece Game")
-        val piece = Pawn( PieceColor.BLACK, game, 7, 4)
+        val piece = Pawn( PieceColor.BLACK, 1L, 7, 4)
 
         every { pieceRepository.save(any<Piece>()) } answers {firstArg()}
         every { pieceRepository.findByIdOrNull(any()) } returns piece
@@ -222,8 +215,7 @@ class PieceServiceTest {
 
     @Test
     fun `will not promote a piece to pawn`() {
-        val game = Game("2D Piece Game")
-        val piece = Pawn( PieceColor.BLACK, game, 7, 4)
+        val piece = Pawn( PieceColor.BLACK, 1L, 7, 4)
 
         every { pieceRepository.save(any<Piece>()) } answers {firstArg()}
         every { pieceRepository.findByIdOrNull(any()) } returns piece
@@ -233,8 +225,7 @@ class PieceServiceTest {
 
     @Test
     fun `will not promote a non-pawn`() {
-        val game = Game("2D Piece Game")
-        val piece = Knight(PieceColor.BLACK, game, 7, 4)
+        val piece = Knight(PieceColor.BLACK, 1L, 7, 4)
 
         every { pieceRepository.save(any<Piece>()) } answers {firstArg()}
         every { pieceRepository.findByIdOrNull(any()) } returns piece
@@ -244,8 +235,7 @@ class PieceServiceTest {
 
     @Test
     fun `will not promote a pawn in an early row`() {
-        val game = Game("2D Piece Game")
-        val piece = Knight(PieceColor.BLACK, game, 6, 4)
+        val piece = Knight(PieceColor.BLACK, 1L, 6, 4)
 
         every { pieceRepository.save(any<Piece>()) } answers {firstArg()}
         every { pieceRepository.findByIdOrNull(any()) } returns piece

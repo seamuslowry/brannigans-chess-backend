@@ -159,10 +159,10 @@ class PieceService (
         val p = pieceRepository.findByIdOrNull(pawnId)
         if (p is Pawn && p.promotable()) {
             val piece = createPiece(when(type) {
-                PieceType.QUEEN -> Queen(p.color, p.game, p.positionRow, p.positionCol)
-                PieceType.ROOK -> Rook(p.color, p.game, p.positionRow, p.positionCol)
-                PieceType.BISHOP -> Bishop(p.color, p.game, p.positionRow, p.positionCol)
-                PieceType.KNIGHT -> Knight(p.color, p.game, p.positionRow, p.positionCol)
+                PieceType.QUEEN -> Queen(p.color, p.gameId, p.positionRow, p.positionCol)
+                PieceType.ROOK -> Rook(p.color, p.gameId, p.positionRow, p.positionCol)
+                PieceType.BISHOP -> Bishop(p.color, p.gameId, p.positionRow, p.positionCol)
+                PieceType.KNIGHT -> Knight(p.color, p.gameId, p.positionRow, p.positionCol)
                 else -> throw ChessRuleException("Kif, you have to follow the rules. I don't, but you do.")
             })
             removePiece(p)
@@ -175,7 +175,7 @@ class PieceService (
     private fun inGame(id: Long): Specification<Piece> = Specification {
         root,
         _,
-        criteriaBuilder -> criteriaBuilder.equal(root.get<Game>("game").get<Long>("id"), id)
+        criteriaBuilder -> criteriaBuilder.equal(root.get<Long>("gameId"), id)
     }
 
     private fun isColor(color: PieceColor?): Specification<Piece> = Specification {

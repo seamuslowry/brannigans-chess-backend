@@ -10,13 +10,13 @@ import kotlin.math.abs
 @DiscriminatorValue("KNIGHT")
 class Knight(
         color: PieceColor,
-        game: Game,
+        gameId: Long,
         positionRow: Int = 0,
         positionCol: Int = 0,
         status: PieceStatus = PieceStatus.ACTIVE,
         id: Long = -1
-): Piece(PieceType.KNIGHT, color, game, positionRow, positionCol, status, id) {
-    override fun copy() = Knight(color, game, positionRow, positionCol, status, id)
+): Piece(PieceType.KNIGHT, color, gameId, positionRow, positionCol, status, id) {
+    override fun copy() = Knight(color, gameId, positionRow, positionCol, status, id)
     override fun plausibleMoves(): Set<Position> {
         val (row, col) = position()
 

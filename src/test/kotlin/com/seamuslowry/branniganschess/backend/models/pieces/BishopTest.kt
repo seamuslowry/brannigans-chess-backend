@@ -1,6 +1,5 @@
 package com.seamuslowry.branniganschess.backend.models.pieces
 
-import com.seamuslowry.branniganschess.backend.models.Game
 import com.seamuslowry.branniganschess.backend.models.PieceColor
 import com.seamuslowry.branniganschess.backend.models.Position
 import org.junit.jupiter.api.Assertions.*
@@ -12,8 +11,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension
 class BishopTest {
     @Test
     fun `can move along diagonals`() {
-        val game = Game("New Game")
-        val piece = Bishop(PieceColor.BLACK, game, 3, 3)
+        val piece = Bishop(PieceColor.BLACK, 1L, 3, 3)
 
         assertTrue(piece.canMove(Position(2,2)))
         assertTrue(piece.canMove(Position(2,4)))
@@ -23,16 +21,14 @@ class BishopTest {
 
     @Test
     fun `cannot move off the board`() {
-        val game = Game("New Game")
-        val piece = Bishop(PieceColor.BLACK, game, 0, 0)
+        val piece = Bishop(PieceColor.BLACK, 1L, 0, 0)
 
         assertFalse(piece.canMove(Position(-1,-1)))
     }
 
     @Test
     fun `captures where it can move`() {
-        val game = Game("New Game")
-        val piece = Bishop(PieceColor.BLACK, game, 3, 3)
+        val piece = Bishop(PieceColor.BLACK, 1L, 3, 3)
 
         assertTrue(piece.canCapture(Position(2,2)))
         assertTrue(piece.canCapture(Position(2,4)))
@@ -42,8 +38,7 @@ class BishopTest {
 
     @Test
     fun `requires fields along the diagonal it would travel be empty`() {
-        val game = Game("New Game")
-        val piece = Bishop(PieceColor.BLACK, game, 0, 0)
+        val piece = Bishop(PieceColor.BLACK, 1L, 0, 0)
 
         val requiresEmpty = piece.requiresEmpty(Position(7,7))
         assertEquals(setOf(
@@ -58,8 +53,7 @@ class BishopTest {
 
     @Test
     fun `can plausibly move along any diagonal`() {
-        val game = Game("New Game")
-        val piece = Bishop(PieceColor.BLACK, game, 3, 3)
+        val piece = Bishop(PieceColor.BLACK, 1L, 3, 3)
 
         assertEquals(setOf(
                 Position(0,0),

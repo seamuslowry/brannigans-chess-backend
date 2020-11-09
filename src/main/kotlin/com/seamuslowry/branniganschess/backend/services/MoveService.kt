@@ -1,6 +1,5 @@
 package com.seamuslowry.branniganschess.backend.services
 
-import com.seamuslowry.branniganschess.backend.models.Game
 import com.seamuslowry.branniganschess.backend.models.Move
 import com.seamuslowry.branniganschess.backend.models.Piece
 import com.seamuslowry.branniganschess.backend.models.PieceColor
@@ -85,7 +84,7 @@ class MoveService (
     private fun inGame(id: Long): Specification<Move> = Specification {
         root,
         _,
-        criteriaBuilder -> criteriaBuilder.equal(root.get<Piece>("movingPiece").get<Game>("game").get<Long>("id"), id)
+        criteriaBuilder -> criteriaBuilder.equal(root.get<Piece>("movingPiece").get<Long>("gameId"), id)
     }
 
     private fun fromColor(color: PieceColor?): Specification<Move> = Specification {

@@ -1,6 +1,5 @@
 package com.seamuslowry.branniganschess.backend.models.pieces
 
-import com.seamuslowry.branniganschess.backend.models.Game
 import com.seamuslowry.branniganschess.backend.models.PieceColor
 import com.seamuslowry.branniganschess.backend.models.Position
 import org.junit.jupiter.api.Assertions.*
@@ -12,8 +11,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension
 class QueenTest {
     @Test
     fun `can move in any direction`() {
-        val game = Game("New Game")
-        val piece = Queen(PieceColor.BLACK, game, 3, 3)
+        val piece = Queen(PieceColor.BLACK, 1L, 3, 3)
 
         assertTrue(piece.canMove(Position(3,2)))
         assertTrue(piece.canMove(Position(3,4)))
@@ -27,16 +25,14 @@ class QueenTest {
 
     @Test
     fun `cannot move off the board`() {
-        val game = Game("New Game")
-        val piece = Queen(PieceColor.BLACK, game, 0, 0)
+        val piece = Queen(PieceColor.BLACK, 1L, 0, 0)
 
         assertFalse(piece.canMove(Position(-1,-1)))
     }
 
     @Test
     fun `captures where it can move`() {
-        val game = Game("New Game")
-        val piece = Queen(PieceColor.BLACK, game, 3, 3)
+        val piece = Queen(PieceColor.BLACK, 1L, 3, 3)
 
         assertTrue(piece.canCapture(Position(3,2)))
         assertTrue(piece.canCapture(Position(3,4)))
@@ -50,8 +46,7 @@ class QueenTest {
 
     @Test
     fun `requires intervening fields be empty - 0 degrees`() {
-        val game = Game("New Game")
-        val piece = Queen(PieceColor.BLACK, game, 0, 0)
+        val piece = Queen(PieceColor.BLACK, 1L, 0, 0)
 
         val requiresEmpty = piece.requiresEmpty(Position(0,7))
         assertEquals(setOf(
@@ -66,8 +61,7 @@ class QueenTest {
 
     @Test
     fun `requires intervening fields be empty - negative 45 degrees`() {
-        val game = Game("New Game")
-        val piece = Queen(PieceColor.BLACK, game, 0, 0)
+        val piece = Queen(PieceColor.BLACK, 1L, 0, 0)
 
         val requiresEmpty = piece.requiresEmpty(Position(7,7))
         assertEquals(setOf(
@@ -82,8 +76,7 @@ class QueenTest {
 
     @Test
     fun `requires intervening fields be empty - negative 90 degrees`() {
-        val game = Game("New Game")
-        val piece = Queen(PieceColor.BLACK, game, 0, 0)
+        val piece = Queen(PieceColor.BLACK, 1L, 0, 0)
 
         val requiresEmpty = piece.requiresEmpty(Position(7,0))
         assertEquals(setOf(
@@ -98,8 +91,7 @@ class QueenTest {
 
     @Test
     fun `requires intervening fields be empty - negative 135 degrees`() {
-        val game = Game("New Game")
-        val piece = Queen(PieceColor.BLACK, game, 0, 7)
+        val piece = Queen(PieceColor.BLACK, 1L, 0, 7)
 
         val requiresEmpty = piece.requiresEmpty(Position(7,0))
         assertEquals(setOf(
@@ -114,8 +106,7 @@ class QueenTest {
 
     @Test
     fun `requires intervening fields be empty - 180 degrees`() {
-        val game = Game("New Game")
-        val piece = Queen(PieceColor.BLACK, game, 0, 7)
+        val piece = Queen(PieceColor.BLACK, 1L, 0, 7)
 
         val requiresEmpty = piece.requiresEmpty(Position(0,0))
         assertEquals(setOf(
@@ -130,8 +121,7 @@ class QueenTest {
 
     @Test
     fun `requires intervening fields be empty - 135 degrees`() {
-        val game = Game("New Game")
-        val piece = Queen(PieceColor.BLACK, game, 7, 7)
+        val piece = Queen(PieceColor.BLACK, 1L, 7, 7)
 
         val requiresEmpty = piece.requiresEmpty(Position(0,0))
         assertEquals(setOf(
@@ -146,8 +136,7 @@ class QueenTest {
 
     @Test
     fun `requires intervening fields be empty - 90 degrees`() {
-        val game = Game("New Game")
-        val piece = Queen(PieceColor.BLACK, game, 7, 0)
+        val piece = Queen(PieceColor.BLACK, 1L, 7, 0)
 
         val requiresEmpty = piece.requiresEmpty(Position(0,0))
         assertEquals(setOf(
@@ -162,8 +151,7 @@ class QueenTest {
 
     @Test
     fun `requires intervening fields be empty - 45 degrees`() {
-        val game = Game("New Game")
-        val piece = Queen(PieceColor.BLACK, game, 7, 0)
+        val piece = Queen(PieceColor.BLACK, 1L, 7, 0)
 
         val requiresEmpty = piece.requiresEmpty(Position(0,7))
         assertEquals(setOf(
@@ -178,8 +166,7 @@ class QueenTest {
 
     @Test
     fun `can plausibly move along any straight line or diagonal`() {
-        val game = Game("New Game")
-        val piece = Queen(PieceColor.BLACK, game, 3, 3)
+        val piece = Queen(PieceColor.BLACK, 1L, 3, 3)
 
         assertEquals(setOf(
                 Position(3,0),

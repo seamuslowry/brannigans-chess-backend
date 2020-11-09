@@ -1,6 +1,5 @@
 package com.seamuslowry.branniganschess.backend.models
 
-import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
 import com.seamuslowry.branniganschess.backend.models.pieces.*
@@ -30,8 +29,7 @@ abstract class Piece (
         open val type: PieceType,
         @Enumerated(EnumType.STRING)
         open val color: PieceColor,
-        @ManyToOne
-        open val game: Game,
+        open val gameId: Long,
         open var positionRow: Int = 0,
         open var positionCol: Int = 0,
         @Enumerated(EnumType.STRING)

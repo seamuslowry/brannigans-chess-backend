@@ -1,6 +1,5 @@
 package com.seamuslowry.branniganschess.backend.models.pieces
 
-import com.seamuslowry.branniganschess.backend.models.Game
 import com.seamuslowry.branniganschess.backend.models.PieceColor
 import com.seamuslowry.branniganschess.backend.models.Position
 import org.junit.jupiter.api.Assertions.*
@@ -12,8 +11,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension
 class KingTest {
     @Test
     fun `can plausibly move to eight locations when unimpeded by the edges`() {
-        val game = Game("New Game")
-        val piece = King(PieceColor.BLACK, game, 3, 3)
+        val piece = King(PieceColor.BLACK, 1L, 3, 3)
 
         assertTrue(piece.canMove(Position(3,2)))
         assertTrue(piece.canMove(Position(3,4)))
@@ -27,16 +25,14 @@ class KingTest {
 
     @Test
     fun `cannot move off the board`() {
-        val game = Game("New Game")
-        val piece = King(PieceColor.BLACK, game, 0, 0)
+        val piece = King(PieceColor.BLACK, 1L, 0, 0)
 
         assertFalse(piece.canMove(Position(-1,-1)))
     }
 
     @Test
     fun `captures where it can move`() {
-        val game = Game("New Game")
-        val piece = King(PieceColor.BLACK, game, 3, 3)
+        val piece = King(PieceColor.BLACK, 1L, 3, 3)
 
         assertTrue(piece.canCapture(Position(3,2)))
         assertTrue(piece.canCapture(Position(3,4)))
@@ -50,8 +46,7 @@ class KingTest {
 
     @Test
     fun `requires no fields be empty`() {
-        val game = Game("New Game")
-        val piece = King(PieceColor.BLACK, game, 1, 0)
+        val piece = King(PieceColor.BLACK, 1L, 1, 0)
 
         val requiresEmpty = piece.requiresEmpty(Position(1,1))
         assertEquals(setOf<Position>(), requiresEmpty)
@@ -59,72 +54,63 @@ class KingTest {
 
     @Test
     fun `provides the tile that would request a king side castle - BLACK`() {
-        val game = Game("New Game")
-        val piece = King(PieceColor.BLACK, game)
+        val piece = King(PieceColor.BLACK, 1L)
 
         assertEquals(Position(0,6), piece.kingSideCastleRequest())
     }
 
     @Test
     fun `provides the tile that would request a king side castle - WHITE`() {
-        val game = Game("New Game")
-        val piece = King(PieceColor.WHITE, game)
+        val piece = King(PieceColor.WHITE, 1L)
 
         assertEquals(Position(7,6), piece.kingSideCastleRequest())
     }
 
     @Test
     fun `provides the tile of the rook for a king side castle - BLACK`() {
-        val game = Game("New Game")
-        val piece = King(PieceColor.BLACK, game)
+        val piece = King(PieceColor.BLACK, 1L)
 
         assertEquals(Position(0,7), piece.kingSideCastleRook())
     }
 
     @Test
     fun `provides the tile of the rook a king side castle - WHITE`() {
-        val game = Game("New Game")
-        val piece = King(PieceColor.WHITE, game)
+        val piece = King(PieceColor.WHITE, 1L)
 
         assertEquals(Position(7,7), piece.kingSideCastleRook())
     }
 
     @Test
     fun `provides the tile that would request a queen side castle - BLACK`() {
-        val game = Game("New Game")
-        val piece = King(PieceColor.BLACK, game)
+        val piece = King(PieceColor.BLACK, 1L)
 
         assertEquals(Position(0,2), piece.queenSideCastleRequest())
     }
 
     @Test
     fun `provides the tile that would request a queen side castle - WHITE`() {
-        val game = Game("New Game")
-        val piece = King(PieceColor.WHITE, game)
+        val piece = King(PieceColor.WHITE, 1L)
 
         assertEquals(Position(7,2), piece.queenSideCastleRequest())
     }
 
     @Test
     fun `provides the tile of the rook for a queen side castle - BLACK`() {
-        val game = Game("New Game")
-        val piece = King(PieceColor.BLACK, game)
+        val piece = King(PieceColor.BLACK, 1L)
 
         assertEquals(Position(0,0), piece.queenSideCastleRook())
     }
 
     @Test
     fun `provides the tile of the rook a queen side castle - WHITE`() {
-        val game = Game("New Game")
-        val piece = King(PieceColor.WHITE, game)
+        val piece = King(PieceColor.WHITE, 1L)
 
         assertEquals(Position(7,0), piece.queenSideCastleRook())
     }
 
     @Test
     fun `has a max of 8 plausible moves`() {
-        val game = Game("New Game")
-        val piece = King(PieceColor.BLACK, game, 3, 3)
+        val piece = King(PieceColor.BLACK, 1L, 3, 3)
 
         assertEquals(setOf(
                 Position(3,4),
@@ -140,8 +126,7 @@ class KingTest {
 
     @Test
     fun `has a min of 3 plausible moves`() {
-        val game = Game("New Game")
-        val piece = King(PieceColor.BLACK, game, 0, 0)
+        val piece = King(PieceColor.BLACK, 1L, 0, 0)
 
         assertEquals(setOf(
                 Position(0,1),

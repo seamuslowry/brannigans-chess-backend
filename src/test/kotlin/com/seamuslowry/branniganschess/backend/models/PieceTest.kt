@@ -1,4 +1,3 @@
-import com.seamuslowry.branniganschess.backend.models.Game
 import com.seamuslowry.branniganschess.backend.models.PieceColor
 import com.seamuslowry.branniganschess.backend.models.pieces.*
 import org.junit.jupiter.api.Test
@@ -10,12 +9,11 @@ import org.springframework.test.context.junit.jupiter.SpringExtension
 class PieceTest {
     @Test
     fun `can be instantiated without location`() {
-        val game = Game("New Game")
-        assertDoesNotThrow { Bishop(PieceColor.BLACK, game) }
-        assertDoesNotThrow { Pawn(PieceColor.BLACK, game) }
-        assertDoesNotThrow { Queen(PieceColor.BLACK, game) }
-        assertDoesNotThrow { King(PieceColor.BLACK, game) }
-        assertDoesNotThrow { Knight(PieceColor.BLACK, game) }
-        assertDoesNotThrow { Rook(PieceColor.BLACK, game) }
+        assertDoesNotThrow { Bishop(PieceColor.BLACK, 1L) }
+        assertDoesNotThrow { Pawn(PieceColor.BLACK, 1L) }
+        assertDoesNotThrow { Queen(PieceColor.BLACK, 1L) }
+        assertDoesNotThrow { King(PieceColor.BLACK, 1L) }
+        assertDoesNotThrow { Knight(PieceColor.BLACK, 1L) }
+        assertDoesNotThrow { Rook(PieceColor.BLACK, 1L) }
     }
 }

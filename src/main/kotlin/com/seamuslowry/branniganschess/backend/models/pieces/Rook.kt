@@ -9,13 +9,13 @@ import javax.persistence.Entity
 @DiscriminatorValue("ROOK")
 class Rook(
         color: PieceColor,
-        game: Game,
+        gameId: Long,
         positionRow: Int = 0,
         positionCol: Int = 0,
         status: PieceStatus = PieceStatus.ACTIVE,
         id: Long = -1
-): Piece(PieceType.ROOK, color, game, positionRow, positionCol, status, id) {
-    override fun copy() = Rook(color, game, positionRow, positionCol, status, id)
+): Piece(PieceType.ROOK, color, gameId, positionRow, positionCol, status, id) {
+    override fun copy() = Rook(color, gameId, positionRow, positionCol, status, id)
     override fun plausibleMoves(): Set<Position> {
         val (row, col) = position()
 
