@@ -53,8 +53,7 @@ class PieceServiceTest {
 
     @Test
     fun `searches for a piece by one color`() {
-        val gameId = 1L
-        val piece = Pawn( PieceColor.BLACK, gameId, 0, 0)
+        val piece = Pawn( PieceColor.BLACK, 1L, 0, 0)
         every { pieceRepository.findAll(any<Specification<Piece>>()) } returns listOf(piece)
 
         val foundPieces = service.findAllBy(1, piece.color, piece.status, piece.type)
@@ -65,8 +64,7 @@ class PieceServiceTest {
 
     @Test
     fun `searches for a piece by multiple colors`() {
-        val gameId = 1L
-        val piece = Pawn( PieceColor.BLACK, gameId, 0, 0)
+        val piece = Pawn( PieceColor.BLACK, 1L, 0, 0)
         every { pieceRepository.findAll(any<Specification<Piece>>()) } returns listOf(piece)
 
         val foundPieces = service.findAllBy(1, listOf(PieceColor.BLACK, PieceColor.WHITE), piece.status, piece.type)
@@ -152,8 +150,7 @@ class PieceServiceTest {
 
     @Test
     fun `promotes a piece to queen`() {
-        val gameId = 1L
-        val piece = Pawn( PieceColor.BLACK, gameId, 7, 4)
+        val piece = Pawn( PieceColor.BLACK, 1L, 7, 4)
 
         every { pieceRepository.save(any<Piece>()) } answers {firstArg()}
         every { pieceRepository.findByIdOrNull(any()) } returns piece

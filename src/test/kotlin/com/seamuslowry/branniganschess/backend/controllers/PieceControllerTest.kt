@@ -69,8 +69,7 @@ class PieceControllerTest(@Autowired val mockMvc: MockMvc) {
 
     @Test
     fun `Promotes a piece`() {
-        val gameId = 1L
-        val piece = Queen(PieceColor.BLACK, gameId, 7, 0)
+        val piece = Queen(PieceColor.BLACK, 1L, 7, 0)
 
         every { pieceService.promote(any(), any()) } returns piece
         every { gameService.updateGameStatusForNextPlayer(any<Long>(), any()) } returns Game("Promote Game")
