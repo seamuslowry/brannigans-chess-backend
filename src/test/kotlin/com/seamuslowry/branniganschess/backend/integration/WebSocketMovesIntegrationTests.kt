@@ -5,6 +5,7 @@ import com.seamuslowry.branniganschess.backend.integration.mocks.TestStompClient
 import org.awaitility.kotlin.await
 import com.seamuslowry.branniganschess.backend.integration.mocks.MoveStompFrameHandler
 import com.seamuslowry.branniganschess.backend.integration.mocks.TestStompSessionHandler
+import com.seamuslowry.branniganschess.backend.integration.utils.IntegrationTestUtils
 import com.seamuslowry.branniganschess.backend.models.Move
 import com.seamuslowry.branniganschess.backend.services.GameService
 import org.awaitility.kotlin.until
@@ -20,9 +21,9 @@ import org.springframework.messaging.simp.stomp.StompSession
 class WebSocketMovesIntegrationTests(
         @LocalServerPort
         val port: Int,
-        @Autowired
-        private val gameService: GameService,
-        @Autowired val stompClient: TestStompClient
+        @Autowired private val gameService: GameService,
+        @Autowired private val stompClient: TestStompClient,
+        @Autowired private val testUtils: IntegrationTestUtils
 ) {
     private lateinit var stompSession: StompSession
 
@@ -41,7 +42,7 @@ class WebSocketMovesIntegrationTests(
 
     @Test
     fun `gets shared moves on subscribe`() {
-        val game = gameService.createGame()
+        val game = testUtils.createFullGame()
         gameService.move(game.id, MoveRequest(6,0,4,0)) // move white pawn 2
         gameService.move(game.id, MoveRequest(1,1,3,1)) // move black pawn 2
         val move = gameService.move(game.id, MoveRequest(4,0,3,1)) // take black pawn
@@ -58,7 +59,7 @@ class WebSocketMovesIntegrationTests(
 
     @Test
     fun `gets no message if no shared moves on subscribe`() {
-        val game = gameService.createGame()
+        val game = testUtils.createFullGame()
 
         val messages = mutableListOf<Move>()
         stompSession.subscribe(
@@ -72,7 +73,7 @@ class WebSocketMovesIntegrationTests(
 
     @Test
     fun `gets a shared move when made`() {
-        val game = gameService.createGame()
+        val game = testUtils.createFullGame()
         val messages = mutableListOf<Move>()
 
         stompSession.subscribe(

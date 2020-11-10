@@ -1,6 +1,7 @@
 package com.seamuslowry.branniganschess.backend.integration
 
 import com.seamuslowry.branniganschess.backend.dtos.MoveRequest
+import com.seamuslowry.branniganschess.backend.integration.utils.IntegrationTestUtils
 import com.seamuslowry.branniganschess.backend.services.GameService
 import com.seamuslowry.branniganschess.backend.services.MoveService
 import com.seamuslowry.branniganschess.backend.services.PieceService
@@ -19,17 +20,18 @@ class SearchMovesIntegrationTests(
         @Autowired val mockMvc: MockMvc,
         @Autowired val gameService: GameService,
         @Autowired val moveService: MoveService,
-        @Autowired val pieceService: PieceService
+        @Autowired val pieceService: PieceService,
+        @Autowired val testUtils: IntegrationTestUtils
 ) {
     @Test
     fun `Finds no moves from a game without colors`() {
-        val game = gameService.createGame()
+        val game = testUtils.createFullGame()
         // move white pawn up one
         gameService.move(game.id, MoveRequest(6,0, 5, 0))
         // move black pawn one
         gameService.move(game.id, MoveRequest(1,0, 2, 0))
 
-        val noMatchGame = gameService.createGame()
+        val noMatchGame = testUtils.createFullGame()
         // move white pawn up one
         gameService.move(noMatchGame.id, MoveRequest(6,0, 5, 0))
 
@@ -43,13 +45,13 @@ class SearchMovesIntegrationTests(
 
     @Test
     fun `Finds all moves from a specific game`() {
-        val game = gameService.createGame()
+        val game = testUtils.createFullGame()
         // move white pawn up one
         val whiteMove = gameService.move(game.id, MoveRequest(6,0, 5, 0))
         // move black pawn one
         val blackMove = gameService.move(game.id, MoveRequest(1,0, 2, 0))
 
-        val noMatchGame = gameService.createGame()
+        val noMatchGame = testUtils.createFullGame()
         // move white pawn up one
         gameService.move(noMatchGame.id, MoveRequest(6,0, 5, 0))
 
@@ -65,7 +67,7 @@ class SearchMovesIntegrationTests(
 
     @Test
     fun `Finds moves of a specific color from a game`() {
-        val game = gameService.createGame()
+        val game = testUtils.createFullGame()
         // move white pawn one
         gameService.move(game.id, MoveRequest(6,0, 5, 0))
         // move black pawn one
@@ -82,7 +84,7 @@ class SearchMovesIntegrationTests(
 
     @Test
     fun `Finds any move that took a piece when searching for a specific color move from a game`() {
-        val game = gameService.createGame()
+        val game = testUtils.createFullGame()
         // move white pawn two
         gameService.move(game.id, MoveRequest(6,0, 4, 0))
         // move black pawn two
@@ -102,7 +104,7 @@ class SearchMovesIntegrationTests(
 
     @Test
     fun `Finds shared moves for a game`() {
-        val game = gameService.createGame()
+        val game = testUtils.createFullGame()
         // move white pawn two
         gameService.move(game.id, MoveRequest(6,0, 4, 0))
         // move black pawn two
@@ -118,7 +120,7 @@ class SearchMovesIntegrationTests(
 
     @Test
     fun `Determines if a piece has moved`() {
-        val game = gameService.createGame()
+        val game = testUtils.createFullGame()
         // move white pawn one
         val whiteMove = gameService.move(game.id, MoveRequest(6,0, 5, 0))
 

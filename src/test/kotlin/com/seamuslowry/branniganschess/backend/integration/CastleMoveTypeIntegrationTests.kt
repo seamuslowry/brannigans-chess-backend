@@ -2,6 +2,7 @@ package com.seamuslowry.branniganschess.backend.integration
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.seamuslowry.branniganschess.backend.dtos.MoveRequest
+import com.seamuslowry.branniganschess.backend.integration.utils.IntegrationTestUtils
 import com.seamuslowry.branniganschess.backend.models.GameStatus
 import com.seamuslowry.branniganschess.backend.models.MoveType
 import com.seamuslowry.branniganschess.backend.models.pieces.King
@@ -23,11 +24,12 @@ import org.springframework.test.web.servlet.post
 class CastleMoveTypeIntegrationTests (
         @Autowired val mockMvc: MockMvc,
         @Autowired val gameService: GameService,
-        @Autowired val pieceService: PieceService
+        @Autowired val pieceService: PieceService,
+        @Autowired val testUtils: IntegrationTestUtils
 ) {
     @Test
     fun `king-side castles - WHITE`() {
-        val game = gameService.createGame()
+        val game = testUtils.createFullGame()
         var board = pieceService.getPiecesAsBoard(game.id)
 
         // set up a valid test by performing invalid moves through the service
@@ -57,7 +59,7 @@ class CastleMoveTypeIntegrationTests (
 
     @Test
     fun `queen-side castles - WHITE`() {
-        val game = gameService.createGame()
+        val game = testUtils.createFullGame()
         var board = pieceService.getPiecesAsBoard(game.id)
 
         // set up a valid test by performing invalid moves through the service
@@ -89,7 +91,7 @@ class CastleMoveTypeIntegrationTests (
 
     @Test
     fun `king-side castles - BLACK`() {
-        val game = gameService.createGame()
+        val game = testUtils.createFullGame()
         var board = pieceService.getPiecesAsBoard(game.id)
 
         // set up a valid test by performing invalid moves through the service
@@ -122,7 +124,7 @@ class CastleMoveTypeIntegrationTests (
 
     @Test
     fun `queen-side castles - BLACK`() {
-        val game = gameService.createGame()
+        val game = testUtils.createFullGame()
         var board = pieceService.getPiecesAsBoard(game.id)
 
         // set up a valid test by performing invalid moves through the service

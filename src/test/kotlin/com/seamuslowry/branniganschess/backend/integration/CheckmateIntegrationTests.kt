@@ -2,7 +2,7 @@ package com.seamuslowry.branniganschess.backend.integration
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.seamuslowry.branniganschess.backend.dtos.MoveRequest
-import com.seamuslowry.branniganschess.backend.models.Game
+import com.seamuslowry.branniganschess.backend.integration.utils.IntegrationTestUtils
 import com.seamuslowry.branniganschess.backend.models.GameStatus
 import com.seamuslowry.branniganschess.backend.models.pieces.King
 import com.seamuslowry.branniganschess.backend.models.pieces.Rook
@@ -25,11 +25,12 @@ class CheckmateIntegrationTests(
         @Autowired val mockMvc: MockMvc,
         @Autowired val gameService: GameService,
         @Autowired val pieceService: PieceService,
-        @Autowired val gameRepository: GameRepository
+        @Autowired val gameRepository: GameRepository,
+        @Autowired val testUtils: IntegrationTestUtils
 ) {
     @Test
     fun `checkmates black`() {
-        var game = createGame()
+        var game = testUtils.createFullGame()
         val board = pieceService.getPiecesAsBoard(game.id)
 
         // set up a valid test by performing invalid moves through the service
@@ -57,7 +58,7 @@ class CheckmateIntegrationTests(
 
     @Test
     fun `checkmates white`() {
-        var game = createGame()
+        var game = testUtils.createFullGame()
         val board = pieceService.getPiecesAsBoard(game.id)
 
         // set up a valid test by performing invalid moves through the service
@@ -87,6 +88,4 @@ class CheckmateIntegrationTests(
 
         assertEquals(GameStatus.CHECKMATE, game.status)
     }
-
-    private fun createGame(): Game = gameService.createGame()
 }
