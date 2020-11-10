@@ -14,7 +14,7 @@ class Game (
         @ManyToOne
         var winner: Player? = null,
         @Enumerated(EnumType.STRING)
-        var status: GameStatus = GameStatus.WHITE_TURN,
+        var status: GameStatus = GameStatus.WAITING_FOR_PLAYERS,
         @Id
         @GeneratedValue(strategy = GenerationType.IDENTITY)
         var id: Long = -1

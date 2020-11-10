@@ -2,7 +2,7 @@ package com.seamuslowry.branniganschess.backend.integration
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.seamuslowry.branniganschess.backend.dtos.MoveRequest
-import com.seamuslowry.branniganschess.backend.models.Game
+import com.seamuslowry.branniganschess.backend.integration.utils.IntegrationTestUtils
 import com.seamuslowry.branniganschess.backend.models.GameStatus
 import com.seamuslowry.branniganschess.backend.models.PieceColor
 import com.seamuslowry.branniganschess.backend.models.pieces.Bishop
@@ -27,11 +27,12 @@ class StalemateIntegrationTests(
         @Autowired val mockMvc: MockMvc,
         @Autowired val gameService: GameService,
         @Autowired val pieceService: PieceService,
-        @Autowired val gameRepository: GameRepository
+        @Autowired val gameRepository: GameRepository,
+        @Autowired val testUtils: IntegrationTestUtils
 ) {
     @Test
     fun `stalemates with just the king on one side`() {
-        var game = createGame()
+        var game = testUtils.createFullGame()
         val board = pieceService.getPiecesAsBoard(game.id)
 
         // set up a valid test by performing invalid moves through the service
@@ -62,7 +63,7 @@ class StalemateIntegrationTests(
 
     @Test
     fun `stalemates with more than just the king left on one side`() {
-        var game = createGame()
+        var game = testUtils.createFullGame()
         val board = pieceService.getPiecesAsBoard(game.id)
 
         // set up a valid test by performing invalid moves through the service
@@ -96,6 +97,4 @@ class StalemateIntegrationTests(
 
         assertEquals(GameStatus.STALEMATE, game.status)
     }
-
-    private fun createGame(): Game = gameService.createGame()
 }

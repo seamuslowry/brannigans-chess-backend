@@ -2,7 +2,7 @@ package com.seamuslowry.branniganschess.backend.integration
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.seamuslowry.branniganschess.backend.dtos.MoveRequest
-import com.seamuslowry.branniganschess.backend.models.Game
+import com.seamuslowry.branniganschess.backend.integration.utils.IntegrationTestUtils
 import com.seamuslowry.branniganschess.backend.models.GameStatus
 import com.seamuslowry.branniganschess.backend.repos.GameRepository
 import com.seamuslowry.branniganschess.backend.services.GameService
@@ -23,11 +23,12 @@ class StandardMoveIntegrationTests(
         @Autowired val mockMvc: MockMvc,
         @Autowired val gameService: GameService,
         @Autowired val pieceService: PieceService,
-        @Autowired val gameRepository: GameRepository
+        @Autowired val gameRepository: GameRepository,
+        @Autowired val testUtils: IntegrationTestUtils
 ) {
     @Test
     fun `Throws an exception on an invalid move`() {
-        val game = createGame()
+        val game = testUtils.createFullGame()
         mockMvc.post("/moves/${game.id}") {
             contentType = MediaType.APPLICATION_JSON
             content = ObjectMapper().writeValueAsString(MoveRequest(0,0,0,0))
@@ -40,7 +41,7 @@ class StandardMoveIntegrationTests(
 
     @Test
     fun `moves a black piece`() {
-        var game = createGame()
+        var game = testUtils.createFullGame()
         // set it to be black's turn
         gameService.updateGameStatusForNextPlayer(game, GameStatus.BLACK_TURN)
         mockMvc.post("/moves/${game.id}") {
@@ -61,7 +62,7 @@ class StandardMoveIntegrationTests(
 
     @Test
     fun `moves a white piece`() {
-        var game = createGame()
+        var game = testUtils.createFullGame()
         mockMvc.post("/moves/${game.id}") {
             contentType = MediaType.APPLICATION_JSON
             content = ObjectMapper().writeValueAsString(MoveRequest(6,0,5,0))
@@ -80,7 +81,7 @@ class StandardMoveIntegrationTests(
 
     @Test
     fun `takes a piece`() {
-        val game = createGame()
+        val game = testUtils.createFullGame()
         val board = pieceService.getPiecesAsBoard(game.id)
 
         // set up a valid test by performing an invalid move through the service
@@ -100,7 +101,7 @@ class StandardMoveIntegrationTests(
 
     @Test
     fun `will not let black move off its turn`() {
-        val game = createGame()
+        val game = testUtils.createFullGame()
 
         mockMvc.post("/moves/${game.id}") {
             contentType = MediaType.APPLICATION_JSON
@@ -114,7 +115,7 @@ class StandardMoveIntegrationTests(
 
     @Test
     fun `will not let white move off its turn`() {
-        val game = createGame()
+        val game = testUtils.createFullGame()
 
         // white move one
         mockMvc.post("/moves/${game.id}") {
@@ -125,11 +126,6 @@ class StandardMoveIntegrationTests(
         }.andExpect {
             status { isOk }
         }
-//        restTemplate.postForEntity(
-//                "/moves/${game.id}",
-//                MoveRequest(6,0,5,0),
-//                Move::class.java
-//        )
 
         mockMvc.post("/moves/${game.id}") {
             contentType = MediaType.APPLICATION_JSON
@@ -139,14 +135,5 @@ class StandardMoveIntegrationTests(
         }.andExpect {
             status { isBadRequest }
         }
-//        val response = restTemplate.postForEntity(
-//                "/moves/${game.id}",
-//                MoveRequest(5,0,4,0),
-//                String::class.java
-//        )
-//
-//        assertEquals(HttpStatus.BAD_REQUEST, response.statusCode)
     }
-
-    private fun createGame(): Game = gameService.createGame()
 }

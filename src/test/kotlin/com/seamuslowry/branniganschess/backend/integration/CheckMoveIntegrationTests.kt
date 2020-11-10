@@ -2,7 +2,7 @@ package com.seamuslowry.branniganschess.backend.integration
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.seamuslowry.branniganschess.backend.dtos.MoveRequest
-import com.seamuslowry.branniganschess.backend.models.Game
+import com.seamuslowry.branniganschess.backend.integration.utils.IntegrationTestUtils
 import com.seamuslowry.branniganschess.backend.models.GameStatus
 import com.seamuslowry.branniganschess.backend.repos.GameRepository
 import com.seamuslowry.branniganschess.backend.services.GameService
@@ -23,11 +23,12 @@ class CheckMoveIntegrationTests(
         @Autowired val mockMvc: MockMvc,
         @Autowired val gameService: GameService,
         @Autowired val pieceService: PieceService,
-        @Autowired val gameRepository: GameRepository
+        @Autowired val gameRepository: GameRepository,
+        @Autowired val testUtils: IntegrationTestUtils
 ) {
     @Test
     fun `puts black in check`() {
-        var game = createGame()
+        var game = testUtils.createFullGame()
         val board = pieceService.getPiecesAsBoard(game.id)
 
         // set up a valid test by performing an invalid move through the service
@@ -54,7 +55,7 @@ class CheckMoveIntegrationTests(
 
     @Test
     fun `puts white in check`() {
-        var game = createGame()
+        var game = testUtils.createFullGame()
         val board = pieceService.getPiecesAsBoard(game.id)
 
         // set up a valid test by performing an invalid move through the service
@@ -83,7 +84,7 @@ class CheckMoveIntegrationTests(
 
     @Test
     fun `will en passant to place opponent in check`() {
-        var game = createGame()
+        var game = testUtils.createFullGame()
         val board = pieceService.getPiecesAsBoard(game.id)
 
         // set up a valid test by performing an invalid moves through the service
@@ -125,7 +126,7 @@ class CheckMoveIntegrationTests(
 
     @Test
     fun `cannot move into check`() {
-        val game = createGame()
+        val game = testUtils.createFullGame()
         val board = pieceService.getPiecesAsBoard(game.id)
 
         // set up a valid test by performing an invalid moves through the service
@@ -147,7 +148,7 @@ class CheckMoveIntegrationTests(
 
     @Test
     fun `cannot make unrelated move while in check`() {
-        val game = createGame()
+        val game = testUtils.createFullGame()
         val board = pieceService.getPiecesAsBoard(game.id)
 
         // set up a valid test by performing an invalid moves through the service
@@ -169,7 +170,7 @@ class CheckMoveIntegrationTests(
 
     @Test
     fun `can defend king from check`() {
-        var game = createGame()
+        var game = testUtils.createFullGame()
         val board = pieceService.getPiecesAsBoard(game.id)
 
         // set up a valid test by performing an invalid moves through the service
@@ -197,7 +198,7 @@ class CheckMoveIntegrationTests(
 
     @Test
     fun `can move out of check`() {
-        var game = createGame()
+        var game = testUtils.createFullGame()
         val board = pieceService.getPiecesAsBoard(game.id)
 
         // set up a valid test by performing an invalid moves through the service
@@ -227,7 +228,7 @@ class CheckMoveIntegrationTests(
 
     @Test
     fun `king can take a piece placing it in check`() {
-        var game = createGame()
+        var game = testUtils.createFullGame()
         val board = pieceService.getPiecesAsBoard(game.id)
 
         // set up a valid test by performing invalid moves through the service
@@ -257,7 +258,7 @@ class CheckMoveIntegrationTests(
 
     @Test
     fun `non-king can take a piece placing it in check`() {
-        var game = createGame()
+        var game = testUtils.createFullGame()
         val board = pieceService.getPiecesAsBoard(game.id)
 
         // set up a valid test by performing invalid moves through the service
@@ -285,7 +286,7 @@ class CheckMoveIntegrationTests(
 
     @Test
     fun `can castle to place opponent in check`() {
-        var game = gameService.createGame()
+        var game = testUtils.createFullGame()
         val board = pieceService.getPiecesAsBoard(game.id)
 
         // set up a valid test by performing invalid moves through the service
@@ -318,6 +319,4 @@ class CheckMoveIntegrationTests(
 
         assertEquals(GameStatus.WHITE_CHECK, game.status)
     }
-
-    private fun createGame(): Game = gameService.createGame()
 }
