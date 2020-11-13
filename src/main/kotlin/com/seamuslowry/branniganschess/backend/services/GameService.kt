@@ -529,8 +529,8 @@ class GameService (
 
     private fun isStatus(status: GameStatus): Specification<Game> = Specification {
         root,
-            _,
-            criteriaBuilder -> criteriaBuilder.equal(root.get<Game>("status"), status)
+        _,
+        criteriaBuilder -> criteriaBuilder.equal(root.get<Game>("status"), status)
     }
 
     private fun hasWhitePlayer(p: Player): Specification<Game> = Specification {

@@ -42,7 +42,7 @@ class PlayerService (
      * @param statuses matching games must have a status present in this list; defaults to all statuses
      * @param pageable the pageable descriptor
      *
-     * @return the list of games
+     * @return the [Page] of games
      */
     fun getGames(
         authId: String,
