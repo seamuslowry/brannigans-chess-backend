@@ -3,6 +3,7 @@ package com.seamuslowry.branniganschess.backend.integration
 import com.seamuslowry.branniganschess.backend.models.*
 import com.seamuslowry.branniganschess.backend.repos.GameRepository
 import com.seamuslowry.branniganschess.backend.repos.PlayerRepository
+import com.seamuslowry.branniganschess.backend.utils.Constants
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
@@ -19,53 +20,78 @@ class SearchGamesIntegrationTests(
         @Autowired val gameRepository: GameRepository
 ) {
     @Test
-    fun `Finds active games`() {
-        val activeGame = gameRepository.save(Game("Piece Search I-Test Active Game One"))
+    fun `Finds games of each status`() {
+        val allStatusGames = getGamesInAllStatuses()
 
-        val wonGame = gameRepository.save(Game("Piece Search I-Test Game Two"))
-        val winner = playerRepository.save(Player(System.nanoTime().toString()))
-        wonGame.winner = winner
-        gameRepository.save(wonGame)
+        allStatusGames.forEach {
+            mockMvc.get("/games?status=${it.key}&size=${gameRepository.count()}")
+                .andExpect {
+                    status { isOk }
+                    jsonPath("content[?(@.id == ${it.value.id})]") { isNotEmpty }
+                }
+        }
+    }
 
-        mockMvc.get("/games?active=true&size=${gameRepository.count()}")
+    @Test
+    fun `Finds open games`() {
+        val allStatusGames = getGamesInAllStatuses()
+
+        mockMvc.get("/games?${Constants.openStatuses.joinToString(separator = "", prefix = "status=") { "&status=${it}" }}&size=${gameRepository.count()}")
             .andExpect {
                 status { isOk }
-                jsonPath("content[?(@.id == ${activeGame.id})]") { isNotEmpty }
-                jsonPath("content[?(@.id == ${wonGame.id})]") { isEmpty }
+                jsonPath("content[?(@.id == ${allStatusGames[GameStatus.WAITING_FOR_BLACK]?.id})]") { isNotEmpty }
+                jsonPath("content[?(@.id == ${allStatusGames[GameStatus.WAITING_FOR_WHITE]?.id})]") { isNotEmpty }
+                jsonPath("content[?(@.id == ${allStatusGames[GameStatus.WAITING_FOR_PLAYERS]?.id})]") { isNotEmpty }
+                jsonPath("content[?(@.id == ${allStatusGames[GameStatus.WHITE_TURN]?.id})]") { isEmpty }
+                jsonPath("content[?(@.id == ${allStatusGames[GameStatus.BLACK_TURN]?.id})]") { isEmpty }
+                jsonPath("content[?(@.id == ${allStatusGames[GameStatus.WHITE_CHECK]?.id})]") { isEmpty }
+                jsonPath("content[?(@.id == ${allStatusGames[GameStatus.BLACK_CHECK]?.id})]") { isEmpty }
+                jsonPath("content[?(@.id == ${allStatusGames[GameStatus.WHITE_PROMOTION]?.id})]") { isEmpty }
+                jsonPath("content[?(@.id == ${allStatusGames[GameStatus.BLACK_PROMOTION]?.id})]") { isEmpty }
+                jsonPath("content[?(@.id == ${allStatusGames[GameStatus.CHECKMATE]?.id})]") { isEmpty }
+                jsonPath("content[?(@.id == ${allStatusGames[GameStatus.STALEMATE]?.id})]") { isEmpty }
+            }
+    }
+
+    @Test
+    fun `Finds active games`() {
+        val allStatusGames = getGamesInAllStatuses()
+
+        mockMvc.get("/games?${Constants.activeStatuses.joinToString(separator = "", prefix = "status=") { "&status=${it}" }}&size=${gameRepository.count()}")
+            .andExpect {
+                status { isOk }
+                jsonPath("content[?(@.id == ${allStatusGames[GameStatus.WAITING_FOR_BLACK]?.id})]") { isEmpty }
+                jsonPath("content[?(@.id == ${allStatusGames[GameStatus.WAITING_FOR_WHITE]?.id})]") { isEmpty }
+                jsonPath("content[?(@.id == ${allStatusGames[GameStatus.WAITING_FOR_PLAYERS]?.id})]") { isEmpty }
+                jsonPath("content[?(@.id == ${allStatusGames[GameStatus.WHITE_TURN]?.id})]") { isNotEmpty }
+                jsonPath("content[?(@.id == ${allStatusGames[GameStatus.BLACK_TURN]?.id})]") { isNotEmpty }
+                jsonPath("content[?(@.id == ${allStatusGames[GameStatus.WHITE_CHECK]?.id})]") { isNotEmpty }
+                jsonPath("content[?(@.id == ${allStatusGames[GameStatus.BLACK_CHECK]?.id})]") { isNotEmpty }
+                jsonPath("content[?(@.id == ${allStatusGames[GameStatus.WHITE_PROMOTION]?.id})]") { isNotEmpty }
+                jsonPath("content[?(@.id == ${allStatusGames[GameStatus.BLACK_PROMOTION]?.id})]") { isNotEmpty }
+                jsonPath("content[?(@.id == ${allStatusGames[GameStatus.CHECKMATE]?.id})]") { isEmpty }
+                jsonPath("content[?(@.id == ${allStatusGames[GameStatus.STALEMATE]?.id})]") { isEmpty }
             }
     }
 
     @Test
     fun `Finds won games`() {
-        val activeGame = gameRepository.save(Game("Piece Search I-Test Active Game One"))
+        val allStatusGames = getGamesInAllStatuses()
 
-        var wonGame = gameRepository.save(Game("Piece Search I-Test Game Two"))
-        val winner = playerRepository.save(Player(System.nanoTime().toString()))
-        wonGame.winner = winner
-        wonGame = gameRepository.save(wonGame)
-
-        mockMvc.get("/games?active=false&size=${gameRepository.count()}")
+        mockMvc.get("/games?${Constants.inactiveStatuses.joinToString(separator = "", prefix = "status=") { "&status=${it}" }}&size=${gameRepository.count()}")
             .andExpect {
                 status { isOk }
-                jsonPath("content[?(@.id == ${activeGame.id})]") { isEmpty }
-                jsonPath("content[?(@.id == ${wonGame.id})]") { isNotEmpty }
-            }
-    }
-
-    @Test
-    fun `Finds all games`() {
-        val activeGame = gameRepository.save(Game("Piece Search I-Test Active Game One"))
-
-        val wonGame = gameRepository.save(Game("Piece Search I-Test Game Two"))
-        val winner = playerRepository.save(Player(System.nanoTime().toString()))
-        wonGame.winner = winner
-        gameRepository.save(wonGame)
-
-        mockMvc.get("/games?size=${gameRepository.count()}")
-            .andExpect {
-                status { isOk }
-                jsonPath("content[?(@.id == ${activeGame.id})]") { isNotEmpty }
-                jsonPath("content[?(@.id == ${wonGame.id})]") { isNotEmpty }
+                jsonPath("content[?(@.id == ${allStatusGames[GameStatus.WAITING_FOR_BLACK]?.id})]") { isEmpty }
+                jsonPath("content[?(@.id == ${allStatusGames[GameStatus.WAITING_FOR_WHITE]?.id})]") { isEmpty }
+                jsonPath("content[?(@.id == ${allStatusGames[GameStatus.WAITING_FOR_PLAYERS]?.id})]") { isEmpty }
+                jsonPath("content[?(@.id == ${allStatusGames[GameStatus.WHITE_TURN]?.id})]") { isEmpty }
+                jsonPath("content[?(@.id == ${allStatusGames[GameStatus.BLACK_TURN]?.id})]") { isEmpty }
+                jsonPath("content[?(@.id == ${allStatusGames[GameStatus.WHITE_CHECK]?.id})]") { isEmpty }
+                jsonPath("content[?(@.id == ${allStatusGames[GameStatus.BLACK_CHECK]?.id})]") { isEmpty }
+                jsonPath("content[?(@.id == ${allStatusGames[GameStatus.WHITE_PROMOTION]?.id})]") { isEmpty }
+                jsonPath("content[?(@.id == ${allStatusGames[GameStatus.BLACK_PROMOTION]?.id})]") { isEmpty }
+                jsonPath("content[?(@.id == ${allStatusGames[GameStatus.CHECKMATE]?.id})]") { isNotEmpty }
+                jsonPath("content[?(@.id == ${allStatusGames[GameStatus.STALEMATE]?.id})]") { isNotEmpty }
             }
     }
 
@@ -73,119 +99,178 @@ class SearchGamesIntegrationTests(
     fun `Finds all a player's games`() {
         val playerAuthId = System.nanoTime().toString()
         val playerOne = playerRepository.save(Player(playerAuthId))
-        val whiteActiveGame = gameRepository.save(Game("1 - Player White Active Game", whitePlayer = playerOne))
-        val blackActiveGame = gameRepository.save(Game("1 - Player Black Active Game", blackPlayer = playerOne))
-        val whiteInactiveGame = gameRepository.save(Game("1 - Player White Inactive Game", whitePlayer = playerOne, winner = playerOne))
-        val blackInactiveGame = gameRepository.save(Game("1 - Player Black Inactive Game", blackPlayer = playerOne, winner = playerOne))
+
+        val whiteAllStatusGames = getGamesInAllStatuses(whitePlayer = playerOne)
+        val blackAllStatusGames = getGamesInAllStatuses(blackPlayer = playerOne)
+
         val playerTwo = playerRepository.save(Player(System.nanoTime().toString()))
         val noMatchGame = gameRepository.save(Game("1 - Player Game Search No Match", whitePlayer = playerTwo))
 
-        mockMvc.get("/players/games") {
+        mockMvc.get("/players/games?size=${gameRepository.count()}") {
             with(jwt().jwt { it.claim("sub", playerAuthId) })
         }.andExpect {
             status { isOk }
-            jsonPath("$.length()") { value(4) }
-            jsonPath("$[?(@.id == ${whiteActiveGame.id})]") { isNotEmpty }
-            jsonPath("$[?(@.id == ${blackActiveGame.id})]") { isNotEmpty }
-            jsonPath("$[?(@.id == ${blackInactiveGame.id})]") { isNotEmpty }
-            jsonPath("$[?(@.id == ${whiteInactiveGame.id})]") { isNotEmpty }
+            jsonPath("$.content.length()") { value(whiteAllStatusGames.count() + blackAllStatusGames.count()) }
+            jsonPath("content[?(@.id == ${whiteAllStatusGames[GameStatus.WAITING_FOR_BLACK]?.id})]") { isNotEmpty }
+            jsonPath("content[?(@.id == ${whiteAllStatusGames[GameStatus.WAITING_FOR_WHITE]?.id})]") { isNotEmpty }
+            jsonPath("content[?(@.id == ${whiteAllStatusGames[GameStatus.WAITING_FOR_PLAYERS]?.id})]") { isNotEmpty }
+            jsonPath("content[?(@.id == ${whiteAllStatusGames[GameStatus.WHITE_TURN]?.id})]") { isNotEmpty }
+            jsonPath("content[?(@.id == ${whiteAllStatusGames[GameStatus.BLACK_TURN]?.id})]") { isNotEmpty }
+            jsonPath("content[?(@.id == ${whiteAllStatusGames[GameStatus.WHITE_CHECK]?.id})]") { isNotEmpty }
+            jsonPath("content[?(@.id == ${whiteAllStatusGames[GameStatus.BLACK_CHECK]?.id})]") { isNotEmpty }
+            jsonPath("content[?(@.id == ${whiteAllStatusGames[GameStatus.WHITE_PROMOTION]?.id})]") { isNotEmpty }
+            jsonPath("content[?(@.id == ${whiteAllStatusGames[GameStatus.BLACK_PROMOTION]?.id})]") { isNotEmpty }
+            jsonPath("content[?(@.id == ${whiteAllStatusGames[GameStatus.CHECKMATE]?.id})]") { isNotEmpty }
+            jsonPath("content[?(@.id == ${whiteAllStatusGames[GameStatus.STALEMATE]?.id})]") { isNotEmpty }
+            jsonPath("content[?(@.id == ${blackAllStatusGames[GameStatus.WAITING_FOR_BLACK]?.id})]") { isNotEmpty }
+            jsonPath("content[?(@.id == ${blackAllStatusGames[GameStatus.WAITING_FOR_WHITE]?.id})]") { isNotEmpty }
+            jsonPath("content[?(@.id == ${blackAllStatusGames[GameStatus.WAITING_FOR_PLAYERS]?.id})]") { isNotEmpty }
+            jsonPath("content[?(@.id == ${blackAllStatusGames[GameStatus.WHITE_TURN]?.id})]") { isNotEmpty }
+            jsonPath("content[?(@.id == ${blackAllStatusGames[GameStatus.BLACK_TURN]?.id})]") { isNotEmpty }
+            jsonPath("content[?(@.id == ${blackAllStatusGames[GameStatus.WHITE_CHECK]?.id})]") { isNotEmpty }
+            jsonPath("content[?(@.id == ${blackAllStatusGames[GameStatus.BLACK_CHECK]?.id})]") { isNotEmpty }
+            jsonPath("content[?(@.id == ${blackAllStatusGames[GameStatus.WHITE_PROMOTION]?.id})]") { isNotEmpty }
+            jsonPath("content[?(@.id == ${blackAllStatusGames[GameStatus.BLACK_PROMOTION]?.id})]") { isNotEmpty }
+            jsonPath("content[?(@.id == ${blackAllStatusGames[GameStatus.CHECKMATE]?.id})]") { isNotEmpty }
+            jsonPath("content[?(@.id == ${blackAllStatusGames[GameStatus.STALEMATE]?.id})]") { isNotEmpty }
             jsonPath("$[?(@.id == ${noMatchGame.id})]") { isEmpty }
         }
     }
 
     @Test
-    fun `Finds all a player's active games`() {
+    fun `Finds all a player's games by status`() {
         val playerAuthId = System.nanoTime().toString()
         val playerOne = playerRepository.save(Player(playerAuthId))
-        val whiteActiveGame = gameRepository.save(Game("2 - Player White Active Game", whitePlayer = playerOne))
-        val blackActiveGame = gameRepository.save(Game("2 - Player Black Active Game", blackPlayer = playerOne))
-        val whiteInactiveGame = gameRepository.save(Game("2 - Player White Inactive Game", whitePlayer = playerOne, winner = playerOne))
-        val blackInactiveGame = gameRepository.save(Game("2 - Player Black Inactive Game", blackPlayer = playerOne, winner = playerOne))
-        val playerTwo = playerRepository.save(Player(System.nanoTime().toString()))
-        val noMatchGame = gameRepository.save(Game("2 - Player Game Search No Match", whitePlayer = playerTwo))
 
-        mockMvc.get("/players/games?active=true") {
+        val whiteAllStatusGames = getGamesInAllStatuses(whitePlayer = playerOne)
+        val blackAllStatusGames = getGamesInAllStatuses(blackPlayer = playerOne)
+
+        val playerTwo = playerRepository.save(Player(System.nanoTime().toString()))
+        val noMatchGame = gameRepository.save(Game("1 - Player Game Search No Match", whitePlayer = playerTwo))
+
+        mockMvc.get("/players/games?${Constants.activeStatuses.joinToString(separator = "", prefix = "status=") { "&status=${it}" }}&size=${gameRepository.count()}") {
             with(jwt().jwt { it.claim("sub", playerAuthId) })
         }.andExpect {
             status { isOk }
-            jsonPath("$.length()") { value(2) }
-            jsonPath("$[?(@.id == ${whiteActiveGame.id})]") { isNotEmpty }
-            jsonPath("$[?(@.id == ${blackActiveGame.id})]") { isNotEmpty }
-            jsonPath("$[?(@.id == ${blackInactiveGame.id})]") { isEmpty }
-            jsonPath("$[?(@.id == ${whiteInactiveGame.id})]") { isEmpty }
+            jsonPath("$.content.length()") { value(Constants.activeStatuses.count() * 2) }
+            jsonPath("content[?(@.id == ${whiteAllStatusGames[GameStatus.WAITING_FOR_BLACK]?.id})]") { isEmpty }
+            jsonPath("content[?(@.id == ${whiteAllStatusGames[GameStatus.WAITING_FOR_WHITE]?.id})]") { isEmpty }
+            jsonPath("content[?(@.id == ${whiteAllStatusGames[GameStatus.WAITING_FOR_PLAYERS]?.id})]") { isEmpty }
+            jsonPath("content[?(@.id == ${whiteAllStatusGames[GameStatus.WHITE_TURN]?.id})]") { isNotEmpty }
+            jsonPath("content[?(@.id == ${whiteAllStatusGames[GameStatus.BLACK_TURN]?.id})]") { isNotEmpty }
+            jsonPath("content[?(@.id == ${whiteAllStatusGames[GameStatus.WHITE_CHECK]?.id})]") { isNotEmpty }
+            jsonPath("content[?(@.id == ${whiteAllStatusGames[GameStatus.BLACK_CHECK]?.id})]") { isNotEmpty }
+            jsonPath("content[?(@.id == ${whiteAllStatusGames[GameStatus.WHITE_PROMOTION]?.id})]") { isNotEmpty }
+            jsonPath("content[?(@.id == ${whiteAllStatusGames[GameStatus.BLACK_PROMOTION]?.id})]") { isNotEmpty }
+            jsonPath("content[?(@.id == ${whiteAllStatusGames[GameStatus.CHECKMATE]?.id})]") { isEmpty }
+            jsonPath("content[?(@.id == ${whiteAllStatusGames[GameStatus.STALEMATE]?.id})]") { isEmpty }
+            jsonPath("content[?(@.id == ${blackAllStatusGames[GameStatus.WAITING_FOR_BLACK]?.id})]") { isEmpty }
+            jsonPath("content[?(@.id == ${blackAllStatusGames[GameStatus.WAITING_FOR_WHITE]?.id})]") { isEmpty }
+            jsonPath("content[?(@.id == ${blackAllStatusGames[GameStatus.WAITING_FOR_PLAYERS]?.id})]") { isEmpty }
+            jsonPath("content[?(@.id == ${blackAllStatusGames[GameStatus.WHITE_TURN]?.id})]") { isNotEmpty }
+            jsonPath("content[?(@.id == ${blackAllStatusGames[GameStatus.BLACK_TURN]?.id})]") { isNotEmpty }
+            jsonPath("content[?(@.id == ${blackAllStatusGames[GameStatus.WHITE_CHECK]?.id})]") { isNotEmpty }
+            jsonPath("content[?(@.id == ${blackAllStatusGames[GameStatus.BLACK_CHECK]?.id})]") { isNotEmpty }
+            jsonPath("content[?(@.id == ${blackAllStatusGames[GameStatus.WHITE_PROMOTION]?.id})]") { isNotEmpty }
+            jsonPath("content[?(@.id == ${blackAllStatusGames[GameStatus.BLACK_PROMOTION]?.id})]") { isNotEmpty }
+            jsonPath("content[?(@.id == ${blackAllStatusGames[GameStatus.CHECKMATE]?.id})]") { isEmpty }
+            jsonPath("content[?(@.id == ${blackAllStatusGames[GameStatus.STALEMATE]?.id})]") { isEmpty }
             jsonPath("$[?(@.id == ${noMatchGame.id})]") { isEmpty }
         }
     }
 
     @Test
-    fun `Finds all a player's inactive games`() {
+    fun `Finds all a player's white games by status`() {
         val playerAuthId = System.nanoTime().toString()
         val playerOne = playerRepository.save(Player(playerAuthId))
-        val whiteActiveGame = gameRepository.save(Game("2 - Player White Active Game", whitePlayer = playerOne))
-        val blackActiveGame = gameRepository.save(Game("2 - Player Black Active Game", blackPlayer = playerOne))
-        val whiteInactiveGame = gameRepository.save(Game("2 - Player White Inactive Game", whitePlayer = playerOne, winner = playerOne))
-        val blackInactiveGame = gameRepository.save(Game("2 - Player Black Inactive Game", blackPlayer = playerOne, winner = playerOne))
-        val playerTwo = playerRepository.save(Player(System.nanoTime().toString()))
-        val noMatchGame = gameRepository.save(Game("2 - Player Game Search No Match", whitePlayer = playerTwo))
 
-        mockMvc.get("/players/games?active=false") {
+        val whiteAllStatusGames = getGamesInAllStatuses(whitePlayer = playerOne)
+        val blackAllStatusGames = getGamesInAllStatuses(blackPlayer = playerOne)
+
+        val playerTwo = playerRepository.save(Player(System.nanoTime().toString()))
+        val noMatchGame = gameRepository.save(Game("1 - Player Game Search No Match", whitePlayer = playerTwo))
+
+        mockMvc.get("/players/games?${Constants.activeStatuses.joinToString(separator = "", prefix = "status=") { "&status=${it}" }}&color=WHITE&size=${gameRepository.count()}") {
             with(jwt().jwt { it.claim("sub", playerAuthId) })
         }.andExpect {
             status { isOk }
-            jsonPath("$.length()") { value(2) }
-            jsonPath("$[?(@.id == ${whiteActiveGame.id})]") { isEmpty }
-            jsonPath("$[?(@.id == ${blackActiveGame.id})]") { isEmpty }
-            jsonPath("$[?(@.id == ${blackInactiveGame.id})]") { isNotEmpty }
-            jsonPath("$[?(@.id == ${whiteInactiveGame.id})]") { isNotEmpty }
+            jsonPath("$.content.length()") { value(Constants.activeStatuses.count()) }
+            jsonPath("content[?(@.id == ${whiteAllStatusGames[GameStatus.WAITING_FOR_BLACK]?.id})]") { isEmpty }
+            jsonPath("content[?(@.id == ${whiteAllStatusGames[GameStatus.WAITING_FOR_WHITE]?.id})]") { isEmpty }
+            jsonPath("content[?(@.id == ${whiteAllStatusGames[GameStatus.WAITING_FOR_PLAYERS]?.id})]") { isEmpty }
+            jsonPath("content[?(@.id == ${whiteAllStatusGames[GameStatus.WHITE_TURN]?.id})]") { isNotEmpty }
+            jsonPath("content[?(@.id == ${whiteAllStatusGames[GameStatus.BLACK_TURN]?.id})]") { isNotEmpty }
+            jsonPath("content[?(@.id == ${whiteAllStatusGames[GameStatus.WHITE_CHECK]?.id})]") { isNotEmpty }
+            jsonPath("content[?(@.id == ${whiteAllStatusGames[GameStatus.BLACK_CHECK]?.id})]") { isNotEmpty }
+            jsonPath("content[?(@.id == ${whiteAllStatusGames[GameStatus.WHITE_PROMOTION]?.id})]") { isNotEmpty }
+            jsonPath("content[?(@.id == ${whiteAllStatusGames[GameStatus.BLACK_PROMOTION]?.id})]") { isNotEmpty }
+            jsonPath("content[?(@.id == ${whiteAllStatusGames[GameStatus.CHECKMATE]?.id})]") { isEmpty }
+            jsonPath("content[?(@.id == ${whiteAllStatusGames[GameStatus.STALEMATE]?.id})]") { isEmpty }
+            jsonPath("content[?(@.id == ${blackAllStatusGames[GameStatus.WAITING_FOR_BLACK]?.id})]") { isEmpty }
+            jsonPath("content[?(@.id == ${blackAllStatusGames[GameStatus.WAITING_FOR_WHITE]?.id})]") { isEmpty }
+            jsonPath("content[?(@.id == ${blackAllStatusGames[GameStatus.WAITING_FOR_PLAYERS]?.id})]") { isEmpty }
+            jsonPath("content[?(@.id == ${blackAllStatusGames[GameStatus.WHITE_TURN]?.id})]") { isEmpty }
+            jsonPath("content[?(@.id == ${blackAllStatusGames[GameStatus.BLACK_TURN]?.id})]") { isEmpty }
+            jsonPath("content[?(@.id == ${blackAllStatusGames[GameStatus.WHITE_CHECK]?.id})]") { isEmpty }
+            jsonPath("content[?(@.id == ${blackAllStatusGames[GameStatus.BLACK_CHECK]?.id})]") { isEmpty }
+            jsonPath("content[?(@.id == ${blackAllStatusGames[GameStatus.WHITE_PROMOTION]?.id})]") { isEmpty }
+            jsonPath("content[?(@.id == ${blackAllStatusGames[GameStatus.BLACK_PROMOTION]?.id})]") { isEmpty }
+            jsonPath("content[?(@.id == ${blackAllStatusGames[GameStatus.CHECKMATE]?.id})]") { isEmpty }
+            jsonPath("content[?(@.id == ${blackAllStatusGames[GameStatus.STALEMATE]?.id})]") { isEmpty }
             jsonPath("$[?(@.id == ${noMatchGame.id})]") { isEmpty }
         }
     }
 
     @Test
-    fun `Finds all a player's color active games`() {
+    fun `Finds all a player's black games by status`() {
         val playerAuthId = System.nanoTime().toString()
         val playerOne = playerRepository.save(Player(playerAuthId))
-        val whiteActiveGame = gameRepository.save(Game("2 - Player White Active Game", whitePlayer = playerOne))
-        val blackActiveGame = gameRepository.save(Game("2 - Player Black Active Game", blackPlayer = playerOne))
-        val whiteInactiveGame = gameRepository.save(Game("2 - Player White Inactive Game", whitePlayer = playerOne, winner = playerOne))
-        val blackInactiveGame = gameRepository.save(Game("2 - Player Black Inactive Game", blackPlayer = playerOne, winner = playerOne))
-        val playerTwo = playerRepository.save(Player(System.nanoTime().toString()))
-        val noMatchGame = gameRepository.save(Game("2 - Player Game Search No Match", whitePlayer = playerTwo))
 
-        mockMvc.get("/players/games?active=true&color=BLACK") {
+        val whiteAllStatusGames = getGamesInAllStatuses(whitePlayer = playerOne)
+        val blackAllStatusGames = getGamesInAllStatuses(blackPlayer = playerOne)
+
+        val playerTwo = playerRepository.save(Player(System.nanoTime().toString()))
+        val noMatchGame = gameRepository.save(Game("1 - Player Game Search No Match", whitePlayer = playerTwo))
+
+        mockMvc.get("/players/games?${Constants.activeStatuses.joinToString(separator = "", prefix = "status=") { "&status=${it}" }}&color=BLACK&size=${gameRepository.count()}") {
             with(jwt().jwt { it.claim("sub", playerAuthId) })
         }.andExpect {
             status { isOk }
-            jsonPath("$.length()") { value(1) }
-            jsonPath("$[?(@.id == ${whiteActiveGame.id})]") { isEmpty }
-            jsonPath("$[?(@.id == ${blackActiveGame.id})]") { isNotEmpty }
-            jsonPath("$[?(@.id == ${blackInactiveGame.id})]") { isEmpty }
-            jsonPath("$[?(@.id == ${whiteInactiveGame.id})]") { isEmpty }
+            jsonPath("$.content.length()") { value(Constants.activeStatuses.count()) }
+            jsonPath("content[?(@.id == ${whiteAllStatusGames[GameStatus.WAITING_FOR_BLACK]?.id})]") { isEmpty }
+            jsonPath("content[?(@.id == ${whiteAllStatusGames[GameStatus.WAITING_FOR_WHITE]?.id})]") { isEmpty }
+            jsonPath("content[?(@.id == ${whiteAllStatusGames[GameStatus.WAITING_FOR_PLAYERS]?.id})]") { isEmpty }
+            jsonPath("content[?(@.id == ${whiteAllStatusGames[GameStatus.WHITE_TURN]?.id})]") { isEmpty }
+            jsonPath("content[?(@.id == ${whiteAllStatusGames[GameStatus.BLACK_TURN]?.id})]") { isEmpty }
+            jsonPath("content[?(@.id == ${whiteAllStatusGames[GameStatus.WHITE_CHECK]?.id})]") { isEmpty }
+            jsonPath("content[?(@.id == ${whiteAllStatusGames[GameStatus.BLACK_CHECK]?.id})]") { isEmpty }
+            jsonPath("content[?(@.id == ${whiteAllStatusGames[GameStatus.WHITE_PROMOTION]?.id})]") { isEmpty }
+            jsonPath("content[?(@.id == ${whiteAllStatusGames[GameStatus.BLACK_PROMOTION]?.id})]") { isEmpty }
+            jsonPath("content[?(@.id == ${whiteAllStatusGames[GameStatus.CHECKMATE]?.id})]") { isEmpty }
+            jsonPath("content[?(@.id == ${whiteAllStatusGames[GameStatus.STALEMATE]?.id})]") { isEmpty }
+            jsonPath("content[?(@.id == ${blackAllStatusGames[GameStatus.WAITING_FOR_BLACK]?.id})]") { isEmpty }
+            jsonPath("content[?(@.id == ${blackAllStatusGames[GameStatus.WAITING_FOR_WHITE]?.id})]") { isEmpty }
+            jsonPath("content[?(@.id == ${blackAllStatusGames[GameStatus.WAITING_FOR_PLAYERS]?.id})]") { isEmpty }
+            jsonPath("content[?(@.id == ${blackAllStatusGames[GameStatus.WHITE_TURN]?.id})]") { isNotEmpty }
+            jsonPath("content[?(@.id == ${blackAllStatusGames[GameStatus.BLACK_TURN]?.id})]") { isNotEmpty }
+            jsonPath("content[?(@.id == ${blackAllStatusGames[GameStatus.WHITE_CHECK]?.id})]") { isNotEmpty }
+            jsonPath("content[?(@.id == ${blackAllStatusGames[GameStatus.BLACK_CHECK]?.id})]") { isNotEmpty }
+            jsonPath("content[?(@.id == ${blackAllStatusGames[GameStatus.WHITE_PROMOTION]?.id})]") { isNotEmpty }
+            jsonPath("content[?(@.id == ${blackAllStatusGames[GameStatus.BLACK_PROMOTION]?.id})]") { isNotEmpty }
+            jsonPath("content[?(@.id == ${blackAllStatusGames[GameStatus.CHECKMATE]?.id})]") { isEmpty }
+            jsonPath("content[?(@.id == ${blackAllStatusGames[GameStatus.STALEMATE]?.id})]") { isEmpty }
             jsonPath("$[?(@.id == ${noMatchGame.id})]") { isEmpty }
         }
     }
 
-    @Test
-    fun `Finds all a player's color inactive games`() {
-        val playerAuthId = System.nanoTime().toString()
-        val playerOne = playerRepository.save(Player(playerAuthId))
-        val whiteActiveGame = gameRepository.save(Game("2 - Player White Active Game", whitePlayer = playerOne))
-        val blackActiveGame = gameRepository.save(Game("2 - Player Black Active Game", blackPlayer = playerOne))
-        val whiteInactiveGame = gameRepository.save(Game("2 - Player White Inactive Game", whitePlayer = playerOne, winner = playerOne))
-        val blackInactiveGame = gameRepository.save(Game("2 - Player Black Inactive Game", blackPlayer = playerOne, winner = playerOne))
-        val playerTwo = playerRepository.save(Player(System.nanoTime().toString()))
-        val noMatchGame = gameRepository.save(Game("2 - Player Game Search No Match", whitePlayer = playerTwo))
-
-        mockMvc.get("/players/games?active=false&color=BLACK") {
-            with(jwt().jwt { it.claim("sub", playerAuthId) })
-        }.andExpect {
-            status { isOk }
-            jsonPath("$.length()") { value(1) }
-            jsonPath("$[?(@.id == ${whiteActiveGame.id})]") { isEmpty }
-            jsonPath("$[?(@.id == ${blackActiveGame.id})]") { isEmpty }
-            jsonPath("$[?(@.id == ${blackInactiveGame.id})]") { isNotEmpty }
-            jsonPath("$[?(@.id == ${whiteInactiveGame.id})]") { isEmpty }
-            jsonPath("$[?(@.id == ${noMatchGame.id})]") { isEmpty }
-        }
-    }
+    fun getGamesInAllStatuses(
+        whitePlayer: Player? = null,
+        blackPlayer: Player? = null
+    ): Map<GameStatus, Game> =
+        GameStatus.values()
+            .map { it to gameRepository.save(Game("${System.nanoTime()}-${it}",
+                                                  whitePlayer,
+                                                  blackPlayer,
+                                                  status = it)) }
+            .toMap()
 }

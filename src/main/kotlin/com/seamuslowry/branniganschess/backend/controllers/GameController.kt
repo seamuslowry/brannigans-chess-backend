@@ -28,15 +28,15 @@ class GameController(
     )
     fun createGame(): ResponseEntity<Game> = ResponseEntity.ok(gameService.createGame())
 
-    @GetMapping("/", "")
+    @GetMapping("")
     @ApiOperation("Retrieves a page of games")
     @ApiResponses(
             ApiResponse(code = 200, message =  "Successfully retrieved the page of games."),
             ApiResponse(code = 500, message =  "There was a problem with the service.")
     )
-    fun getGames(@RequestParam(required = false) active: Boolean?,
+    fun getGames(@RequestParam(name = "status", defaultValue = "") statuses: List<GameStatus>,
                  @PageableDefault(size = 10, sort = ["id"], direction = Sort.Direction.DESC) pageable: Pageable
-    ): ResponseEntity<Page<Game>> = ResponseEntity.ok(gameService.findAllBy(active, pageable))
+    ): ResponseEntity<Page<Game>> = ResponseEntity.ok(gameService.findAllBy(statuses, pageable))
 
     /**
      * When subscribing to the game status topic, send the current game.

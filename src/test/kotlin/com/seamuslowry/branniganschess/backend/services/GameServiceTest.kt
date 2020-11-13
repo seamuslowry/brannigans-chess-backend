@@ -76,7 +76,7 @@ class GameServiceTest {
         val game = Game("Search Game")
         every { gameRepository.findAll(any<Specification<Game>>(), any<Pageable>()) } returns PageImpl(listOf(game))
 
-        val foundPieces = service.findAllBy(true, Pageable.unpaged())
+        val foundPieces = service.findAllBy(pageable =  Pageable.unpaged())
 
         verify(exactly = 1) { gameRepository.findAll(any<Specification<Game>>(), any<Pageable>()) }
         assertEquals(1 , foundPieces.count())
@@ -86,11 +86,11 @@ class GameServiceTest {
     fun `searches for black color games by a player`() {
         val game = Game("Search Game")
         val player = Player(System.nanoTime().toString())
-        every { gameRepository.findAll(any<Specification<Game>>()) } returns listOf(game)
+        every { gameRepository.findAll(any<Specification<Game>>(), any<Pageable>()) } returns PageImpl(listOf(game))
 
-        val foundPieces = service.findPlayerGames(player, PieceColor.BLACK, true)
+        val foundPieces = service.findPlayerGames(player, PieceColor.BLACK, emptyList(), Pageable.unpaged())
 
-        verify(exactly = 1) { gameRepository.findAll(any<Specification<Game>>()) }
+        verify(exactly = 1) { gameRepository.findAll(any<Specification<Game>>(), any<Pageable>()) }
         assertEquals(1 , foundPieces.count())
     }
 
@@ -98,11 +98,11 @@ class GameServiceTest {
     fun `searches for white color games by a player`() {
         val game = Game("Search Game")
         val player = Player(System.nanoTime().toString())
-        every { gameRepository.findAll(any<Specification<Game>>()) } returns listOf(game)
+        every { gameRepository.findAll(any<Specification<Game>>(), any<Pageable>()) } returns PageImpl(listOf(game))
 
-        val foundPieces = service.findPlayerGames(player, PieceColor.WHITE, true)
+        val foundPieces = service.findPlayerGames(player, PieceColor.WHITE, emptyList(), Pageable.unpaged())
 
-        verify(exactly = 1) { gameRepository.findAll(any<Specification<Game>>()) }
+        verify(exactly = 1) { gameRepository.findAll(any<Specification<Game>>(), any<Pageable>()) }
         assertEquals(1 , foundPieces.count())
     }
 
@@ -110,11 +110,11 @@ class GameServiceTest {
     fun `searches for games by a player`() {
         val game = Game("Search Game")
         val player = Player(System.nanoTime().toString())
-        every { gameRepository.findAll(any<Specification<Game>>()) } returns listOf(game)
+        every { gameRepository.findAll(any<Specification<Game>>(), any<Pageable>()) } returns PageImpl(listOf(game))
 
-        val foundPieces = service.findPlayerGames(player)
+        val foundPieces = service.findPlayerGames(player, pageable = Pageable.unpaged())
 
-        verify(exactly = 1) { gameRepository.findAll(any<Specification<Game>>()) }
+        verify(exactly = 1) { gameRepository.findAll(any<Specification<Game>>(), any<Pageable>()) }
         assertEquals(1 , foundPieces.count())
     }
 

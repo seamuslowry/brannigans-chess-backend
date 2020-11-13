@@ -12,6 +12,8 @@ import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
+import org.springframework.data.domain.PageImpl
+import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.domain.Specification
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import java.util.*
@@ -59,12 +61,12 @@ class PlayerServiceTest {
         val newPlayer = Player(authId)
         val game = Game()
         every { playerRepository.findOne(any()) } returns Optional.of(newPlayer)
-        every { gameService.findPlayerGames(any(), any(), any()) } returns listOf(game)
+        every { gameService.findPlayerGames(any(), any(), any(), any()) } returns PageImpl(listOf(game))
 
-        val foundGames = service.getGames(newPlayer.authId, PieceColor.WHITE, true)
+        val foundGames = service.getGames(newPlayer.authId, PieceColor.WHITE, pageable = Pageable.unpaged())
 
-        verify(exactly = 1) { gameService.findPlayerGames(any(), any(), any()) }
-        assertEquals(listOf(game), foundGames)
+        verify(exactly = 1) { gameService.findPlayerGames(any(), any(), any(), any()) }
+        assertEquals(listOf(game), foundGames.content)
     }
 
     @Test
@@ -73,7 +75,7 @@ class PlayerServiceTest {
         val newPlayer = Player(authId)
         every { playerRepository.findOne(any()) } returns Optional.empty()
 
-        assertThrows<EntityNotFoundException> { service.getGames(newPlayer.authId, PieceColor.WHITE, true) }
+        assertThrows<EntityNotFoundException> { service.getGames(newPlayer.authId, PieceColor.WHITE, pageable = Pageable.unpaged()) }
     }
 
     @Test

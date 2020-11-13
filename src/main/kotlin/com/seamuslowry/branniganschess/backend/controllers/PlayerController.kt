@@ -6,6 +6,10 @@ import com.seamuslowry.branniganschess.backend.services.PlayerService
 import io.swagger.annotations.ApiOperation
 import io.swagger.annotations.ApiResponse
 import io.swagger.annotations.ApiResponses
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
+import org.springframework.data.domain.Sort
+import org.springframework.data.web.PageableDefault
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.Authentication
 import org.springframework.web.bind.annotation.*
@@ -16,7 +20,7 @@ class PlayerController(
         private val playerService: PlayerService
 ) {
     @GetMapping("/games")
-    @ApiOperation("Gets all games for the logged in player", response = Game::class, responseContainer = "List")
+    @ApiOperation("Gets all games for the logged in player")
     @ApiResponses(
             ApiResponse(code = 200, message =  "Successfully retrieved the list of games."),
             ApiResponse(code = 404, message =  "The player does not exist."),
@@ -24,9 +28,10 @@ class PlayerController(
     )
     fun getGames(authentication: Authentication,
                  @RequestParam(required = false) color: PieceColor?,
-                 @RequestParam(required = false) active: Boolean?)
-            : ResponseEntity<Iterable<Game>> {
-        return ResponseEntity.ok(playerService.getGames(authentication.name , color, active))
+                 @RequestParam(name = "status", defaultValue = "") statuses: List<GameStatus>,
+                 @PageableDefault(size = 10, sort = ["id"], direction = Sort.Direction.DESC) pageable: Pageable
+    ): ResponseEntity<Page<Game>> {
+        return ResponseEntity.ok(playerService.getGames(authentication.name, color, statuses, pageable))
     }
 
     @PostMapping("/auth")
