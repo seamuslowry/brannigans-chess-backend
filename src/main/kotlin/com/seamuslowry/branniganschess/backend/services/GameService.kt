@@ -6,6 +6,7 @@ import com.seamuslowry.branniganschess.backend.dtos.MoveRequest
 import com.seamuslowry.branniganschess.backend.models.*
 import com.seamuslowry.branniganschess.backend.models.pieces.*
 import com.seamuslowry.branniganschess.backend.repos.GameRepository
+import com.seamuslowry.branniganschess.backend.utils.Constants
 import com.seamuslowry.branniganschess.backend.utils.Utils
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
@@ -71,35 +72,44 @@ class GameService (
 
     /**
      * Find all games by active or inactive.
-     * @param active if true, only active games will be shown
+     * @param statuses matching games must have a status present in this list; defaults to active statuses
+     * @param pageable the pageable descriptor
      *
      * @return a [Page] of all games matching the criteria
      */
-    fun findAllBy(active: Boolean?, pageable: Pageable): Page<Game> {
-        var spec: Specification<Game> = Specification.where(null)!!
+    fun findAllBy(
+        statuses: Iterable<GameStatus> = Constants.activeStatuses,
+        pageable: Pageable
+    ): Page<Game> {
+        val statusesSpec = getStatusesSpec(statuses)
 
-        active?.let { spec = if (active) spec.and(isActive())!! else spec.and(isWon())!! }
-
-        return gameRepository.findAll(spec, pageable)
+        return gameRepository.findAll(statusesSpec, pageable)
     }
 
     /**
      * Find all of a player's games by active or inactive and player color.
      * @param player the player to search by
      * @param color the color the player must be in the game
-     * @param active if true, only active games will be shown
+     * @param statuses matching games must have a status present in this list; defaults to all statuses
+     * @param pageable the pageable descriptor
      *
      * @return a [Page] of all games matching the criteria
      */
-    fun findPlayerGames(player: Player, color: PieceColor? = null, active: Boolean? = null): List<Game> {
+    fun findPlayerGames(
+        player: Player,
+        color: PieceColor? = null,
+        statuses: Iterable<GameStatus> = Constants.allStatuses,
+        pageable: Pageable
+    ): Page<Game> {
         var spec: Specification<Game> = Specification.where(null)!!
 
         color?.let { spec = if (color == PieceColor.BLACK) spec.and(hasBlackPlayer(player))!! else spec.and(hasWhitePlayer(player))!! }
         if (color == null) spec = spec.and(Specification.where(hasBlackPlayer(player).or(hasWhitePlayer(player))))!!
 
-        active?.let { spec = if (active) spec.and(isActive())!! else spec.and(isWon())!! }
 
-        return gameRepository.findAll(spec)
+        spec = spec.and(getStatusesSpec(statuses))!!
+
+        return gameRepository.findAll(spec, pageable)
     }
 
     /**
@@ -510,10 +520,17 @@ class GameService (
         return gameRepository.save(game)
     }
 
-    private fun isActive(): Specification<Game> = Specification {
+    private fun getStatusesSpec(statuses: Iterable<GameStatus>): Specification<Game> {
+        var statusesSpec: Specification<Game> = Specification.where(null)!!
+        statuses.forEach { statusesSpec = statusesSpec.or(isStatus(it))!! }
+
+        return statusesSpec
+    }
+
+    private fun isStatus(status: GameStatus): Specification<Game> = Specification {
         root,
         _,
-        criteriaBuilder -> criteriaBuilder.isNull(root.get<Player>("winner"))
+        criteriaBuilder -> criteriaBuilder.equal(root.get<Game>("status"), status)
     }
 
     private fun hasWhitePlayer(p: Player): Specification<Game> = Specification {
@@ -526,11 +543,5 @@ class GameService (
         root,
         _,
         criteriaBuilder -> criteriaBuilder.equal(root.get<Player>("blackPlayer"), p)
-    }
-
-    private fun isWon(): Specification<Game> = Specification {
-        root,
-        _,
-        criteriaBuilder -> criteriaBuilder.isNotNull(root.get<Player>("winner"))
     }
 }

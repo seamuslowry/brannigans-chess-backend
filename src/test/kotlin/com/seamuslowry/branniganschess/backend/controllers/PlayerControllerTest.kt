@@ -12,6 +12,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
+import org.springframework.data.domain.PageImpl
 import org.springframework.http.MediaType
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt
 import org.springframework.test.context.junit.jupiter.SpringExtension
@@ -30,13 +31,13 @@ class PlayerControllerTest(@Autowired val mockMvc: MockMvc) {
     @Test
     fun `Searches for games`() {
         val game = Game("Player Controller Test Game")
-        every { playerService.getGames(any(), any(), any()) } returns listOf(game)
+        every { playerService.getGames(any(), any(), any(), any()) } returns PageImpl(listOf(game))
 
         mockMvc.get("/players/games?active=false&color=BLACK") {
             with(jwt())
         }.andExpect {
             status { isOk }
-            jsonPath("$") { isArray }
+            jsonPath("$.content") { isArray }
         }
     }
 
