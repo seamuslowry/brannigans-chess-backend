@@ -75,9 +75,9 @@ class PieceService (
 
     /**
      * Find all the pieces that meet the given criteria.
-     * This should not be exposed to the user as it is not authenticated.
+     * This can be exposed to the user as it is authenticated.
      *
-     * @param game the  the pieces' game
+     * @param game the pieces' game
      * @param colors a list of piece colors to retrieve; defaults to both colors
      * @param status the status of the piece
      * @param type the type of the piece
@@ -93,9 +93,9 @@ class PieceService (
 
     /**
      * Find all the pieces that meet the given criteria.
-     * This should not be exposed to the user as it is not authenticated.
+     * This should not be exposed directly to the user as it is not authenticated.
      *
-     * @param gameId the id of the piece's game
+     * @param gameId the id of the pieces' game
      * @param colors a list of piece colors to retrieve; defaults to both colors
      * @param status the status of the piece
      * @param type the type of the piece
@@ -117,9 +117,9 @@ class PieceService (
 
     /**
      * Find all the pieces that meet the given criteria.
-     * This should not be exposed to the user as it is not authenticated.
+     * This should not be exposed directly to the user as it is not authenticated.
      *
-     * @param gameId the id of the piece's game
+     * @param gameId the id of the pieces' game
      * @param color the color of the pieces to retrieve
      * @param status the status of the piece
      * @param type the type of the piece
