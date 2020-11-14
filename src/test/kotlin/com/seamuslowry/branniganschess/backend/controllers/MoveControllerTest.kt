@@ -47,11 +47,12 @@ class MoveControllerTest(@Autowired val mockMvc: MockMvc) {
 
     @Test
     fun `Searches for moves`() {
-        val gameId = 1L
-        val piece = Pawn(PieceColor.BLACK, gameId)
+        val game = Game("uuid", id=1L)
+        val piece = Pawn(PieceColor.BLACK, game.id)
         val move = Move(piece, 0,0,0,0)
-        every { moveService.findAllBy(gameId, listOf(piece.color)) } returns listOf(move)
-        mockMvc.perform(MockMvcRequestBuilders.get("/moves/${gameId}?color=${piece.color}").accept(MediaType.APPLICATION_JSON))
+        every { moveService.findAllBy(game, listOf(piece.color)) } returns listOf(move)
+        every { gameService.getById(game.id) } returns game
+        mockMvc.perform(MockMvcRequestBuilders.get("/moves/${game.id}?color=${piece.color}").accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk)
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("\$").isArray)

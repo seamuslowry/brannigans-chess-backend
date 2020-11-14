@@ -1,10 +1,12 @@
 package com.seamuslowry.branniganschess.backend.services
 
+import com.seamuslowry.branniganschess.backend.models.Game
 import com.seamuslowry.branniganschess.backend.models.Move
 import com.seamuslowry.branniganschess.backend.models.Piece
 import com.seamuslowry.branniganschess.backend.models.PieceColor
 import com.seamuslowry.branniganschess.backend.repos.MoveRepository
 import org.springframework.data.jpa.domain.Specification
+import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.stereotype.Service
 
 @Service
@@ -22,8 +24,24 @@ class MoveService (
 
     /**
      * Find all moves that match the given criteria.
+     * This can be exposed to the user as it is authenticated.
      *
-     * @param gameId the id move's game
+     * @param game the moves' game
+     * @param colors the colors any involved piece should be
+     *
+     * @return a list of matching moves
+     */
+    @PreAuthorize("(#colors.size() == 0) or " +
+                  "(!#game.isPlayer(authentication.name)) or " +
+                  "(#colors.size() == 1 and #colors[0].name() == 'WHITE' and #game.isWhite(authentication.name)) or " +
+                  "(#colors.size() == 1 and #colors[0].name() == 'BLACK' and #game.isBlack(authentication.name))")
+    fun findAllBy(game: Game, colors: Iterable<PieceColor> = listOf(PieceColor.BLACK, PieceColor.WHITE)): Iterable<Move> = findAllBy(game.id, colors)
+
+    /**
+     * Find all moves that match the given criteria.
+     * This should not be exposed directly to the user as it is not authenticated.
+     *
+     * @param gameId the id moves' game
      * @param colors the colors any involved piece should be
      *
      * @return a list of matching moves
@@ -40,8 +58,9 @@ class MoveService (
 
     /**
      * Find all moves that match the given criteria.
+     * This should not be exposed directly to the user as it is not authenticated.
      *
-     * @param gameId the id move's game
+     * @param gameId the id moves' game
      * @param color the color of the piece that moved
      *
      * @return a list of matching moves

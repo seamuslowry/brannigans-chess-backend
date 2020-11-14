@@ -3,13 +3,9 @@ package com.seamuslowry.branniganschess.backend.integration
 import com.seamuslowry.branniganschess.backend.models.Game
 import com.seamuslowry.branniganschess.backend.models.PieceColor
 import com.seamuslowry.branniganschess.backend.models.PieceStatus
-import com.seamuslowry.branniganschess.backend.models.pieces.King
 import com.seamuslowry.branniganschess.backend.models.pieces.Pawn
-import com.seamuslowry.branniganschess.backend.models.pieces.Rook
 import com.seamuslowry.branniganschess.backend.repos.GameRepository
-import com.seamuslowry.branniganschess.backend.services.GameService
 import com.seamuslowry.branniganschess.backend.services.PieceService
-import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
@@ -20,14 +16,13 @@ import org.springframework.test.web.servlet.get
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
-class SearchPiecesIntegrationTest(
+class SpectatorSearchPiecesIntegrationTests(
         @Autowired val mockMvc: MockMvc,
         @Autowired val gameRepository: GameRepository,
-        @Autowired val pieceService: PieceService,
-        @Autowired val gameService: GameService
+        @Autowired val pieceService: PieceService
 ) {
     @Test
-    fun `Will not finds pieces from a specific game without color specified`() {
+    fun `Will not find pieces from a specific game without color specified`() {
         val gameOne = gameRepository.save(Game("Piece Search I-Test Game One"))
         val gameTwo = gameRepository.save(Game("Piece Search I-Test Game Two"))
 
@@ -60,13 +55,29 @@ class SearchPiecesIntegrationTest(
     }
 
     @Test
-    fun `Finds pieces of a specific color from a game`() {
+    fun `Finds black pieces from a game`() {
         val gameOne = gameRepository.save(Game("Piece Search I-Test Game One"))
 
         val searchPiece = pieceService.createPiece(Pawn(PieceColor.BLACK, gameOne.id))
         pieceService.createPiece(Pawn(PieceColor.WHITE, gameOne.id))
 
         mockMvc.get("/pieces/${gameOne.id}?color=BLACK") {
+            with(jwt())
+        }.andExpect {
+            status { isOk }
+            jsonPath("$.length()") { value(1) }
+            jsonPath("$[?(@.id == ${searchPiece.id})]") { isNotEmpty }
+        }
+    }
+
+    @Test
+    fun `Finds white pieces from a game`() {
+        val gameOne = gameRepository.save(Game("Piece Search I-Test Game One"))
+
+        pieceService.createPiece(Pawn(PieceColor.BLACK, gameOne.id))
+        val searchPiece = pieceService.createPiece(Pawn(PieceColor.WHITE, gameOne.id))
+
+        mockMvc.get("/pieces/${gameOne.id}?color=WHITE") {
             with(jwt())
         }.andExpect {
             status { isOk }
@@ -127,30 +138,5 @@ class SearchPiecesIntegrationTest(
             jsonPath("$.length()") { value(1) }
             jsonPath("$[?(@.id == ${searchPiece.id})]") { isNotEmpty }
         }
-    }
-
-    @Test
-    fun `Finds a color king in a game`() {
-        val gameOne = gameRepository.save(Game("Piece Search I-Test Game One"))
-
-        pieceService.createPiece(Pawn(PieceColor.BLACK, gameOne.id))
-        pieceService.createPiece(Pawn(PieceColor.WHITE, gameOne.id))
-        val searchPiece = pieceService.createPiece(King(PieceColor.BLACK, gameOne.id))
-
-        val foundPieces = pieceService.findAllBy(gameOne.id, searchPiece.color, type = searchPiece.type)
-
-        Assertions.assertEquals(1, foundPieces.count())
-        Assertions.assertEquals(searchPiece.id, foundPieces.first().id)
-    }
-
-    @Test
-    fun `Finds a piece at a location`() {
-        val gameOne = gameService.createGame()
-
-        val foundPiece = pieceService.getPieceAt(gameOne.id, 0,7)
-
-        Assertions.assertTrue(foundPiece is Rook)
-        Assertions.assertEquals(0, foundPiece?.positionRow)
-        Assertions.assertEquals(7, foundPiece?.positionCol)
     }
 }

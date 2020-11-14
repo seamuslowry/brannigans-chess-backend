@@ -6,7 +6,7 @@ import com.seamuslowry.branniganschess.backend.models.pieces.*
 import com.seamuslowry.branniganschess.backend.repos.PieceRepository
 import com.seamuslowry.branniganschess.backend.utils.Utils
 import org.springframework.data.jpa.domain.Specification
-import org.springframework.data.repository.findByIdOrNull
+import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.stereotype.Service
 
 @Service
@@ -73,9 +73,37 @@ class PieceService (
     }
 
     /**
-     * Find all the pieces that meet the given criteria.
+     * Move the provided piece to the given location
      *
-     * @param gameId the id of the piece's game
+     * @param id the piece id
+     *
+     * @return the [Piece] with that id
+     */
+    fun getById(id: Long): Piece = pieceRepository.findById(id).orElseThrow()
+
+    /**
+     * Find all the pieces that meet the given criteria.
+     * This can be exposed to the user as it is authenticated.
+     *
+     * @param game the pieces' game
+     * @param colors a list of piece colors to retrieve; defaults to both colors
+     * @param status the status of the piece
+     * @param type the type of the piece
+     *
+     * @return the list of matching pieces
+     */
+    @PreAuthorize("(#colors.size() == 0) or " +
+                  "(#status != null and #status.name() == 'TAKEN') or " +
+                  "(!#game.isPlayer(authentication.name)) or " +
+                  "(#colors.size() == 1 and #colors[0].name() == 'WHITE' and #game.isWhite(authentication.name)) or " +
+                  "(#colors.size() == 1 and #colors[0].name() == 'BLACK' and #game.isBlack(authentication.name))")
+    fun findAllBy(game: Game, colors: Iterable<PieceColor> = listOf(PieceColor.BLACK, PieceColor.WHITE), status: PieceStatus? = null, type: PieceType? = null): Iterable<Piece> = findAllBy(game.id, colors, status, type)
+
+    /**
+     * Find all the pieces that meet the given criteria.
+     * This should not be exposed directly to the user as it is not authenticated.
+     *
+     * @param gameId the id of the pieces' game
      * @param colors a list of piece colors to retrieve; defaults to both colors
      * @param status the status of the piece
      * @param type the type of the piece
@@ -97,8 +125,9 @@ class PieceService (
 
     /**
      * Find all the pieces that meet the given criteria.
+     * This should not be exposed directly to the user as it is not authenticated.
      *
-     * @param gameId the id of the piece's game
+     * @param gameId the id of the pieces' game
      * @param color the color of the pieces to retrieve
      * @param status the status of the piece
      * @param type the type of the piece
@@ -148,15 +177,18 @@ class PieceService (
     /**
      * Promote the piece identified to the given type.
      *
-     * @param pawnId the id of the pawn to promote
+     * @param p the piece to promote
+     * @param game the pawn's game; used for authentication
      * @param type the type of piece that the identified piece should be promoted to
      *
      * @return the new piece
      *
      * @throws [ChessRuleException] when the promotion request is not valid
      */
-    fun promote(pawnId: Long, type: PieceType): Piece {
-        val p = pieceRepository.findByIdOrNull(pawnId)
+    @PreAuthorize("(#p.color.name() == 'WHITE' and #game.isWhite(authentication.name)) or " +
+                  "(#p.color.name() == 'BLACK' and #game.isBlack(authentication.name))")
+    @Throws(ChessRuleException::class)
+    fun promote(p: Piece, game: Game, type: PieceType): Piece {
         if (p is Pawn && p.promotable()) {
             val piece = createPiece(when(type) {
                 PieceType.QUEEN -> Queen(p.color, p.gameId, p.positionRow, p.positionCol)

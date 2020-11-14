@@ -42,7 +42,8 @@ class MoveController (
     fun getMoves(@PathVariable gameId: Long,
                  @RequestParam(name = "color", defaultValue = "") colors: List<PieceColor>)
             : ResponseEntity<Iterable<Move>> {
-        return ResponseEntity.ok(moveService.findAllBy(gameId, colors))
+        val game = gameService.getById(gameId)
+        return ResponseEntity.ok(moveService.findAllBy(game, colors))
     }
 
     /**
