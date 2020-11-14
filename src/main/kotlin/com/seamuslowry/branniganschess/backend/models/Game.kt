@@ -18,4 +18,8 @@ class Game (
         @Id
         @GeneratedValue(strategy = GenerationType.IDENTITY)
         var id: Long = -1
-)
+) {
+        fun isWhite(authId: String) = whitePlayer?.authId == authId
+        fun isBlack(authId: String) = blackPlayer?.authId == authId
+        fun isPlayer(authId: String) = isWhite(authId) || isBlack(authId)
+}

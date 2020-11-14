@@ -7,6 +7,7 @@ import com.seamuslowry.branniganschess.backend.repos.PieceRepository
 import com.seamuslowry.branniganschess.backend.utils.Utils
 import org.springframework.data.jpa.domain.Specification
 import org.springframework.data.repository.findByIdOrNull
+import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.stereotype.Service
 
 @Service
@@ -74,6 +75,25 @@ class PieceService (
 
     /**
      * Find all the pieces that meet the given criteria.
+     * This should not be exposed to the user as it is not authenticated.
+     *
+     * @param game the  the pieces' game
+     * @param colors a list of piece colors to retrieve; defaults to both colors
+     * @param status the status of the piece
+     * @param type the type of the piece
+     *
+     * @return the list of matching pieces
+     */
+    @PreAuthorize("(#colors.size() == 0) or " +
+                  "(#status != null and #status.name() == 'TAKEN') or " +
+                  "(!#game.isPlayer(authentication.name)) or " +
+                  "(#colors.size() == 1 and #colors[0].name() == 'WHITE' and #game.isWhite(authentication.name)) or " +
+                  "(#colors.size() == 1 and #colors[0].name() == 'BLACK' and #game.isBlack(authentication.name))")
+    fun findAllBy(game: Game, colors: Iterable<PieceColor> = listOf(PieceColor.BLACK, PieceColor.WHITE), status: PieceStatus? = null, type: PieceType? = null): Iterable<Piece> = findAllBy(game.id, colors, status, type)
+
+    /**
+     * Find all the pieces that meet the given criteria.
+     * This should not be exposed to the user as it is not authenticated.
      *
      * @param gameId the id of the piece's game
      * @param colors a list of piece colors to retrieve; defaults to both colors
@@ -97,6 +117,7 @@ class PieceService (
 
     /**
      * Find all the pieces that meet the given criteria.
+     * This should not be exposed to the user as it is not authenticated.
      *
      * @param gameId the id of the piece's game
      * @param color the color of the pieces to retrieve

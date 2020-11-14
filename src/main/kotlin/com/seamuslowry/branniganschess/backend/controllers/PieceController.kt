@@ -28,7 +28,8 @@ class PieceController(
                   @RequestParam(required = false) status: PieceStatus?
     )
             : ResponseEntity<Iterable<Piece>> {
-        return ResponseEntity.ok(pieceService.findAllBy(gameId, colors, status))
+        val game = gameService.getById(gameId)
+        return ResponseEntity.ok(pieceService.findAllBy(game, colors, status))
     }
 
     @PostMapping("/promote/{pawnId}/{type}")

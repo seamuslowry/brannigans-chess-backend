@@ -33,10 +33,11 @@ class PieceControllerTest(@Autowired val mockMvc: MockMvc) {
 
     @Test
     fun `Searches for pieces without a color`() {
-        val gameId = 1L
-        val piece = Pawn(PieceColor.BLACK, gameId)
-        every { pieceService.findAllBy(gameId, emptyList(), piece.status) } returns emptyList()
-        mockMvc.perform(get("/pieces/${gameId}?status=${piece.status}").accept(MediaType.APPLICATION_JSON))
+        val game = Game("uuid", id = 1L)
+        val piece = Pawn(PieceColor.BLACK, game.id)
+        every { pieceService.findAllBy(game, emptyList(), piece.status) } returns emptyList()
+        every { gameService.getById(game.id) } returns game
+        mockMvc.perform(get("/pieces/${game.id}?status=${piece.status}").accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk)
             .andExpect(content().contentType(MediaType.APPLICATION_JSON))
             .andExpect(jsonPath("\$").isArray)
@@ -45,10 +46,11 @@ class PieceControllerTest(@Autowired val mockMvc: MockMvc) {
 
     @Test
     fun `Searches for pieces of a single color`() {
-        val gameId = 1L
-        val piece = Pawn(PieceColor.BLACK, gameId)
-        every { pieceService.findAllBy(gameId, listOf(PieceColor.BLACK), piece.status) } returns listOf(piece)
-        mockMvc.perform(get("/pieces/${gameId}?color=${piece.color}&status=${piece.status}").accept(MediaType.APPLICATION_JSON))
+        val game = Game("uuid", id = 1L)
+        val piece = Pawn(PieceColor.BLACK, game.id)
+        every { pieceService.findAllBy(game, listOf(PieceColor.BLACK), piece.status) } returns listOf(piece)
+        every { gameService.getById(game.id) } returns game
+        mockMvc.perform(get("/pieces/${game.id}?color=${piece.color}&status=${piece.status}").accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk)
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("\$").isArray)
@@ -57,10 +59,11 @@ class PieceControllerTest(@Autowired val mockMvc: MockMvc) {
 
     @Test
     fun `Searches for pieces of both colors`() {
-        val gameId = 1L
-        val piece = Pawn(PieceColor.BLACK, gameId)
-        every { pieceService.findAllBy(gameId, listOf(PieceColor.WHITE, PieceColor.BLACK), piece.status) } returns listOf(piece)
-        mockMvc.perform(get("/pieces/${gameId}?color=WHITE&color=BLACK&status=${piece.status}").accept(MediaType.APPLICATION_JSON))
+        val game = Game("uuid", id = 1L)
+        val piece = Pawn(PieceColor.BLACK, game.id)
+        every { pieceService.findAllBy(game, listOf(PieceColor.WHITE, PieceColor.BLACK), piece.status) } returns listOf(piece)
+        every { gameService.getById(game.id) } returns game
+        mockMvc.perform(get("/pieces/${game.id}?color=WHITE&color=BLACK&status=${piece.status}").accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk)
             .andExpect(content().contentType(MediaType.APPLICATION_JSON))
             .andExpect(jsonPath("\$").isArray)
