@@ -115,6 +115,8 @@ class GameService (
     /**
      * Get a single game by id.
      *
+     * @param id the game id
+     *
      * @return the [Game] with that id
      */
     fun getById(id: Long): Game {

@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
 import org.springframework.data.jpa.domain.Specification
+import org.springframework.security.test.context.support.WithMockUser
 import org.springframework.test.context.junit.jupiter.SpringExtension
 
 @ExtendWith(SpringExtension::class)
@@ -41,6 +42,17 @@ class MoveServiceTest {
 
         verify(exactly = 1) { moveRepository.save(any<Move>()) }
         assertEquals(move , newMove)
+    }
+
+    @Test
+    @WithMockUser(username = "blackPlayer")
+    fun `searches for moves with authentication`() {
+        every { moveRepository.findAll(any<Specification<Move>>()) } returns emptyList()
+
+        val foundPieces = service.findAllBy(Game("test", blackPlayer = Player("blackPlayer")), emptyList())
+
+        verify(exactly = 1) { moveRepository.findAll(any<Specification<Move>>()) }
+        assertEquals(0 , foundPieces.count())
     }
 
     @Test

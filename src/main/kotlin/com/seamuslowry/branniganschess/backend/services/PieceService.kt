@@ -6,7 +6,6 @@ import com.seamuslowry.branniganschess.backend.models.pieces.*
 import com.seamuslowry.branniganschess.backend.repos.PieceRepository
 import com.seamuslowry.branniganschess.backend.utils.Utils
 import org.springframework.data.jpa.domain.Specification
-import org.springframework.data.repository.findByIdOrNull
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.stereotype.Service
 
@@ -72,6 +71,15 @@ class PieceService (
         p.positionRow = dstRow
         return updatePiece(p)
     }
+
+    /**
+     * Move the provided piece to the given location
+     *
+     * @param id the piece id
+     *
+     * @return the [Piece] with that id
+     */
+    fun getById(id: Long): Piece = pieceRepository.findById(id).orElseThrow()
 
     /**
      * Find all the pieces that meet the given criteria.
@@ -169,15 +177,18 @@ class PieceService (
     /**
      * Promote the piece identified to the given type.
      *
-     * @param pawnId the id of the pawn to promote
+     * @param p the piece to promote
+     * @param game the pawn's game; used for authentication
      * @param type the type of piece that the identified piece should be promoted to
      *
      * @return the new piece
      *
      * @throws [ChessRuleException] when the promotion request is not valid
      */
-    fun promote(pawnId: Long, type: PieceType): Piece {
-        val p = pieceRepository.findByIdOrNull(pawnId)
+    @PreAuthorize("(#p.color.name() == 'WHITE' and #game.isWhite(authentication.name)) or " +
+                  "(#p.color.name() == 'BLACK' and #game.isBlack(authentication.name))")
+    @Throws(ChessRuleException::class)
+    fun promote(p: Piece, game: Game, type: PieceType): Piece {
         if (p is Pawn && p.promotable()) {
             val piece = createPiece(when(type) {
                 PieceType.QUEEN -> Queen(p.color, p.gameId, p.positionRow, p.positionCol)

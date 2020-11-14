@@ -44,7 +44,9 @@ class PieceController(
         @PathVariable pawnId: Long,
         @PathVariable type: PieceType
     ): ResponseEntity<Piece> {
-        val promotedPiece = pieceService.promote(pawnId, type)
+        val piece = pieceService.getById(pawnId)
+        val game = gameService.getById(piece.gameId)
+        val promotedPiece = pieceService.promote(piece, game, type)
         gameService.updateGameStatusForNextPlayer(promotedPiece.gameId, Utils.getOpposingColor(promotedPiece.color))
         return ResponseEntity.ok(promotedPiece)
     }

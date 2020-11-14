@@ -74,7 +74,9 @@ class PieceControllerTest(@Autowired val mockMvc: MockMvc) {
     fun `Promotes a piece`() {
         val piece = Queen(PieceColor.BLACK, 1L, 7, 0)
 
-        every { pieceService.promote(any(), any()) } returns piece
+        every { pieceService.getById(any()) } returns Pawn(PieceColor.BLACK, 1L)
+        every { gameService.getById(any()) } returns Game("test")
+        every { pieceService.promote(any(), any(), any()) } returns piece
         every { gameService.updateGameStatusForNextPlayer(any<Long>(), any()) } returns Game("Promote Game")
         mockMvc.perform(post("/pieces/promote/1/QUEEN"))
                 .andExpect(status().isOk)
