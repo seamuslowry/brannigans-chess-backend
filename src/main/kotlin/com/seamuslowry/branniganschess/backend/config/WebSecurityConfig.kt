@@ -27,6 +27,19 @@ class WebSecurityConfig(
     @Value("\${auth0.audience}") private val audience: String,
     @Value("\${spring.security.oauth2.resourceserver.jwt.issuer-uri}") private val issuer: String
 ): WebSecurityConfigurerAdapter() {
+    @Bean
+    @Primary
+    fun corsFilter(): CorsFilter {
+        val source = UrlBasedCorsConfigurationSource()
+        val config = CorsConfiguration()
+        config.allowCredentials = true
+        allowedOrigin.split(",").forEach { config.addAllowedOrigin(it) }
+        config.addAllowedHeader(CorsConfiguration.ALL)
+        config.addAllowedMethod(CorsConfiguration.ALL)
+        source.registerCorsConfiguration("/**", config)
+        return CorsFilter(source)
+    }
+
     override fun configure(http: HttpSecurity) {
         http
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
@@ -41,19 +54,6 @@ class WebSecurityConfig(
                     // any other request
                     .anyRequest().authenticated()
                 .and().oauth2ResourceServer().jwt().decoder(jwtDecoder())
-    }
-
-    @Bean
-    @Primary
-    fun corsFilter(): CorsFilter {
-        val source = UrlBasedCorsConfigurationSource()
-        val config = CorsConfiguration()
-        config.allowCredentials = true
-        allowedOrigin.split(",").forEach { config.addAllowedOrigin(it) }
-        config.addAllowedHeader(CorsConfiguration.ALL)
-        config.addAllowedMethod(CorsConfiguration.ALL)
-        source.registerCorsConfiguration("/**", config)
-        return CorsFilter(source)
     }
 
     override fun configure(web: WebSecurity) {
