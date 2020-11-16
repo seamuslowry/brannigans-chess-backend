@@ -1,6 +1,7 @@
 package com.seamuslowry.branniganschess.backend.controllers
 
 import com.seamuslowry.branniganschess.backend.dtos.AdditionalPlayerInfo
+import com.seamuslowry.branniganschess.backend.dtos.ChangeNameDto
 import com.seamuslowry.branniganschess.backend.models.*
 import com.seamuslowry.branniganschess.backend.services.PlayerService
 import io.swagger.annotations.ApiOperation
@@ -41,6 +42,14 @@ class PlayerController(
         ApiResponse(code = 500, message =  "There was a problem with the service.")
     )
     fun authenticate(authentication: Authentication, @RequestBody additionalPlayerInfo: AdditionalPlayerInfo): ResponseEntity<Player> = ResponseEntity.ok(playerService.authenticatePlayer(authentication.name, additionalPlayerInfo))
+
+    @PostMapping("/name")
+    @ApiOperation("Changes the logged in player's name", response = Player::class)
+    @ApiResponses(
+        ApiResponse(code = 200, message =  "Successfully changed the player's name."),
+        ApiResponse(code = 500, message =  "There was a problem with the service.")
+    )
+    fun changeName(authentication: Authentication, @RequestBody newName: ChangeNameDto): ResponseEntity<Player> = ResponseEntity.ok(playerService.changeName(authentication.name, newName.name))
 
     @PostMapping("/join/{gameId}")
     @ApiOperation("Adds the authenticated user to the specified game", response = Game::class)

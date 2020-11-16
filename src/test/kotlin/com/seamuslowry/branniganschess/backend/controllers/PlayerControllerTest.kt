@@ -3,6 +3,7 @@ package com.seamuslowry.branniganschess.backend.controllers
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.ninjasquad.springmockk.MockkBean
 import com.seamuslowry.branniganschess.backend.dtos.AdditionalPlayerInfo
+import com.seamuslowry.branniganschess.backend.dtos.ChangeNameDto
 import com.seamuslowry.branniganschess.backend.models.Game
 import com.seamuslowry.branniganschess.backend.models.Player
 import com.seamuslowry.branniganschess.backend.services.PlayerService
@@ -56,6 +57,23 @@ class PlayerControllerTest(@Autowired val mockMvc: MockMvc) {
             status { isOk }
         }
     }
+
+    @Test
+    fun `updates a player name`() {
+        val authId = "test-player-get"
+        val player = Player(authId)
+        every { playerService.changeName(any(), any()) } returns player
+
+        mockMvc.post("/players/name") {
+            contentType = MediaType.APPLICATION_JSON
+            content = ObjectMapper().writeValueAsString(ChangeNameDto())
+            accept = MediaType.APPLICATION_JSON
+            with(jwt())
+        }.andExpect {
+            status { isOk }
+        }
+    }
+
 
     @Test
     fun `joins a game`() {
