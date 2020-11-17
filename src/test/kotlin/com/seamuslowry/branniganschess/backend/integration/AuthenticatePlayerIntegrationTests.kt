@@ -72,8 +72,8 @@ class AuthenticatePlayerIntegrationTests(
     }
 
     @Test
-    fun `updates when authenticating a player with a new name and image`() {
-        val playerAuthId = "newWithNameAndImage"
+    fun `does not update when authenticating a player with a new name and image`() {
+        val playerAuthId = "updateWithNameAndImage"
 
         val originalName = "Old Test Person Name"
         val originalUrl = "www.old-test-image.com/image.jpg"
@@ -101,8 +101,8 @@ class AuthenticatePlayerIntegrationTests(
         }.andExpect {
             status { isOk }
             jsonPath("authId") { value(playerAuthId) }
-            jsonPath("name") { value(newName) }
-            jsonPath("imageUrl") { value(newUrl) }
+            jsonPath("name") { value(originalName) }
+            jsonPath("imageUrl") { value(originalUrl) }
         }
     }
 }

@@ -7,6 +7,7 @@ import com.seamuslowry.branniganschess.backend.utils.Constants
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.domain.Specification
+import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.stereotype.Service
 import javax.persistence.EntityNotFoundException
 
@@ -18,18 +19,32 @@ class PlayerService (
     /**
      * Process authentication information for a player with the provided authentication id.
      * If there is no player with that id, create one and return it.
-     * Will update the player to use new additional information.
      *
      * @param authId the authentication id
      * @param additionalPlayerInfo additional information about the player
      *
      * @return a player with that authentication id and information
      */
-    fun authenticatePlayer(authId: String, additionalPlayerInfo: AdditionalPlayerInfo = AdditionalPlayerInfo()): Player {
-        val player = playerRepository.findOne(withAuthId(authId)).orElse(Player(authId))
+    fun authenticatePlayer(authId: String, additionalPlayerInfo: AdditionalPlayerInfo = AdditionalPlayerInfo()): Player =
+        playerRepository.findOne(withAuthId(authId)).orElseGet {
+            playerRepository.save(
+                Player(authId, name = additionalPlayerInfo.name, imageUrl = additionalPlayerInfo.imageUrl)
+            )
+        }
 
-        player.name = additionalPlayerInfo.name
-        player.imageUrl = additionalPlayerInfo.imageUrl
+    /**
+     * Change a player's display name
+     *
+     * @param authId the player's authentication id
+     * @param newName the new name
+     *
+     * @return the updated player
+     */
+    @PreAuthorize("authentication.name == #authId")
+    fun changeName(authId: String, newName: String): Player {
+        val player = getByAuthId(authId)
+
+        player.name = newName
 
         return playerRepository.save(player)
     }
