@@ -21,20 +21,19 @@ import org.springframework.web.bind.annotation.*
 class PlayerController(
         private val playerService: PlayerService
 ) {
-    @GetMapping("/games")
+    @GetMapping("/games/{authId}")
     @ApiOperation("Gets all games for the logged in player")
     @ApiResponses(
             ApiResponse(code = 200, message =  "Successfully retrieved the list of games."),
             ApiResponse(code = 404, message =  "The player does not exist."),
             ApiResponse(code = 500, message =  "There was a problem with the service.")
     )
-    // TODO allow searching by provided authId
-    fun getGames(authentication: Authentication,
+    fun getGames(@PathVariable authId: String,
                  @RequestParam(required = false) color: PieceColor?,
                  @RequestParam(name = "status", defaultValue = "") statuses: List<GameStatus>,
                  @PageableDefault(size = 10, sort = ["id"], direction = Sort.Direction.DESC) pageable: Pageable
     ): ResponseEntity<Page<Game>> {
-        return ResponseEntity.ok(playerService.getGames(authentication.name, color, statuses, pageable))
+        return ResponseEntity.ok(playerService.getGames(authId, color, statuses, pageable))
     }
 
     @GetMapping("/stats/{authId}")
