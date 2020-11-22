@@ -119,6 +119,18 @@ class GameServiceTest {
     }
 
     @Test
+    fun `counts games for a player`() {
+        val player = Player(System.nanoTime().toString())
+        val count: Long = 101
+        every { gameRepository.count(any<Specification<Game>>()) } returns count
+
+        val gamesCount = service.countPlayerGames(player, PieceColor.WHITE, listOf(GameStatus.STALEMATE))
+
+        verify(exactly = 1) { gameRepository.count(any<Specification<Game>>()) }
+        assertEquals(count, gamesCount)
+    }
+
+    @Test
     fun `throws an exception on a move to the same location`() {
         assertThrows<ChessRuleException> {
             service.move(1, MoveRequest(0,0,0,0))
