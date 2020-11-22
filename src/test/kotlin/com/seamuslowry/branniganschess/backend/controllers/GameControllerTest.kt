@@ -40,7 +40,7 @@ class GameControllerTest(@Autowired val mockMvc: MockMvc) {
     fun `Searches for games`() {
         val game = Game("Game Controller Search Game")
         every { gameService.findAllBy(listOf(GameStatus.STALEMATE), any()) } returns PageImpl(listOf(game))
-        mockMvc.perform(MockMvcRequestBuilders.get("/games?status=CHECKMATE").accept(MediaType.APPLICATION_JSON))
+        mockMvc.perform(MockMvcRequestBuilders.get("/games?status=STALEMATE").accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk)
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("\$.content").isArray)
