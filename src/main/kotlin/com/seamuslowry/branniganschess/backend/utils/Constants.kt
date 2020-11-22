@@ -13,7 +13,8 @@ object Constants {
     )
 
     val inactiveStatuses = listOf(
-        GameStatus.CHECKMATE,
+        GameStatus.WHITE_CHECKMATE,
+        GameStatus.BLACK_CHECKMATE,
         GameStatus.STALEMATE
     )
 

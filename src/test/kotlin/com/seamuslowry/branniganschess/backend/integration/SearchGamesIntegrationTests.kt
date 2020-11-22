@@ -48,7 +48,8 @@ class SearchGamesIntegrationTests(
                 jsonPath("content[?(@.id == ${allStatusGames[GameStatus.BLACK_CHECK]?.id})]") { isEmpty }
                 jsonPath("content[?(@.id == ${allStatusGames[GameStatus.WHITE_PROMOTION]?.id})]") { isEmpty }
                 jsonPath("content[?(@.id == ${allStatusGames[GameStatus.BLACK_PROMOTION]?.id})]") { isEmpty }
-                jsonPath("content[?(@.id == ${allStatusGames[GameStatus.CHECKMATE]?.id})]") { isEmpty }
+                jsonPath("content[?(@.id == ${allStatusGames[GameStatus.WHITE_CHECKMATE]?.id})]") { isEmpty }
+                jsonPath("content[?(@.id == ${allStatusGames[GameStatus.BLACK_CHECKMATE]?.id})]") { isEmpty }
                 jsonPath("content[?(@.id == ${allStatusGames[GameStatus.STALEMATE]?.id})]") { isEmpty }
             }
     }
@@ -69,7 +70,8 @@ class SearchGamesIntegrationTests(
                 jsonPath("content[?(@.id == ${allStatusGames[GameStatus.BLACK_CHECK]?.id})]") { isNotEmpty }
                 jsonPath("content[?(@.id == ${allStatusGames[GameStatus.WHITE_PROMOTION]?.id})]") { isNotEmpty }
                 jsonPath("content[?(@.id == ${allStatusGames[GameStatus.BLACK_PROMOTION]?.id})]") { isNotEmpty }
-                jsonPath("content[?(@.id == ${allStatusGames[GameStatus.CHECKMATE]?.id})]") { isEmpty }
+                jsonPath("content[?(@.id == ${allStatusGames[GameStatus.WHITE_CHECKMATE]?.id})]") { isEmpty }
+                jsonPath("content[?(@.id == ${allStatusGames[GameStatus.BLACK_CHECKMATE]?.id})]") { isEmpty }
                 jsonPath("content[?(@.id == ${allStatusGames[GameStatus.STALEMATE]?.id})]") { isEmpty }
             }
     }
@@ -90,7 +92,8 @@ class SearchGamesIntegrationTests(
                 jsonPath("content[?(@.id == ${allStatusGames[GameStatus.BLACK_CHECK]?.id})]") { isEmpty }
                 jsonPath("content[?(@.id == ${allStatusGames[GameStatus.WHITE_PROMOTION]?.id})]") { isEmpty }
                 jsonPath("content[?(@.id == ${allStatusGames[GameStatus.BLACK_PROMOTION]?.id})]") { isEmpty }
-                jsonPath("content[?(@.id == ${allStatusGames[GameStatus.CHECKMATE]?.id})]") { isNotEmpty }
+                jsonPath("content[?(@.id == ${allStatusGames[GameStatus.WHITE_CHECKMATE]?.id})]") { isNotEmpty }
+                jsonPath("content[?(@.id == ${allStatusGames[GameStatus.BLACK_CHECKMATE]?.id})]") { isNotEmpty }
                 jsonPath("content[?(@.id == ${allStatusGames[GameStatus.STALEMATE]?.id})]") { isNotEmpty }
             }
     }
@@ -120,7 +123,8 @@ class SearchGamesIntegrationTests(
             jsonPath("content[?(@.id == ${whiteAllStatusGames[GameStatus.BLACK_CHECK]?.id})]") { isNotEmpty }
             jsonPath("content[?(@.id == ${whiteAllStatusGames[GameStatus.WHITE_PROMOTION]?.id})]") { isNotEmpty }
             jsonPath("content[?(@.id == ${whiteAllStatusGames[GameStatus.BLACK_PROMOTION]?.id})]") { isNotEmpty }
-            jsonPath("content[?(@.id == ${whiteAllStatusGames[GameStatus.CHECKMATE]?.id})]") { isNotEmpty }
+            jsonPath("content[?(@.id == ${whiteAllStatusGames[GameStatus.WHITE_CHECKMATE]?.id})]") { isNotEmpty }
+            jsonPath("content[?(@.id == ${whiteAllStatusGames[GameStatus.BLACK_CHECKMATE]?.id})]") { isNotEmpty }
             jsonPath("content[?(@.id == ${whiteAllStatusGames[GameStatus.STALEMATE]?.id})]") { isNotEmpty }
             jsonPath("content[?(@.id == ${blackAllStatusGames[GameStatus.WAITING_FOR_BLACK]?.id})]") { isNotEmpty }
             jsonPath("content[?(@.id == ${blackAllStatusGames[GameStatus.WAITING_FOR_WHITE]?.id})]") { isNotEmpty }
@@ -131,7 +135,8 @@ class SearchGamesIntegrationTests(
             jsonPath("content[?(@.id == ${blackAllStatusGames[GameStatus.BLACK_CHECK]?.id})]") { isNotEmpty }
             jsonPath("content[?(@.id == ${blackAllStatusGames[GameStatus.WHITE_PROMOTION]?.id})]") { isNotEmpty }
             jsonPath("content[?(@.id == ${blackAllStatusGames[GameStatus.BLACK_PROMOTION]?.id})]") { isNotEmpty }
-            jsonPath("content[?(@.id == ${blackAllStatusGames[GameStatus.CHECKMATE]?.id})]") { isNotEmpty }
+            jsonPath("content[?(@.id == ${blackAllStatusGames[GameStatus.WHITE_CHECKMATE]?.id})]") { isNotEmpty }
+            jsonPath("content[?(@.id == ${blackAllStatusGames[GameStatus.BLACK_CHECKMATE]?.id})]") { isNotEmpty }
             jsonPath("content[?(@.id == ${blackAllStatusGames[GameStatus.STALEMATE]?.id})]") { isNotEmpty }
             jsonPath("$[?(@.id == ${noMatchGame.id})]") { isEmpty }
         }
@@ -162,7 +167,8 @@ class SearchGamesIntegrationTests(
             jsonPath("content[?(@.id == ${whiteAllStatusGames[GameStatus.BLACK_CHECK]?.id})]") { isNotEmpty }
             jsonPath("content[?(@.id == ${whiteAllStatusGames[GameStatus.WHITE_PROMOTION]?.id})]") { isNotEmpty }
             jsonPath("content[?(@.id == ${whiteAllStatusGames[GameStatus.BLACK_PROMOTION]?.id})]") { isNotEmpty }
-            jsonPath("content[?(@.id == ${whiteAllStatusGames[GameStatus.CHECKMATE]?.id})]") { isEmpty }
+            jsonPath("content[?(@.id == ${whiteAllStatusGames[GameStatus.WHITE_CHECKMATE]?.id})]") { isEmpty }
+            jsonPath("content[?(@.id == ${whiteAllStatusGames[GameStatus.BLACK_CHECKMATE]?.id})]") { isEmpty }
             jsonPath("content[?(@.id == ${whiteAllStatusGames[GameStatus.STALEMATE]?.id})]") { isEmpty }
             jsonPath("content[?(@.id == ${blackAllStatusGames[GameStatus.WAITING_FOR_BLACK]?.id})]") { isEmpty }
             jsonPath("content[?(@.id == ${blackAllStatusGames[GameStatus.WAITING_FOR_WHITE]?.id})]") { isEmpty }
@@ -173,7 +179,8 @@ class SearchGamesIntegrationTests(
             jsonPath("content[?(@.id == ${blackAllStatusGames[GameStatus.BLACK_CHECK]?.id})]") { isNotEmpty }
             jsonPath("content[?(@.id == ${blackAllStatusGames[GameStatus.WHITE_PROMOTION]?.id})]") { isNotEmpty }
             jsonPath("content[?(@.id == ${blackAllStatusGames[GameStatus.BLACK_PROMOTION]?.id})]") { isNotEmpty }
-            jsonPath("content[?(@.id == ${blackAllStatusGames[GameStatus.CHECKMATE]?.id})]") { isEmpty }
+            jsonPath("content[?(@.id == ${blackAllStatusGames[GameStatus.WHITE_CHECKMATE]?.id})]") { isEmpty }
+            jsonPath("content[?(@.id == ${blackAllStatusGames[GameStatus.BLACK_CHECKMATE]?.id})]") { isEmpty }
             jsonPath("content[?(@.id == ${blackAllStatusGames[GameStatus.STALEMATE]?.id})]") { isEmpty }
             jsonPath("$[?(@.id == ${noMatchGame.id})]") { isEmpty }
         }
@@ -204,7 +211,8 @@ class SearchGamesIntegrationTests(
             jsonPath("content[?(@.id == ${whiteAllStatusGames[GameStatus.BLACK_CHECK]?.id})]") { isNotEmpty }
             jsonPath("content[?(@.id == ${whiteAllStatusGames[GameStatus.WHITE_PROMOTION]?.id})]") { isNotEmpty }
             jsonPath("content[?(@.id == ${whiteAllStatusGames[GameStatus.BLACK_PROMOTION]?.id})]") { isNotEmpty }
-            jsonPath("content[?(@.id == ${whiteAllStatusGames[GameStatus.CHECKMATE]?.id})]") { isEmpty }
+            jsonPath("content[?(@.id == ${whiteAllStatusGames[GameStatus.WHITE_CHECKMATE]?.id})]") { isEmpty }
+            jsonPath("content[?(@.id == ${whiteAllStatusGames[GameStatus.BLACK_CHECKMATE]?.id})]") { isEmpty }
             jsonPath("content[?(@.id == ${whiteAllStatusGames[GameStatus.STALEMATE]?.id})]") { isEmpty }
             jsonPath("content[?(@.id == ${blackAllStatusGames[GameStatus.WAITING_FOR_BLACK]?.id})]") { isEmpty }
             jsonPath("content[?(@.id == ${blackAllStatusGames[GameStatus.WAITING_FOR_WHITE]?.id})]") { isEmpty }
@@ -215,7 +223,8 @@ class SearchGamesIntegrationTests(
             jsonPath("content[?(@.id == ${blackAllStatusGames[GameStatus.BLACK_CHECK]?.id})]") { isEmpty }
             jsonPath("content[?(@.id == ${blackAllStatusGames[GameStatus.WHITE_PROMOTION]?.id})]") { isEmpty }
             jsonPath("content[?(@.id == ${blackAllStatusGames[GameStatus.BLACK_PROMOTION]?.id})]") { isEmpty }
-            jsonPath("content[?(@.id == ${blackAllStatusGames[GameStatus.CHECKMATE]?.id})]") { isEmpty }
+            jsonPath("content[?(@.id == ${blackAllStatusGames[GameStatus.WHITE_CHECKMATE]?.id})]") { isEmpty }
+            jsonPath("content[?(@.id == ${blackAllStatusGames[GameStatus.BLACK_CHECKMATE]?.id})]") { isEmpty }
             jsonPath("content[?(@.id == ${blackAllStatusGames[GameStatus.STALEMATE]?.id})]") { isEmpty }
             jsonPath("$[?(@.id == ${noMatchGame.id})]") { isEmpty }
         }
@@ -246,7 +255,8 @@ class SearchGamesIntegrationTests(
             jsonPath("content[?(@.id == ${whiteAllStatusGames[GameStatus.BLACK_CHECK]?.id})]") { isEmpty }
             jsonPath("content[?(@.id == ${whiteAllStatusGames[GameStatus.WHITE_PROMOTION]?.id})]") { isEmpty }
             jsonPath("content[?(@.id == ${whiteAllStatusGames[GameStatus.BLACK_PROMOTION]?.id})]") { isEmpty }
-            jsonPath("content[?(@.id == ${whiteAllStatusGames[GameStatus.CHECKMATE]?.id})]") { isEmpty }
+            jsonPath("content[?(@.id == ${whiteAllStatusGames[GameStatus.WHITE_CHECKMATE]?.id})]") { isEmpty }
+            jsonPath("content[?(@.id == ${whiteAllStatusGames[GameStatus.BLACK_CHECKMATE]?.id})]") { isEmpty }
             jsonPath("content[?(@.id == ${whiteAllStatusGames[GameStatus.STALEMATE]?.id})]") { isEmpty }
             jsonPath("content[?(@.id == ${blackAllStatusGames[GameStatus.WAITING_FOR_BLACK]?.id})]") { isEmpty }
             jsonPath("content[?(@.id == ${blackAllStatusGames[GameStatus.WAITING_FOR_WHITE]?.id})]") { isEmpty }
@@ -257,7 +267,8 @@ class SearchGamesIntegrationTests(
             jsonPath("content[?(@.id == ${blackAllStatusGames[GameStatus.BLACK_CHECK]?.id})]") { isNotEmpty }
             jsonPath("content[?(@.id == ${blackAllStatusGames[GameStatus.WHITE_PROMOTION]?.id})]") { isNotEmpty }
             jsonPath("content[?(@.id == ${blackAllStatusGames[GameStatus.BLACK_PROMOTION]?.id})]") { isNotEmpty }
-            jsonPath("content[?(@.id == ${blackAllStatusGames[GameStatus.CHECKMATE]?.id})]") { isEmpty }
+            jsonPath("content[?(@.id == ${blackAllStatusGames[GameStatus.WHITE_CHECKMATE]?.id})]") { isEmpty }
+            jsonPath("content[?(@.id == ${blackAllStatusGames[GameStatus.BLACK_CHECKMATE]?.id})]") { isEmpty }
             jsonPath("content[?(@.id == ${blackAllStatusGames[GameStatus.STALEMATE]?.id})]") { isEmpty }
             jsonPath("$[?(@.id == ${noMatchGame.id})]") { isEmpty }
         }
