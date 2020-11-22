@@ -11,8 +11,6 @@ class Game (
         var whitePlayer: Player? = null,
         @ManyToOne
         var blackPlayer: Player? = null,
-        @ManyToOne
-        var winner: Player? = null,
         @Enumerated(EnumType.STRING)
         var status: GameStatus = GameStatus.WAITING_FOR_PLAYERS,
         @Id

@@ -101,15 +101,27 @@ class GameService (
         statuses: Iterable<GameStatus> = Constants.allStatuses,
         pageable: Pageable
     ): Page<Game> {
-        var spec: Specification<Game> = Specification.where(null)!!
-
-        color?.let { spec = if (color == PieceColor.BLACK) spec.and(hasBlackPlayer(player))!! else spec.and(hasWhitePlayer(player))!! }
-        if (color == null) spec = spec.and(Specification.where(hasBlackPlayer(player).or(hasWhitePlayer(player))))!!
-
-
-        spec = spec.and(getStatusesSpec(statuses))!!
+        val spec: Specification<Game> = getPlayerGamesSpec(player, color, statuses)
 
         return gameRepository.findAll(spec, pageable)
+    }
+
+    /**
+     * Count all of a player's games by status and player color.
+     * @param player the player to search by
+     * @param color the color the player must be in the game
+     * @param statuses matching games must have a status present in this list
+     *
+     * @return the count of games matching the criteria
+     */
+    fun countPlayerGames(
+        player: Player,
+        color: PieceColor,
+        statuses: Iterable<GameStatus>
+    ): Long {
+        val spec: Specification<Game> = getPlayerGamesSpec(player, color, statuses)
+
+        return gameRepository.count(spec)
     }
 
     /**
@@ -172,7 +184,7 @@ class GameService (
 
         return when {
             inCheck && hasValidMove -> if (opposingColor == PieceColor.BLACK) GameStatus.BLACK_CHECK else GameStatus.WHITE_CHECK
-            inCheck && !hasValidMove -> GameStatus.CHECKMATE
+            inCheck && !hasValidMove -> if (opposingColor == PieceColor.BLACK) GameStatus.WHITE_CHECKMATE else GameStatus.BLACK_CHECKMATE
             !inCheck && !hasValidMove -> GameStatus.STALEMATE
             promotable -> if (opposingColor == PieceColor.BLACK) GameStatus.WHITE_PROMOTION else GameStatus.BLACK_PROMOTION
             else -> if (opposingColor == PieceColor.BLACK) GameStatus.BLACK_TURN else GameStatus.WHITE_TURN
@@ -189,9 +201,6 @@ class GameService (
      * @return the new game
      */
     fun updateGameStatusForNextPlayer(game: Game, newStatus: GameStatus): Game {
-        if (newStatus == GameStatus.CHECKMATE) {
-            game.winner = if (game.status === GameStatus.WHITE_TURN) game.whitePlayer else game.blackPlayer
-        }
         game.status = newStatus
         return gameRepository.save(game)
     }
@@ -228,14 +237,14 @@ class GameService (
     private fun removePlayer(game: Game, player: Player): Game {
         if (game.whitePlayer != null && game.blackPlayer != null) throw GameStateException("Players cannot leave the game now")
 
-        if (isBlackPlayer(game, player)) game.blackPlayer = null
-        if (isWhitePlayer(game, player)) game.whitePlayer = null
+        if (game.isBlack(player.authId)) game.blackPlayer = null
+        if (game.isWhite(player.authId)) game.whitePlayer = null
 
         return game
     }
 
     private fun addPlayer(game: Game, player: Player, color: PieceColor?): Game {
-        if (color == null && isEitherPlayer(game, player)) return game
+        if (color == null && game.isPlayer(player.authId)) return game
 
         val assignColor = color ?: if (game.whitePlayer == null) PieceColor.WHITE else PieceColor.BLACK
         if (!(game.whitePlayer == null || game.blackPlayer == null)) throw GameStateException("Game is full")
@@ -249,10 +258,6 @@ class GameService (
 
         return newGame
     }
-
-    private fun isWhitePlayer(game: Game, player: Player): Boolean = game.whitePlayer?.authId == player.authId
-    private fun isBlackPlayer(game: Game, player: Player): Boolean = game.blackPlayer?.authId == player.authId
-    private fun isEitherPlayer(game: Game, player: Player): Boolean = isWhitePlayer(game, player) || isBlackPlayer(game, player)
 
     private fun move(game: Game, moveRequest: MoveRequest): Move {
         val board = pieceService.getPiecesAsBoard(game.id)
@@ -527,6 +532,20 @@ class GameService (
         statuses.forEach { statusesSpec = statusesSpec.or(isStatus(it))!! }
 
         return statusesSpec
+    }
+
+    private fun getPlayerGamesSpec(
+        player: Player,
+        color: PieceColor?,
+        statuses: Iterable<GameStatus>
+    ): Specification<Game> {
+        var spec: Specification<Game> = Specification.where(null)!!
+
+        color?.let { spec = if (color == PieceColor.BLACK) spec.and(hasBlackPlayer(player))!! else spec.and(hasWhitePlayer(player))!! }
+        if (color == null) spec = spec.and(Specification.where(hasBlackPlayer(player).or(hasWhitePlayer(player))))!!
+
+
+        return spec.and(getStatusesSpec(statuses))!!
     }
 
     private fun isStatus(status: GameStatus): Specification<Game> = Specification {

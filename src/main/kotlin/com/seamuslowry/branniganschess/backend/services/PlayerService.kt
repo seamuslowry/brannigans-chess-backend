@@ -1,6 +1,7 @@
 package com.seamuslowry.branniganschess.backend.services
 
 import com.seamuslowry.branniganschess.backend.dtos.AdditionalPlayerInfo
+import com.seamuslowry.branniganschess.backend.dtos.PlayerStatInfo
 import com.seamuslowry.branniganschess.backend.models.*
 import com.seamuslowry.branniganschess.backend.repos.PlayerRepository
 import com.seamuslowry.branniganschess.backend.utils.Constants
@@ -47,6 +48,27 @@ class PlayerService (
         player.name = newName
 
         return playerRepository.save(player)
+    }
+
+    /**
+     * Get the stat information for the provided player
+     *
+     * @param authId the player's authentication id
+     *
+     * @return the stat information for that player
+     */
+    fun getStats(authId: String): PlayerStatInfo {
+        val player = getByAuthId(authId)
+
+
+        return PlayerStatInfo(
+            gameService.countPlayerGames(player, PieceColor.WHITE, Constants.allStatuses), // all white games
+            gameService.countPlayerGames(player, PieceColor.BLACK, Constants.allStatuses), // all black games
+            gameService.countPlayerGames(player, PieceColor.WHITE, listOf(GameStatus.WHITE_CHECKMATE)), // all white wins
+            gameService.countPlayerGames(player, PieceColor.BLACK, listOf(GameStatus.BLACK_CHECKMATE)), // all black wins
+            gameService.countPlayerGames(player, PieceColor.WHITE, listOf(GameStatus.STALEMATE)), // all white stalemates
+            gameService.countPlayerGames(player, PieceColor.BLACK, listOf(GameStatus.STALEMATE)) // all black stalemates
+        )
     }
 
     /**

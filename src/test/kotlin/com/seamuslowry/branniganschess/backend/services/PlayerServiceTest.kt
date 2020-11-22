@@ -1,6 +1,7 @@
 package com.seamuslowry.branniganschess.backend.services
 
 import com.ninjasquad.springmockk.MockkBean
+import com.seamuslowry.branniganschess.backend.dtos.PlayerStatInfo
 import com.seamuslowry.branniganschess.backend.models.*
 import com.seamuslowry.branniganschess.backend.repos.PlayerRepository
 import io.mockk.every
@@ -72,7 +73,7 @@ class PlayerServiceTest {
     }
 
     @Test
-    fun `gets a players games`() {
+    fun `gets a player's games`() {
         val authId = "games-id"
         val newPlayer = Player(authId)
         val game = Game()
@@ -92,6 +93,20 @@ class PlayerServiceTest {
         every { playerRepository.findOne(any()) } returns Optional.empty()
 
         assertThrows<EntityNotFoundException> { service.getGames(newPlayer.authId, PieceColor.WHITE, pageable = Pageable.unpaged()) }
+    }
+
+    @Test
+    fun `counts a player's games`() {
+        val count: Long = 5
+        val authId = "count-games-id"
+        val newPlayer = Player(authId)
+        every { playerRepository.findOne(any()) } returns Optional.of(newPlayer)
+        every { gameService.countPlayerGames(any(), any(), any()) } returns count
+
+        val stateInfo = service.getStats(newPlayer.authId)
+
+        verify(exactly = 6) { gameService.countPlayerGames(any(), any(), any()) }
+        assertEquals(PlayerStatInfo(count,count,count,count,count,count), stateInfo)
     }
 
     @Test
