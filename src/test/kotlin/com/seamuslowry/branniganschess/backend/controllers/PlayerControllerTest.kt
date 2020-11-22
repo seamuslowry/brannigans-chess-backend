@@ -35,7 +35,7 @@ class PlayerControllerTest(@Autowired val mockMvc: MockMvc) {
         val game = Game("Player Controller Test Game")
         every { playerService.getGames(any(), any(), any(), any()) } returns PageImpl(listOf(game))
 
-        mockMvc.get("/players/games?active=false&color=BLACK") {
+        mockMvc.get("/players/games/authId?active=false&color=BLACK") {
             with(jwt())
         }.andExpect {
             status { isOk }
