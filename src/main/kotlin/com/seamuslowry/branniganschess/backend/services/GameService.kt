@@ -110,14 +110,14 @@ class GameService (
      * Count all of a player's games by status and player color.
      * @param player the player to search by
      * @param color the color the player must be in the game
-     * @param statuses matching games must have a status present in this list; defaults to all statuses
+     * @param statuses matching games must have a status present in this list
      *
      * @return the count of games matching the criteria
      */
     fun countPlayerGames(
         player: Player,
-        color: PieceColor? = null,
-        statuses: Iterable<GameStatus> = Constants.allStatuses
+        color: PieceColor,
+        statuses: Iterable<GameStatus>
     ): Long {
         val spec: Specification<Game> = getPlayerGamesSpec(player, color, statuses)
 
