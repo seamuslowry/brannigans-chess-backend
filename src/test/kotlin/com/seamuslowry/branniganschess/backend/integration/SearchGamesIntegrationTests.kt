@@ -1,5 +1,6 @@
 package com.seamuslowry.branniganschess.backend.integration
 
+import com.seamuslowry.branniganschess.backend.integration.utils.IntegrationTestUtils
 import com.seamuslowry.branniganschess.backend.models.*
 import com.seamuslowry.branniganschess.backend.repos.GameRepository
 import com.seamuslowry.branniganschess.backend.repos.PlayerRepository
@@ -17,11 +18,12 @@ import org.springframework.test.web.servlet.get
 class SearchGamesIntegrationTests(
         @Autowired val mockMvc: MockMvc,
         @Autowired val playerRepository: PlayerRepository,
-        @Autowired val gameRepository: GameRepository
+        @Autowired val gameRepository: GameRepository,
+        @Autowired val testUtils: IntegrationTestUtils
 ) {
     @Test
     fun `Finds games of each status`() {
-        val allStatusGames = getGamesInAllStatuses()
+        val allStatusGames = testUtils.getGamesInAllStatuses()
 
         allStatusGames.forEach {
             mockMvc.get("/games?status=${it.key}&size=${gameRepository.count()}")
@@ -34,7 +36,7 @@ class SearchGamesIntegrationTests(
 
     @Test
     fun `Finds open games`() {
-        val allStatusGames = getGamesInAllStatuses()
+        val allStatusGames = testUtils.getGamesInAllStatuses()
 
         mockMvc.get("/games?${Constants.openStatuses.joinToString(separator = "", prefix = "status=") { "&status=${it}" }}&size=${gameRepository.count()}")
             .andExpect {
@@ -56,7 +58,7 @@ class SearchGamesIntegrationTests(
 
     @Test
     fun `Finds active games`() {
-        val allStatusGames = getGamesInAllStatuses()
+        val allStatusGames = testUtils.getGamesInAllStatuses()
 
         mockMvc.get("/games?${Constants.activeStatuses.joinToString(separator = "", prefix = "status=") { "&status=${it}" }}&size=${gameRepository.count()}")
             .andExpect {
@@ -78,7 +80,7 @@ class SearchGamesIntegrationTests(
 
     @Test
     fun `Finds won games`() {
-        val allStatusGames = getGamesInAllStatuses()
+        val allStatusGames = testUtils.getGamesInAllStatuses()
 
         mockMvc.get("/games?${Constants.inactiveStatuses.joinToString(separator = "", prefix = "status=") { "&status=${it}" }}&size=${gameRepository.count()}")
             .andExpect {
@@ -103,8 +105,8 @@ class SearchGamesIntegrationTests(
         val playerAuthId = System.nanoTime().toString()
         val playerOne = playerRepository.save(Player(playerAuthId))
 
-        val whiteAllStatusGames = getGamesInAllStatuses(whitePlayer = playerOne)
-        val blackAllStatusGames = getGamesInAllStatuses(blackPlayer = playerOne)
+        val whiteAllStatusGames = testUtils.getGamesInAllStatuses(whitePlayer = playerOne)
+        val blackAllStatusGames = testUtils.getGamesInAllStatuses(blackPlayer = playerOne)
 
         val playerTwo = playerRepository.save(Player(System.nanoTime().toString()))
         val noMatchGame = gameRepository.save(Game("1 - Player Game Search No Match", whitePlayer = playerTwo))
@@ -147,8 +149,8 @@ class SearchGamesIntegrationTests(
         val playerAuthId = System.nanoTime().toString()
         val playerOne = playerRepository.save(Player(playerAuthId))
 
-        val whiteAllStatusGames = getGamesInAllStatuses(whitePlayer = playerOne)
-        val blackAllStatusGames = getGamesInAllStatuses(blackPlayer = playerOne)
+        val whiteAllStatusGames = testUtils.getGamesInAllStatuses(whitePlayer = playerOne)
+        val blackAllStatusGames = testUtils.getGamesInAllStatuses(blackPlayer = playerOne)
 
         val playerTwo = playerRepository.save(Player(System.nanoTime().toString()))
         val noMatchGame = gameRepository.save(Game("1 - Player Game Search No Match", whitePlayer = playerTwo))
@@ -191,8 +193,8 @@ class SearchGamesIntegrationTests(
         val playerAuthId = System.nanoTime().toString()
         val playerOne = playerRepository.save(Player(playerAuthId))
 
-        val whiteAllStatusGames = getGamesInAllStatuses(whitePlayer = playerOne)
-        val blackAllStatusGames = getGamesInAllStatuses(blackPlayer = playerOne)
+        val whiteAllStatusGames = testUtils.getGamesInAllStatuses(whitePlayer = playerOne)
+        val blackAllStatusGames = testUtils.getGamesInAllStatuses(blackPlayer = playerOne)
 
         val playerTwo = playerRepository.save(Player(System.nanoTime().toString()))
         val noMatchGame = gameRepository.save(Game("1 - Player Game Search No Match", whitePlayer = playerTwo))
@@ -235,8 +237,8 @@ class SearchGamesIntegrationTests(
         val playerAuthId = System.nanoTime().toString()
         val playerOne = playerRepository.save(Player(playerAuthId))
 
-        val whiteAllStatusGames = getGamesInAllStatuses(whitePlayer = playerOne)
-        val blackAllStatusGames = getGamesInAllStatuses(blackPlayer = playerOne)
+        val whiteAllStatusGames = testUtils.getGamesInAllStatuses(whitePlayer = playerOne)
+        val blackAllStatusGames = testUtils.getGamesInAllStatuses(blackPlayer = playerOne)
 
         val playerTwo = playerRepository.save(Player(System.nanoTime().toString()))
         val noMatchGame = gameRepository.save(Game("1 - Player Game Search No Match", whitePlayer = playerTwo))
@@ -273,15 +275,4 @@ class SearchGamesIntegrationTests(
             jsonPath("$[?(@.id == ${noMatchGame.id})]") { isEmpty }
         }
     }
-
-    fun getGamesInAllStatuses(
-        whitePlayer: Player? = null,
-        blackPlayer: Player? = null
-    ): Map<GameStatus, Game> =
-        GameStatus.values()
-            .map { it to gameRepository.save(Game("${System.nanoTime()}-${it}",
-                                                  whitePlayer,
-                                                  blackPlayer,
-                                                  status = it)) }
-            .toMap()
 }
