@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.ninjasquad.springmockk.MockkBean
 import com.seamuslowry.branniganschess.backend.dtos.AdditionalPlayerInfo
 import com.seamuslowry.branniganschess.backend.dtos.ChangeNameDto
+import com.seamuslowry.branniganschess.backend.dtos.PlayerStatInfo
 import com.seamuslowry.branniganschess.backend.models.Game
 import com.seamuslowry.branniganschess.backend.models.Player
 import com.seamuslowry.branniganschess.backend.services.PlayerService
@@ -39,6 +40,17 @@ class PlayerControllerTest(@Autowired val mockMvc: MockMvc) {
         }.andExpect {
             status { isOk }
             jsonPath("$.content") { isArray }
+        }
+    }
+
+    @Test
+    fun `Gets status information for games`() {
+        every { playerService.getStats(any()) } returns PlayerStatInfo()
+
+        mockMvc.get("/players/stats/authId") {
+            with(jwt())
+        }.andExpect {
+            status { isOk }
         }
     }
 

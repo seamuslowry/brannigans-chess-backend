@@ -2,6 +2,7 @@ package com.seamuslowry.branniganschess.backend.controllers
 
 import com.seamuslowry.branniganschess.backend.dtos.AdditionalPlayerInfo
 import com.seamuslowry.branniganschess.backend.dtos.ChangeNameDto
+import com.seamuslowry.branniganschess.backend.dtos.PlayerStatInfo
 import com.seamuslowry.branniganschess.backend.models.*
 import com.seamuslowry.branniganschess.backend.services.PlayerService
 import io.swagger.annotations.ApiOperation
@@ -27,12 +28,24 @@ class PlayerController(
             ApiResponse(code = 404, message =  "The player does not exist."),
             ApiResponse(code = 500, message =  "There was a problem with the service.")
     )
+    // TODO allow searching by provided authId
     fun getGames(authentication: Authentication,
                  @RequestParam(required = false) color: PieceColor?,
                  @RequestParam(name = "status", defaultValue = "") statuses: List<GameStatus>,
                  @PageableDefault(size = 10, sort = ["id"], direction = Sort.Direction.DESC) pageable: Pageable
     ): ResponseEntity<Page<Game>> {
         return ResponseEntity.ok(playerService.getGames(authentication.name, color, statuses, pageable))
+    }
+
+    @GetMapping("/stats/{authId}")
+    @ApiOperation("Gets all stat information for the provided player")
+    @ApiResponses(
+        ApiResponse(code = 200, message =  "Successfully retrieved the stat information."),
+        ApiResponse(code = 404, message =  "The player does not exist."),
+        ApiResponse(code = 500, message =  "There was a problem with the service.")
+    )
+    fun getStats(@PathVariable authId: String): ResponseEntity<PlayerStatInfo> {
+        return ResponseEntity.ok(playerService.getStats(authId))
     }
 
     @PostMapping("/auth")
