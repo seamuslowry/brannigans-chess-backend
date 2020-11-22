@@ -11,9 +11,6 @@ class Game (
         var whitePlayer: Player? = null,
         @ManyToOne
         var blackPlayer: Player? = null,
-        @ManyToOne
-        // TODO remove after status update
-        var winner: Player? = null,
         @Enumerated(EnumType.STRING)
         var status: GameStatus = GameStatus.WAITING_FOR_PLAYERS,
         @Id

@@ -201,9 +201,6 @@ class GameService (
      * @return the new game
      */
     fun updateGameStatusForNextPlayer(game: Game, newStatus: GameStatus): Game {
-        if (newStatus in listOf(GameStatus.WHITE_CHECKMATE, GameStatus.BLACK_CHECKMATE)) {
-            game.winner = if (game.status === GameStatus.WHITE_TURN) game.whitePlayer else game.blackPlayer
-        }
         game.status = newStatus
         return gameRepository.save(game)
     }
@@ -240,14 +237,14 @@ class GameService (
     private fun removePlayer(game: Game, player: Player): Game {
         if (game.whitePlayer != null && game.blackPlayer != null) throw GameStateException("Players cannot leave the game now")
 
-        if (isBlackPlayer(game, player)) game.blackPlayer = null
-        if (isWhitePlayer(game, player)) game.whitePlayer = null
+        if (game.isBlack(player.authId)) game.blackPlayer = null
+        if (game.isWhite(player.authId)) game.whitePlayer = null
 
         return game
     }
 
     private fun addPlayer(game: Game, player: Player, color: PieceColor?): Game {
-        if (color == null && isEitherPlayer(game, player)) return game
+        if (color == null && game.isPlayer(player.authId)) return game
 
         val assignColor = color ?: if (game.whitePlayer == null) PieceColor.WHITE else PieceColor.BLACK
         if (!(game.whitePlayer == null || game.blackPlayer == null)) throw GameStateException("Game is full")
@@ -261,10 +258,6 @@ class GameService (
 
         return newGame
     }
-
-    private fun isWhitePlayer(game: Game, player: Player): Boolean = game.whitePlayer?.authId == player.authId
-    private fun isBlackPlayer(game: Game, player: Player): Boolean = game.blackPlayer?.authId == player.authId
-    private fun isEitherPlayer(game: Game, player: Player): Boolean = isWhitePlayer(game, player) || isBlackPlayer(game, player)
 
     private fun move(game: Game, moveRequest: MoveRequest): Move {
         val board = pieceService.getPiecesAsBoard(game.id)
