@@ -536,8 +536,8 @@ class GameService (
 
     private fun getPlayerGamesSpec(
         player: Player,
-        color: PieceColor? = null,
-        statuses: Iterable<GameStatus> = Constants.allStatuses
+        color: PieceColor?,
+        statuses: Iterable<GameStatus>
     ): Specification<Game> {
         var spec: Specification<Game> = Specification.where(null)!!
 
