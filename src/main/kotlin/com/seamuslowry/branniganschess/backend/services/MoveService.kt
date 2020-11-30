@@ -35,7 +35,10 @@ class MoveService (
                   "(!#game.isPlayer(authentication.name)) or " +
                   "(#colors.size() == 1 and #colors[0].name() == 'WHITE' and #game.isWhite(authentication.name)) or " +
                   "(#colors.size() == 1 and #colors[0].name() == 'BLACK' and #game.isBlack(authentication.name))")
-    fun findAllBy(game: Game, colors: Iterable<PieceColor> = listOf(PieceColor.BLACK, PieceColor.WHITE)): Iterable<Move> = findAllBy(game.id, colors)
+    fun findAllBy(
+        game: Game,
+        colors: Iterable<PieceColor> = listOf(PieceColor.BLACK, PieceColor.WHITE)
+    ): Iterable<Move> = findAllBy(game.id, colors)
 
     /**
      * Find all moves that match the given criteria.
@@ -46,13 +49,17 @@ class MoveService (
      *
      * @return a list of matching moves
      */
-    fun findAllBy(gameId: Long, colors: Iterable<PieceColor> = listOf(PieceColor.BLACK, PieceColor.WHITE)): Iterable<Move> {
+    fun findAllBy(
+        gameId: Long,
+        colors: Iterable<PieceColor> = listOf(PieceColor.BLACK, PieceColor.WHITE)
+    ): Iterable<Move> {
         var spec: Specification<Move> = Specification.where(inGame(gameId))!!
 
         var colorsSpec: Specification<Move> = Specification.where(fromColor(null))!!
         colors.forEach { colorsSpec = colorsSpec.or(fromColor(it).or(isTake()))!! }
 
         spec = spec.and(colorsSpec)!!
+
         return moveRepository.findAll(spec)
     }
 
@@ -89,6 +96,19 @@ class MoveService (
     fun findLastMove(gameId: Long): Move? {
         val allMoves = findAllBy(gameId)
         return if (allMoves.count() > 0) allMoves.last() else null
+    }
+
+    /**
+     * Find the moves that occurred after a certain move order in the provided game id.
+     *
+     * @param gameId the id of the game to get the move from
+     *
+     * @return all moves after the given move number
+     */
+    fun findMovesAfter(gameId: Long, number: Int): Iterable<Move> {
+        val allMoves = findAllBy(gameId).toList()
+        val count = allMoves.count()
+        return if (count > 0) allMoves.subList(number, count) else emptyList()
     }
 
     /**

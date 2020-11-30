@@ -40,8 +40,8 @@ class MoveController (
             ApiResponse(code = 500, message =  "There was a problem with the service.")
     )
     fun getMoves(@PathVariable gameId: Long,
-                 @RequestParam(name = "color", defaultValue = "") colors: List<PieceColor>)
-            : ResponseEntity<Iterable<Move>> {
+                 @RequestParam(name = "color", defaultValue = "") colors: List<PieceColor>
+    ): ResponseEntity<Iterable<Move>> {
         val game = gameService.getById(gameId)
         return ResponseEntity.ok(moveService.findAllBy(game, colors))
     }
