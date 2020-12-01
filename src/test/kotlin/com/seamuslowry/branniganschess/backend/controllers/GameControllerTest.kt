@@ -1,6 +1,7 @@
 package com.seamuslowry.branniganschess.backend.controllers
 
 import com.ninjasquad.springmockk.MockkBean
+import com.seamuslowry.branniganschess.backend.dtos.AllGameData
 import com.seamuslowry.branniganschess.backend.models.Game
 import com.seamuslowry.branniganschess.backend.models.GameStatus
 import com.seamuslowry.branniganschess.backend.services.GameService
@@ -15,6 +16,7 @@ import org.springframework.http.MediaType
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.*
 
@@ -34,6 +36,16 @@ class GameControllerTest(@Autowired val mockMvc: MockMvc) {
                 .andExpect(status().isOk)
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("\$.uuid").value(newGame.uuid))
+    }
+
+    @Test
+    fun `Gets all game data`() {
+        val newGame = Game("Controller Test Game")
+        every { gameService.getAllGameData(any()) } returns AllGameData(newGame, emptyList(), emptyList())
+        mockMvc.perform(get("/games/1").accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk)
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+            .andExpect(jsonPath("\$.game").isNotEmpty)
     }
 
     @Test

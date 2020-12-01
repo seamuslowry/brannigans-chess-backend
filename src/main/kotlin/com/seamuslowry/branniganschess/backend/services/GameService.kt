@@ -1,5 +1,6 @@
 package com.seamuslowry.branniganschess.backend.services
 
+import com.seamuslowry.branniganschess.backend.dtos.AllGameData
 import com.seamuslowry.branniganschess.backend.dtos.ChessRuleException
 import com.seamuslowry.branniganschess.backend.dtos.GameStateException
 import com.seamuslowry.branniganschess.backend.dtos.MoveRequest
@@ -11,6 +12,7 @@ import com.seamuslowry.branniganschess.backend.utils.Utils
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.domain.Specification
+import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.stereotype.Service
 import java.util.*
 import kotlin.math.abs
@@ -69,6 +71,16 @@ class GameService (
 
         return newGame
     }
+
+    /**
+     * Gets all data about the game with the given id.
+     * This means the game itself, all moves, and all pieces.
+     *
+     * @param gameId the id to retrieve for
+     *
+     * @return the game, all its pieces, and all its moves
+     */
+    fun getAllGameData(gameId: Long): AllGameData = getAllGameData(getById(gameId))
 
     /**
      * Find all games by active or inactive.
@@ -526,6 +538,9 @@ class GameService (
 
         return gameRepository.save(game)
     }
+
+    @PreAuthorize("!#game.isPlayer(authentication.name)")
+    private fun getAllGameData(game: Game): AllGameData = AllGameData(game, moveService.findAllBy(game), pieceService.findAllBy(game))
 
     private fun getStatusesSpec(statuses: Iterable<GameStatus>): Specification<Game> {
         var statusesSpec: Specification<Game> = Specification.where(null)!!
