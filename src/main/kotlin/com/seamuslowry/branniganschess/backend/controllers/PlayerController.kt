@@ -21,30 +21,30 @@ import org.springframework.web.bind.annotation.*
 class PlayerController(
         private val playerService: PlayerService
 ) {
-    @GetMapping("/games/{authId}")
+    @GetMapping("/games/{playerId}")
     @ApiOperation("Gets all games for the logged in player")
     @ApiResponses(
             ApiResponse(code = 200, message =  "Successfully retrieved the list of games."),
             ApiResponse(code = 404, message =  "The player does not exist."),
             ApiResponse(code = 500, message =  "There was a problem with the service.")
     )
-    fun getGames(@PathVariable authId: String,
+    fun getGames(@PathVariable playerId: Long,
                  @RequestParam(required = false) color: PieceColor?,
                  @RequestParam(name = "status", defaultValue = "") statuses: List<GameStatus>,
                  @PageableDefault(size = 10, sort = ["id"], direction = Sort.Direction.DESC) pageable: Pageable
     ): ResponseEntity<Page<Game>> {
-        return ResponseEntity.ok(playerService.getGames(authId, color, statuses, pageable))
+        return ResponseEntity.ok(playerService.getGames(playerId, color, statuses, pageable))
     }
 
-    @GetMapping("/stats/{authId}")
+    @GetMapping("/stats/{playerId}")
     @ApiOperation("Gets all stat information for the provided player")
     @ApiResponses(
         ApiResponse(code = 200, message =  "Successfully retrieved the stat information."),
         ApiResponse(code = 404, message =  "The player does not exist."),
         ApiResponse(code = 500, message =  "There was a problem with the service.")
     )
-    fun getStats(@PathVariable authId: String): ResponseEntity<PlayerStatInfo> {
-        return ResponseEntity.ok(playerService.getStats(authId))
+    fun getStats(@PathVariable playerId: Long): ResponseEntity<PlayerStatInfo> {
+        return ResponseEntity.ok(playerService.getStats(playerId))
     }
 
     @PostMapping("/auth")

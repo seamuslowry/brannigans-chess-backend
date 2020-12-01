@@ -77,10 +77,10 @@ class PlayerServiceTest {
         val authId = "games-id"
         val newPlayer = Player(authId)
         val game = Game()
-        every { playerRepository.findOne(any()) } returns Optional.of(newPlayer)
+        every { playerRepository.findById(any()) } returns Optional.of(newPlayer)
         every { gameService.findPlayerGames(any(), any(), any(), any()) } returns PageImpl(listOf(game))
 
-        val foundGames = service.getGames(newPlayer.authId, PieceColor.WHITE, pageable = Pageable.unpaged())
+        val foundGames = service.getGames(newPlayer.id, PieceColor.WHITE, pageable = Pageable.unpaged())
 
         verify(exactly = 1) { gameService.findPlayerGames(any(), any(), any(), any()) }
         assertEquals(listOf(game), foundGames.content)
@@ -90,9 +90,9 @@ class PlayerServiceTest {
     fun `fails to get a non-existent player's games`() {
         val authId = "games-id"
         val newPlayer = Player(authId)
-        every { playerRepository.findOne(any()) } returns Optional.empty()
+        every { playerRepository.findById(any()) } returns Optional.empty()
 
-        assertThrows<EntityNotFoundException> { service.getGames(newPlayer.authId, PieceColor.WHITE, pageable = Pageable.unpaged()) }
+        assertThrows<EntityNotFoundException> { service.getGames(newPlayer.id, PieceColor.WHITE, pageable = Pageable.unpaged()) }
     }
 
     @Test
@@ -100,10 +100,10 @@ class PlayerServiceTest {
         val count: Long = 5
         val authId = "count-games-id"
         val newPlayer = Player(authId)
-        every { playerRepository.findOne(any()) } returns Optional.of(newPlayer)
+        every { playerRepository.findById(any()) } returns Optional.of(newPlayer)
         every { gameService.countPlayerGames(any(), any(), any()) } returns count
 
-        val stateInfo = service.getStats(newPlayer.authId)
+        val stateInfo = service.getStats(newPlayer.id)
 
         verify(exactly = 6) { gameService.countPlayerGames(any(), any(), any()) }
         assertEquals(PlayerStatInfo(count,count,count,count,count,count), stateInfo)
