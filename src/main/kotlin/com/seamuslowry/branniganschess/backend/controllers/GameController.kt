@@ -1,5 +1,6 @@
 package com.seamuslowry.branniganschess.backend.controllers
 
+import com.seamuslowry.branniganschess.backend.dtos.AllGameData
 import com.seamuslowry.branniganschess.backend.models.*
 import com.seamuslowry.branniganschess.backend.services.GameService
 import io.swagger.annotations.ApiOperation
@@ -37,6 +38,15 @@ class GameController(
     fun getGames(@RequestParam(name = "status", defaultValue = "") statuses: List<GameStatus>,
                  @PageableDefault(size = 10, sort = ["id"], direction = Sort.Direction.DESC) pageable: Pageable
     ): ResponseEntity<Page<Game>> = ResponseEntity.ok(gameService.findAllBy(statuses, pageable))
+
+    @GetMapping("/{gameId}")
+    @ApiOperation("Retrieves all data about the provided game")
+    @ApiResponses(
+        ApiResponse(code = 200, message =  "Successfully retrieved the game data."),
+        ApiResponse(code = 401, message =  "You are not allowed to access all game data."),
+        ApiResponse(code = 500, message =  "There was a problem with the service.")
+    )
+    fun getAllData(@PathVariable gameId: Long): ResponseEntity<AllGameData> = ResponseEntity.ok(gameService.getAllGameData(gameId))
 
     /**
      * When subscribing to the game status topic, send the current game.

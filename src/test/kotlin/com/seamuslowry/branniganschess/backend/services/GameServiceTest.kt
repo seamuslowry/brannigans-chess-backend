@@ -21,6 +21,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.domain.Specification
+import org.springframework.security.test.context.support.WithMockUser
 import org.springframework.test.context.junit.jupiter.SpringExtension
 
 @ExtendWith(SpringExtension::class)
@@ -69,6 +70,23 @@ class GameServiceTest {
         val newGame = service.getById(game.id)
 
         assertEquals(game , newGame)
+    }
+
+    @Test
+    @WithMockUser(username = "def-not-in-game")
+    fun `gets all game data`() {
+        val game = Game("New Game")
+        val piece = Rook(PieceColor.WHITE, game.id)
+        val move = Move(piece, 0, 0, 0, 1)
+
+        every { gameRepository.getOne(any()) } returns game
+        every { pieceService.findAllBy(any<Game>()) } returns listOf(piece)
+        every { moveService.findAllBy(any<Game>()) } returns listOf(move)
+        val gameData = service.getAllGameData(game.id)
+
+        assertEquals(game, gameData.game)
+        assertTrue(gameData.pieces.contains(piece))
+        assertTrue(gameData.moves.contains(move))
     }
 
     @Test
