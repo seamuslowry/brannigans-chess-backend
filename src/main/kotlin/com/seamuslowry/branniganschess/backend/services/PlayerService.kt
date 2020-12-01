@@ -53,13 +53,12 @@ class PlayerService (
     /**
      * Get the stat information for the provided player
      *
-     * @param authId the player's authentication id
+     * @param playerId the player's id
      *
      * @return the stat information for that player
      */
-    fun getStats(authId: String): PlayerStatInfo {
-        val player = getByAuthId(authId)
-
+    fun getStats(playerId: Long): PlayerStatInfo {
+        val player = getById(playerId)
 
         return PlayerStatInfo(
             gameService.countPlayerGames(player, PieceColor.WHITE, Constants.allStatuses), // all white games
@@ -74,7 +73,7 @@ class PlayerService (
     /**
      * Get all the games that meet the passed criteria for the player with the provided auth id.
      *
-     * @param authId the auth id of the player
+     * @param playerId the id of the player
      * @param color the color the player must be in the games
      * @param statuses matching games must have a status present in this list; defaults to all statuses
      * @param pageable the pageable descriptor
@@ -82,12 +81,12 @@ class PlayerService (
      * @return the [Page] of games
      */
     fun getGames(
-        authId: String,
+        playerId: Long,
         color: PieceColor?,
         statuses: Iterable<GameStatus> = Constants.allStatuses,
         pageable: Pageable
     ): Page<Game> {
-        val player = getByAuthId(authId)
+        val player = getById(playerId)
         return getGames(player, color, statuses, pageable)
     }
 
@@ -103,6 +102,10 @@ class PlayerService (
 
     private fun getByAuthId(authId: String): Player =
         playerRepository.findOne(Specification.where(withAuthId(authId))).orElse(null)
+            ?: throw EntityNotFoundException("No player with that authorization ID")
+
+    private fun getById(id: Long): Player =
+        playerRepository.findById(id).orElse(null)
             ?: throw EntityNotFoundException("No player with that authorization ID")
 
     private fun getGames(player: Player, color: PieceColor?, statuses: Iterable<GameStatus>, pageable: Pageable) = gameService.findPlayerGames(player, color, statuses, pageable)

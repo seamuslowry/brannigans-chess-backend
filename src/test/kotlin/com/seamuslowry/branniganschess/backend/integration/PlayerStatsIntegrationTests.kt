@@ -32,7 +32,7 @@ class PlayerStatsIntegrationTests(
         val playerTwo = playerRepository.save(Player(System.nanoTime().toString()))
         gameRepository.save(Game("1 - Player Game Search No Match", whitePlayer = playerTwo))
 
-        mockMvc.get("/players/stats/${playerOne.authId}") {
+        mockMvc.get("/players/stats/${playerOne.id}") {
             with(jwt())
         }.andExpect {
             status { isOk }

@@ -111,7 +111,7 @@ class SearchGamesIntegrationTests(
         val playerTwo = playerRepository.save(Player(System.nanoTime().toString()))
         val noMatchGame = gameRepository.save(Game("1 - Player Game Search No Match", whitePlayer = playerTwo))
 
-        mockMvc.get("/players/games/${playerAuthId}?size=${gameRepository.count()}") {
+        mockMvc.get("/players/games/${playerOne.id}?size=${gameRepository.count()}") {
             with(jwt())
         }.andExpect {
             status { isOk }
@@ -155,7 +155,7 @@ class SearchGamesIntegrationTests(
         val playerTwo = playerRepository.save(Player(System.nanoTime().toString()))
         val noMatchGame = gameRepository.save(Game("1 - Player Game Search No Match", whitePlayer = playerTwo))
 
-        mockMvc.get("/players/games/${playerAuthId}?${Constants.activeStatuses.joinToString(separator = "", prefix = "status=") { "&status=${it}" }}&size=${gameRepository.count()}") {
+        mockMvc.get("/players/games/${playerOne.id}?${Constants.activeStatuses.joinToString(separator = "", prefix = "status=") { "&status=${it}" }}&size=${gameRepository.count()}") {
             with(jwt())
         }.andExpect {
             status { isOk }
@@ -199,7 +199,7 @@ class SearchGamesIntegrationTests(
         val playerTwo = playerRepository.save(Player(System.nanoTime().toString()))
         val noMatchGame = gameRepository.save(Game("1 - Player Game Search No Match", whitePlayer = playerTwo))
 
-        mockMvc.get("/players/games/${playerAuthId}?${Constants.activeStatuses.joinToString(separator = "", prefix = "status=") { "&status=${it}" }}&color=WHITE&size=${gameRepository.count()}") {
+        mockMvc.get("/players/games/${playerOne.id}?${Constants.activeStatuses.joinToString(separator = "", prefix = "status=") { "&status=${it}" }}&color=WHITE&size=${gameRepository.count()}") {
             with(jwt())
         }.andExpect {
             status { isOk }
@@ -243,7 +243,7 @@ class SearchGamesIntegrationTests(
         val playerTwo = playerRepository.save(Player(System.nanoTime().toString()))
         val noMatchGame = gameRepository.save(Game("1 - Player Game Search No Match", whitePlayer = playerTwo))
 
-        mockMvc.get("/players/games/${playerAuthId}?${Constants.activeStatuses.joinToString(separator = "", prefix = "status=") { "&status=${it}" }}&color=BLACK&size=${gameRepository.count()}") {
+        mockMvc.get("/players/games/${playerOne.id}?${Constants.activeStatuses.joinToString(separator = "", prefix = "status=") { "&status=${it}" }}&color=BLACK&size=${gameRepository.count()}") {
             with(jwt())
         }.andExpect {
             status { isOk }

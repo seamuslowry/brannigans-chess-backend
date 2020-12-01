@@ -11,6 +11,5 @@ class Player (
         var name: String = "",
         var imageUrl: String = "",
         @Id
-        @GeneratedValue(strategy = GenerationType.IDENTITY)
-        private var id: Long = -1
+        @GeneratedValue(strategy = GenerationType.IDENTITY) var id: Long = -1
 )
