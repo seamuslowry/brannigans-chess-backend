@@ -47,7 +47,7 @@ class StalemateIntegrationTests(
         pieceService.movePiece(board[7][0]!!, 7, 1)
 
         // move other rook to stalemate
-        mockMvc.post("/moves/${game.id}") {
+        mockMvc.post("/moves/${game.uuid}") {
             contentType = MediaType.APPLICATION_JSON
             content = ObjectMapper().writeValueAsString(MoveRequest(7,7,1,7))
             accept = MediaType.APPLICATION_JSON
@@ -84,7 +84,7 @@ class StalemateIntegrationTests(
         pieceService.movePiece(board[7][4]!!, 2, 1)
 
         // move white rook to stalemate
-        mockMvc.post("/moves/${game.id}") {
+        mockMvc.post("/moves/${game.uuid}") {
             contentType = MediaType.APPLICATION_JSON
             content = ObjectMapper().writeValueAsString(MoveRequest(7,7,0,7))
             accept = MediaType.APPLICATION_JSON

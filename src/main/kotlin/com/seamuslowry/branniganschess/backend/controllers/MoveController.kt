@@ -20,7 +20,7 @@ class MoveController (
         private val moveService: MoveService
 ) {
 
-    @PostMapping("/{gameId}")
+    @PostMapping("/{gameUuid}")
     @ApiOperation("Tries to move a piece from one tile to another", response = Move::class)
     @ApiResponses(
             ApiResponse(code = 200, message =  "The piece was successfully moved."),
@@ -28,9 +28,9 @@ class MoveController (
             ApiResponse(code = 404, message =  "The game does not exist."),
             ApiResponse(code = 500, message =  "There was a problem with the service.")
     )
-    fun move(@PathVariable gameId: Long,
+    fun move(@PathVariable gameUuid: String,
              @RequestBody moveRequest: MoveRequest): ResponseEntity<Move> =
-            ResponseEntity.ok(gameService.move(gameId, moveRequest))
+            ResponseEntity.ok(gameService.move(gameUuid, moveRequest))
 
     @GetMapping("/{gameUuid}")
     @ApiOperation("Gets all moves for a given game", response = Move::class, responseContainer = "List")

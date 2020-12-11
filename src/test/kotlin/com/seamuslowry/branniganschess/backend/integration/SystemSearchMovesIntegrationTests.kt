@@ -19,11 +19,11 @@ class SystemSearchMovesIntegrationTests(
     fun `Finds shared moves for a game`() {
         val game = testUtils.createFullGame()
         // move white pawn two
-        gameService.move(game.id, MoveRequest(6,0, 4, 0))
+        gameService.move(game.uuid, MoveRequest(6,0, 4, 0))
         // move black pawn two
-        gameService.move(game.id, MoveRequest(1,1, 3, 1))
+        gameService.move(game.uuid, MoveRequest(1,1, 3, 1))
         // take black pawn with white pawn
-        val whiteTake = gameService.move(game.id, MoveRequest(4,0, 3, 1))
+        val whiteTake = gameService.move(game.uuid, MoveRequest(4,0, 3, 1))
 
         val result = moveService.findSharedMoves(game.uuid)
 
@@ -35,7 +35,7 @@ class SystemSearchMovesIntegrationTests(
     fun `Determines if a piece has moved`() {
         val game = testUtils.createFullGame()
         // move white pawn one
-        val whiteMove = gameService.move(game.id, MoveRequest(6,0, 5, 0))
+        val whiteMove = gameService.move(game.uuid, MoveRequest(6,0, 5, 0))
 
         val pawnMoved = moveService.hasMoved(whiteMove.movingPiece)
 

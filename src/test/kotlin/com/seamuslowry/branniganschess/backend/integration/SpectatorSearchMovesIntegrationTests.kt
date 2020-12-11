@@ -22,13 +22,13 @@ class SpectatorSearchMovesIntegrationTests(
     fun `Finds no moves from a game without colors`() {
         val game = testUtils.createFullGame()
         // move white pawn up one
-        gameService.move(game.id, MoveRequest(6,0, 5, 0))
+        gameService.move(game.uuid, MoveRequest(6,0, 5, 0))
         // move black pawn one
-        gameService.move(game.id, MoveRequest(1,0, 2, 0))
+        gameService.move(game.uuid, MoveRequest(1,0, 2, 0))
 
         val noMatchGame = testUtils.createFullGame()
         // move white pawn up one
-        gameService.move(noMatchGame.id, MoveRequest(6,0, 5, 0))
+        gameService.move(noMatchGame.uuid, MoveRequest(6,0, 5, 0))
 
         mockMvc.get("/moves/${game.uuid}") {
             with(jwt())
@@ -42,13 +42,13 @@ class SpectatorSearchMovesIntegrationTests(
     fun `Finds all moves from a specific game`() {
         val game = testUtils.createFullGame()
         // move white pawn up one
-        val whiteMove = gameService.move(game.id, MoveRequest(6,0, 5, 0))
+        val whiteMove = gameService.move(game.uuid, MoveRequest(6,0, 5, 0))
         // move black pawn one
-        val blackMove = gameService.move(game.id, MoveRequest(1,0, 2, 0))
+        val blackMove = gameService.move(game.uuid, MoveRequest(1,0, 2, 0))
 
         val noMatchGame = testUtils.createFullGame()
         // move white pawn up one
-        gameService.move(noMatchGame.id, MoveRequest(6,0, 5, 0))
+        gameService.move(noMatchGame.uuid, MoveRequest(6,0, 5, 0))
 
         mockMvc.get("/moves/${game.uuid}?color=WHITE&color=BLACK") {
             with(jwt())
@@ -64,9 +64,9 @@ class SpectatorSearchMovesIntegrationTests(
     fun `Finds moves of a specific color from a game`() {
         val game = testUtils.createFullGame()
         // move white pawn one
-        gameService.move(game.id, MoveRequest(6,0, 5, 0))
+        gameService.move(game.uuid, MoveRequest(6,0, 5, 0))
         // move black pawn one
-        val blackMove = gameService.move(game.id, MoveRequest(1,0, 2, 0))
+        val blackMove = gameService.move(game.uuid, MoveRequest(1,0, 2, 0))
 
         mockMvc.get("/moves/${game.uuid}?color=BLACK") {
             with(jwt())
@@ -81,11 +81,11 @@ class SpectatorSearchMovesIntegrationTests(
     fun `Finds any move that took a piece when searching for a specific color move from a game`() {
         val game = testUtils.createFullGame()
         // move white pawn two
-        gameService.move(game.id, MoveRequest(6,0, 4, 0))
+        gameService.move(game.uuid, MoveRequest(6,0, 4, 0))
         // move black pawn two
-        val blackMove = gameService.move(game.id, MoveRequest(1,1, 3, 1))
+        val blackMove = gameService.move(game.uuid, MoveRequest(1,1, 3, 1))
         // take black pawn with white pawn
-        val whiteTake = gameService.move(game.id, MoveRequest(4,0, 3, 1))
+        val whiteTake = gameService.move(game.uuid, MoveRequest(4,0, 3, 1))
 
         mockMvc.get("/moves/${game.uuid}?color=BLACK") {
             with(jwt())

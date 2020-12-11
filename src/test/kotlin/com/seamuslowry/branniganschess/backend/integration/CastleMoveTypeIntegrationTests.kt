@@ -39,7 +39,7 @@ class CastleMoveTypeIntegrationTests (
         pieceService.takePiece(board[7][6]!!)
 
         // castle
-        mockMvc.post("/moves/${game.id}") {
+        mockMvc.post("/moves/${game.uuid}") {
             contentType = MediaType.APPLICATION_JSON
             content = ObjectMapper().writeValueAsString(MoveRequest(7,4,7,6))
             accept = MediaType.APPLICATION_JSON
@@ -71,7 +71,7 @@ class CastleMoveTypeIntegrationTests (
         pieceService.takePiece(board[7][3]!!)
 
         // castle
-        mockMvc.post("/moves/${game.id}") {
+        mockMvc.post("/moves/${game.uuid}") {
             contentType = MediaType.APPLICATION_JSON
             content = ObjectMapper().writeValueAsString(MoveRequest(7,4,7,2))
             accept = MediaType.APPLICATION_JSON
@@ -104,7 +104,7 @@ class CastleMoveTypeIntegrationTests (
         gameService.updateGameStatusForNextPlayer(game, GameStatus.BLACK_TURN)
 
         // castle
-        mockMvc.post("/moves/${game.id}") {
+        mockMvc.post("/moves/${game.uuid}") {
             contentType = MediaType.APPLICATION_JSON
             content = ObjectMapper().writeValueAsString(MoveRequest(0,4,0,6))
             accept = MediaType.APPLICATION_JSON
@@ -139,7 +139,7 @@ class CastleMoveTypeIntegrationTests (
         gameService.updateGameStatusForNextPlayer(game, GameStatus.BLACK_TURN)
 
         // castle
-        mockMvc.post("/moves/${game.id}") {
+        mockMvc.post("/moves/${game.uuid}") {
             contentType = MediaType.APPLICATION_JSON
             content = ObjectMapper().writeValueAsString(MoveRequest(0,4,0,2))
             accept = MediaType.APPLICATION_JSON

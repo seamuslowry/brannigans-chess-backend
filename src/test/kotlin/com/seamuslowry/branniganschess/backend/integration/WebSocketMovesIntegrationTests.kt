@@ -43,9 +43,9 @@ class WebSocketMovesIntegrationTests(
     @Test
     fun `gets shared moves on subscribe`() {
         val game = testUtils.createFullGame()
-        gameService.move(game.id, MoveRequest(6,0,4,0)) // move white pawn 2
-        gameService.move(game.id, MoveRequest(1,1,3,1)) // move black pawn 2
-        val move = gameService.move(game.id, MoveRequest(4,0,3,1)) // take black pawn
+        gameService.move(game.uuid, MoveRequest(6,0,4,0)) // move white pawn 2
+        gameService.move(game.uuid, MoveRequest(1,1,3,1)) // move black pawn 2
+        val move = gameService.move(game.uuid, MoveRequest(4,0,3,1)) // take black pawn
 
         val messages = mutableListOf<Move>()
         stompSession.subscribe(
@@ -80,9 +80,9 @@ class WebSocketMovesIntegrationTests(
             "/game/moves/${game.uuid}",
             MoveStompFrameHandler(messages))
 
-        gameService.move(game.id, MoveRequest(6,0,4,0)) // move white pawn 2
-        gameService.move(game.id, MoveRequest(1,1,3,1)) // move black pawn 2
-        val move = gameService.move(game.id, MoveRequest(4,0,3,1)) // take black pawn
+        gameService.move(game.uuid, MoveRequest(6,0,4,0)) // move white pawn 2
+        gameService.move(game.uuid, MoveRequest(1,1,3,1)) // move black pawn 2
+        val move = gameService.move(game.uuid, MoveRequest(4,0,3,1)) // take black pawn
 
         await until { messages.count() == 1 }
 

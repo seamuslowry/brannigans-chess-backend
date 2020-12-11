@@ -161,14 +161,14 @@ class GameService (
     /**
      * Attempt the requested move on the game with the provided ID.
      *
-     * @param gameId the id of the game
+     * @param gameUuid the id of the game
      * @param moveRequest the [MoveRequest] object describing the attempted move
      *
      * @return the completed move
      * @throws [ChessRuleException] when the requested move is not valid
      */
-    fun move(gameId: Long, moveRequest: MoveRequest): Move {
-        val game = gameRepository.getOne(gameId)
+    fun move(gameUuid: String, moveRequest: MoveRequest): Move {
+        val game = getByUuid(gameUuid)
         return move(game, moveRequest)
     }
 

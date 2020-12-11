@@ -30,7 +30,7 @@ class AllGameDataIntegrationTests(
         val game = testUtils.createFullGame()
 
         // white pawn up two
-        mockMvc.post("/moves/${game.id}") {
+        mockMvc.post("/moves/${game.uuid}") {
             contentType = MediaType.APPLICATION_JSON
             content = ObjectMapper().writeValueAsString(MoveRequest(6,0,4,0))
             accept = MediaType.APPLICATION_JSON
@@ -40,7 +40,7 @@ class AllGameDataIntegrationTests(
         }
 
         // black pawn up two
-        mockMvc.post("/moves/${game.id}") {
+        mockMvc.post("/moves/${game.uuid}") {
             contentType = MediaType.APPLICATION_JSON
             content = ObjectMapper().writeValueAsString(MoveRequest(1,0,3,0))
             accept = MediaType.APPLICATION_JSON

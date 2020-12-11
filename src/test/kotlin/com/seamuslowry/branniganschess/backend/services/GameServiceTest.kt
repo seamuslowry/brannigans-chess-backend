@@ -163,70 +163,70 @@ class GameServiceTest {
     @Test
     fun `throws an exception on a move to the same location`() {
         assertThrows<ChessRuleException> {
-            service.move(1, MoveRequest(0,0,0,0))
+            service.move("1", MoveRequest(0,0,0,0))
         }
     }
 
     @Test
     fun `throws an exception on a move from a row below the board`() {
         assertThrows<ChessRuleException> {
-            service.move(1, MoveRequest(-1,0,0,0))
+            service.move("1", MoveRequest(-1,0,0,0))
         }
     }
 
     @Test
     fun `throws an exception on a move from a row above the board`() {
         assertThrows<ChessRuleException> {
-            service.move(1, MoveRequest(8,0,0,0))
+            service.move("1", MoveRequest(8,0,0,0))
         }
     }
 
     @Test
     fun `throws an exception on a move from a col before the board`() {
         assertThrows<ChessRuleException> {
-            service.move(1, MoveRequest(0,-1,0,0))
+            service.move("1", MoveRequest(0,-1,0,0))
         }
     }
 
     @Test
     fun `throws an exception on a move from a col after the board`() {
         assertThrows<ChessRuleException> {
-            service.move(1, MoveRequest(0,8,0,0))
+            service.move("1", MoveRequest(0,8,0,0))
         }
     }
 
     @Test
     fun `throws an exception on a move to a row below the board`() {
         assertThrows<ChessRuleException> {
-            service.move(1, MoveRequest(0,0,-1,0))
+            service.move("1", MoveRequest(0,0,-1,0))
         }
     }
 
     @Test
     fun `throws an exception on a move to a row above the board`() {
         assertThrows<ChessRuleException> {
-            service.move(1, MoveRequest(0,0,8,0))
+            service.move("1", MoveRequest(0,0,8,0))
         }
     }
 
     @Test
     fun `throws an exception on a move to a col before the board`() {
         assertThrows<ChessRuleException> {
-            service.move(1, MoveRequest(0,0,0,-1))
+            service.move("1", MoveRequest(0,0,0,-1))
         }
     }
 
     @Test
     fun `throws an exception on a move to a col after the board`() {
         assertThrows<ChessRuleException> {
-            service.move(1, MoveRequest(0,0,0,8))
+            service.move("1", MoveRequest(0,0,0,8))
         }
     }
 
     @Test
     fun `throws an exception on a move from an empty tile`() {
         assertThrows<ChessRuleException> {
-            service.move(1, MoveRequest(0,0,1,0))
+            service.move("1", MoveRequest(0,0,1,0))
         }
     }
 
@@ -242,7 +242,7 @@ class GameServiceTest {
         every { pieceService.movePiece(any(), any(), any()) } answers {firstArg()}
 
         assertThrows<ChessRuleException> {
-            service.move(1, MoveRequest(1,0,2,0))
+            service.move("1", MoveRequest(1,0,2,0))
         }
     }
 
@@ -258,7 +258,7 @@ class GameServiceTest {
         every { pieceService.movePiece(any(), any(), any()) } answers {firstArg()}
 
         assertThrows<ChessRuleException> {
-            service.move(1, MoveRequest(1,0,2,0))
+            service.move("1", MoveRequest(1,0,2,0))
         }
     }
 
@@ -274,7 +274,7 @@ class GameServiceTest {
         every { pieceService.movePiece(any(), any(), any()) } answers {firstArg()}
 
         assertThrows<ChessRuleException> {
-            service.move(1, MoveRequest(1,0,2,0))
+            service.move("1", MoveRequest(1,0,2,0))
         }
     }
 
@@ -290,7 +290,7 @@ class GameServiceTest {
         every { pieceService.movePiece(any(), any(), any()) } answers {firstArg()}
 
         assertThrows<ChessRuleException> {
-            service.move(1, MoveRequest(1,0,2,0))
+            service.move("1", MoveRequest(1,0,2,0))
         }
     }
 
@@ -305,7 +305,7 @@ class GameServiceTest {
         every { pieceService.movePiece(any(), any(), any()) } answers {firstArg()}
 
         assertThrows<ChessRuleException> {
-            service.move(1, MoveRequest(1,0,5,0))
+            service.move("1", MoveRequest(1,0,5,0))
         }
     }
 
@@ -322,7 +322,7 @@ class GameServiceTest {
         every { pieceService.movePiece(any(), any(), any()) } answers {firstArg()}
 
         assertThrows<ChessRuleException> {
-            service.move(1, MoveRequest(1,0,3,0))
+            service.move("1", MoveRequest(1,0,3,0))
         }
     }
 
@@ -339,7 +339,7 @@ class GameServiceTest {
         every { pieceService.movePiece(any(), any(), any()) } answers {firstArg()}
 
         assertThrows<ChessRuleException> {
-            service.move(1, MoveRequest(1,0,2,1))
+            service.move("1", MoveRequest(1,0,2,1))
         }
     }
 
@@ -359,7 +359,7 @@ class GameServiceTest {
         every { pieceService.findAllBy(any(), PieceColor.BLACK, PieceStatus.ACTIVE, any()) } returns listOf(pawn)
 
         assertThrows<ChessRuleException> {
-            service.move(1, MoveRequest(7,4,6,4))
+            service.move("1", MoveRequest(7,4,6,4))
         }
     }
 
@@ -379,7 +379,7 @@ class GameServiceTest {
         every { pieceService.findAllBy(any(), PieceColor.BLACK, any(), any()) } returns listOf(pawn)
 
         assertThrows<ChessRuleException> {
-            service.move(1, MoveRequest(6,1,6,3))
+            service.move("1", MoveRequest(6,1,6,3))
         }
     }
 
@@ -390,11 +390,11 @@ class GameServiceTest {
         val pawn = Pawn(PieceColor.BLACK, game, 1, 0, id=13)
         gameBoard[1][0] = pawn
 
-        every { gameRepository.getOne(any()) } returns game
+        every { gameRepository.findOne(any()) } returns Optional.of(game)
         every { pieceService.getPiecesAsBoard(any()) } returns gameBoard
         every { pieceService.movePiece(any(), any(), any()) } answers {firstArg()}
 
-        val move = service.move(1, MoveRequest(1,0,3,0))
+        val move = service.move("1", MoveRequest(1,0,3,0))
 
         assertEquals(move.movingPiece, pawn)
     }
@@ -410,7 +410,7 @@ class GameServiceTest {
         every { pieceService.movePiece(any(), any(), any()) } answers {firstArg()}
         every { pieceService.takePiece(any()) } answers {firstArg()}
 
-        val move = service.move(1, MoveRequest(1,1,1,0))
+        val move = service.move("1", MoveRequest(1,1,1,0))
 
         assertEquals(move.takenPiece, gameBoard[1][0])
         assertEquals(move.movingPiece, gameBoard[1][1])
@@ -430,7 +430,7 @@ class GameServiceTest {
         every { pieceService.takePiece(any()) } answers {firstArg()}
         every { moveService.findLastMove(any()) } returns Move(passantTarget, 1,2,3,2)
 
-        val move = service.move(1, MoveRequest(3,3,2,2))
+        val move = service.move("1", MoveRequest(3,3,2,2))
 
         assertEquals(MoveType.EN_PASSANT, move.moveType)
         assertEquals(move.takenPiece, passantTarget)
@@ -452,7 +452,7 @@ class GameServiceTest {
         every { moveService.findLastMove(any()) } returns Move(passantTarget, 1,2,3,2)
 
         assertThrows<ChessRuleException> {
-            service.move(1, MoveRequest(3,3,2,2))
+            service.move("1", MoveRequest(3,3,2,2))
         }
     }
 
@@ -471,7 +471,7 @@ class GameServiceTest {
         every { moveService.findLastMove(any()) } returns Move(passantTarget, 2,2,3,2)
 
         assertThrows<ChessRuleException> {
-            service.move(1, MoveRequest(3,3,2,2))
+            service.move("1", MoveRequest(3,3,2,2))
         }
     }
 
@@ -492,7 +492,7 @@ class GameServiceTest {
         every { moveService.findLastMove(any()) } returns Move(unrelatedPawn, 1,7,3,7)
 
         assertThrows<ChessRuleException> {
-            service.move(1, MoveRequest(3,3,2,2))
+            service.move("1", MoveRequest(3,3,2,2))
         }
     }
 
@@ -511,7 +511,7 @@ class GameServiceTest {
         every { pieceService.findAllBy(any(), PieceColor.WHITE, any(), PieceType.KING) } returns listOf(king)
         every { pieceService.findAllBy(any(), PieceColor.BLACK, PieceStatus.TAKEN, any()) } returns listOf(pawn)
 
-        val move = service.move(1, MoveRequest(7,4,6,5))
+        val move = service.move("1", MoveRequest(7,4,6,5))
 
         assertEquals(pawn, move.takenPiece)
     }
@@ -533,7 +533,7 @@ class GameServiceTest {
         every { pieceService.findAllBy(any(), PieceColor.WHITE, any(), PieceType.KING) } returns listOf(king)
         every { pieceService.findAllBy(any(), PieceColor.BLACK, PieceStatus.ACTIVE, any()) } returns listOf(rook)
 
-        val move = service.move(1, MoveRequest(7,3,6,4))
+        val move = service.move("1", MoveRequest(7,3,6,4))
 
         assertNull(move.takenPiece)
         assertEquals(move.movingPiece.type, PieceType.QUEEN)
@@ -552,7 +552,7 @@ class GameServiceTest {
         every { pieceService.findAllBy(any(), PieceColor.BLACK, any(), any()) } returns emptyList()
         every { gameRepository.getOne(any()) } returns game
 
-        assertThrows<ChessRuleException> { service.move(1, MoveRequest(7,4,7,6)) }
+        assertThrows<ChessRuleException> { service.move("1", MoveRequest(7,4,7,6)) }
     }
 
     @Test
@@ -568,7 +568,7 @@ class GameServiceTest {
         every { pieceService.findAllBy(any(), PieceColor.WHITE, any(), any()) } returns emptyList()
         every { gameRepository.getOne(any()) } returns game
 
-        assertThrows<ChessRuleException> { service.move(1, MoveRequest(0,4,0,6)) }
+        assertThrows<ChessRuleException> { service.move("1", MoveRequest(0,4,0,6)) }
     }
 
     @Test
@@ -584,7 +584,7 @@ class GameServiceTest {
         every { pieceService.findAllBy(any(), PieceColor.WHITE, any(), any()) } returns emptyList()
         every { moveService.hasMoved(king) } returns true
 
-        assertThrows<ChessRuleException> { service.move(1, MoveRequest(0,4,0,6)) }
+        assertThrows<ChessRuleException> { service.move("1", MoveRequest(0,4,0,6)) }
     }
 
     @Test
@@ -603,7 +603,7 @@ class GameServiceTest {
         every { moveService.hasMoved(king) } returns false
         every { moveService.hasMoved(rook) } returns true
 
-        assertThrows<ChessRuleException> { service.move(1, MoveRequest(0,4,0,6)) }
+        assertThrows<ChessRuleException> { service.move("1", MoveRequest(0,4,0,6)) }
     }
 
     @Test
@@ -621,7 +621,7 @@ class GameServiceTest {
         every { pieceService.findAllBy(any(), PieceColor.WHITE, any(), any()) } returns emptyList()
         every { moveService.hasMoved(king) } returns false
 
-        assertThrows<ChessRuleException> { service.move(1, MoveRequest(0,4,0,6)) }
+        assertThrows<ChessRuleException> { service.move("1", MoveRequest(0,4,0,6)) }
     }
 
     @Test
@@ -641,7 +641,7 @@ class GameServiceTest {
         every { pieceService.findAllBy(any(), PieceColor.WHITE, any(), any()) } returns emptyList()
         every { moveService.hasMoved(any()) } returns false
 
-        assertThrows<ChessRuleException> { service.move(1, MoveRequest(0,4,0,6)) }
+        assertThrows<ChessRuleException> { service.move("1", MoveRequest(0,4,0,6)) }
     }
 
     @Test
@@ -661,7 +661,7 @@ class GameServiceTest {
         every { pieceService.findAllBy(any(), PieceColor.BLACK, any(), any()) } returns listOf(whiteRook)
         every { moveService.hasMoved(any()) } returns false
 
-        assertThrows<ChessRuleException> { service.move(1, MoveRequest(7,4,7,6)) }
+        assertThrows<ChessRuleException> { service.move("1", MoveRequest(7,4,7,6)) }
     }
 
     @Test
@@ -673,14 +673,14 @@ class GameServiceTest {
         gameBoard[0][4] = king
         gameBoard[0][7] = rook
 
-        every { gameRepository.getOne(any()) } returns game
+        every { gameRepository.findOne(any()) } returns Optional.of(game)
         every { pieceService.getPiecesAsBoard(any()) } returns gameBoard
         every { pieceService.movePiece(any(), any(), any()) } answers {firstArg()}
         every { pieceService.findAllBy(any(), PieceColor.BLACK, any(), PieceType.KING) } returns listOf(king)
         every { pieceService.findAllBy(any(), PieceColor.BLACK, any(), any()) } returns listOf(king, rook)
         every { pieceService.getPieceAt(any(), 0,7) } returns rook
 
-        val move = service.move(1, MoveRequest(0,4,0,6))
+        val move = service.move("1", MoveRequest(0,4,0,6))
 
         assertEquals(king, move.movingPiece)
         assertEquals(MoveType.KING_SIDE_CASTLE, move.moveType)
@@ -695,14 +695,14 @@ class GameServiceTest {
         gameBoard[0][4] = king
         gameBoard[0][0] = rook
 
-        every { gameRepository.getOne(any()) } returns game
+        every { gameRepository.findOne(any()) } returns Optional.of(game)
         every { pieceService.getPiecesAsBoard(any()) } returns gameBoard
         every { pieceService.movePiece(any(), any(), any()) } answers {firstArg()}
         every { pieceService.findAllBy(any(), PieceColor.BLACK, any(), PieceType.KING) } returns listOf(king)
         every { pieceService.findAllBy(any(), PieceColor.BLACK, any(), any()) } returns listOf(king, rook)
         every { pieceService.getPieceAt(any(), 0,0) } returns rook
 
-        val move = service.move(1, MoveRequest(0,4,0,2))
+        val move = service.move("1", MoveRequest(0,4,0,2))
 
         assertEquals(king, move.movingPiece)
         assertEquals(MoveType.QUEEN_SIDE_CASTLE, move.moveType)

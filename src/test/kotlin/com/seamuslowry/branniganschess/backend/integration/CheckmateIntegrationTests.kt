@@ -42,7 +42,7 @@ class CheckmateIntegrationTests(
         pieceService.movePiece(board[7][0]!!, 1, 0)
 
         // move other rook to checkmate
-        mockMvc.post("/moves/${game.id}") {
+        mockMvc.post("/moves/${game.uuid}") {
             contentType = MediaType.APPLICATION_JSON
             content = ObjectMapper().writeValueAsString(MoveRequest(7,7,0,7))
             accept = MediaType.APPLICATION_JSON
@@ -75,7 +75,7 @@ class CheckmateIntegrationTests(
         gameService.updateGameStatusForNextPlayer(game, GameStatus.BLACK_TURN)
 
         // move other rook to checkmate
-        mockMvc.post("/moves/${game.id}") {
+        mockMvc.post("/moves/${game.uuid}") {
             contentType = MediaType.APPLICATION_JSON
             content = ObjectMapper().writeValueAsString(MoveRequest(0,7,7,7))
             accept = MediaType.APPLICATION_JSON

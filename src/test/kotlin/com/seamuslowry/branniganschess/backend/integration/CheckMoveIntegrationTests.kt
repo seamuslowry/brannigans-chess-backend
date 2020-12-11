@@ -37,7 +37,7 @@ class CheckMoveIntegrationTests(
         // move a rook into ready to check
         pieceService.movePiece(board[7][0]!!, 4,3)
 
-        mockMvc.post("/moves/${game.id}") {
+        mockMvc.post("/moves/${game.uuid}") {
             contentType = MediaType.APPLICATION_JSON
             content = ObjectMapper().writeValueAsString(MoveRequest(4,3,4,4))
             accept = MediaType.APPLICATION_JSON
@@ -66,7 +66,7 @@ class CheckMoveIntegrationTests(
 
         // set it to be black's turn
         gameService.updateGameStatusForNextPlayer(game, GameStatus.BLACK_TURN)
-        mockMvc.post("/moves/${game.id}") {
+        mockMvc.post("/moves/${game.uuid}") {
             contentType = MediaType.APPLICATION_JSON
             content = ObjectMapper().writeValueAsString(MoveRequest(4,3,4,4))
             accept = MediaType.APPLICATION_JSON
@@ -98,7 +98,7 @@ class CheckMoveIntegrationTests(
         // set it to be black's turn
         gameService.updateGameStatusForNextPlayer(game, GameStatus.BLACK_TURN)
         // move the target pawn in prep for the take
-        mockMvc.post("/moves/${game.id}") {
+        mockMvc.post("/moves/${game.uuid}") {
             contentType = MediaType.APPLICATION_JSON
             content = ObjectMapper().writeValueAsString(MoveRequest(1,2,3,2))
             accept = MediaType.APPLICATION_JSON
@@ -108,7 +108,7 @@ class CheckMoveIntegrationTests(
         }
 
         // take with en passant
-        mockMvc.post("/moves/${game.id}") {
+        mockMvc.post("/moves/${game.uuid}") {
             contentType = MediaType.APPLICATION_JSON
             content = ObjectMapper().writeValueAsString(MoveRequest(3,3,2,2))
             accept = MediaType.APPLICATION_JSON
@@ -136,7 +136,7 @@ class CheckMoveIntegrationTests(
         pieceService.movePiece(board[0][4]!!, 2,2)
 
         // attempt to move the king into check
-        mockMvc.post("/moves/${game.id}") {
+        mockMvc.post("/moves/${game.uuid}") {
             contentType = MediaType.APPLICATION_JSON
             content = ObjectMapper().writeValueAsString(MoveRequest(2,2,2,3))
             accept = MediaType.APPLICATION_JSON
@@ -158,7 +158,7 @@ class CheckMoveIntegrationTests(
         pieceService.movePiece(board[0][4]!!, 3,2)
 
         // attempt to move an unrelated pawn
-        mockMvc.post("/moves/${game.id}") {
+        mockMvc.post("/moves/${game.uuid}") {
             contentType = MediaType.APPLICATION_JSON
             content = ObjectMapper().writeValueAsString(MoveRequest(1,6,2,6))
             accept = MediaType.APPLICATION_JSON
@@ -180,7 +180,7 @@ class CheckMoveIntegrationTests(
         pieceService.takePiece(board[6][4]!!)
 
         // attempt to use queen to protect the king
-        mockMvc.post("/moves/${game.id}") {
+        mockMvc.post("/moves/${game.uuid}") {
             contentType = MediaType.APPLICATION_JSON
             content = ObjectMapper().writeValueAsString(MoveRequest(7,3,6,4))
             accept = MediaType.APPLICATION_JSON
@@ -210,7 +210,7 @@ class CheckMoveIntegrationTests(
         // set it to be black's turn
         gameService.updateGameStatusForNextPlayer(game, GameStatus.BLACK_CHECK)
         // attempt to move the king out of check
-        mockMvc.post("/moves/${game.id}") {
+        mockMvc.post("/moves/${game.uuid}") {
             contentType = MediaType.APPLICATION_JSON
             content = ObjectMapper().writeValueAsString(MoveRequest(3,2,2,2))
             accept = MediaType.APPLICATION_JSON
@@ -240,7 +240,7 @@ class CheckMoveIntegrationTests(
         // set it to be black's turn
         gameService.updateGameStatusForNextPlayer(game, GameStatus.BLACK_CHECK)
         // attempt to take rook
-        mockMvc.post("/moves/${game.id}") {
+        mockMvc.post("/moves/${game.uuid}") {
             contentType = MediaType.APPLICATION_JSON
             content = ObjectMapper().writeValueAsString(MoveRequest(3,2,3,3))
             accept = MediaType.APPLICATION_JSON
@@ -268,7 +268,7 @@ class CheckMoveIntegrationTests(
         pieceService.movePiece(board[0][0]!!, 6,4)
 
         // use queen to take rook
-        mockMvc.post("/moves/${game.id}") {
+        mockMvc.post("/moves/${game.uuid}") {
             contentType = MediaType.APPLICATION_JSON
             content = ObjectMapper().writeValueAsString(MoveRequest(7,3,6,4))
             accept = MediaType.APPLICATION_JSON
@@ -306,7 +306,7 @@ class CheckMoveIntegrationTests(
         // set it to be black's turn
         gameService.updateGameStatusForNextPlayer(game, GameStatus.BLACK_TURN)
         // castle
-        mockMvc.post("/moves/${game.id}") {
+        mockMvc.post("/moves/${game.uuid}") {
             contentType = MediaType.APPLICATION_JSON
             content = ObjectMapper().writeValueAsString(MoveRequest(0,4,0,6))
             accept = MediaType.APPLICATION_JSON

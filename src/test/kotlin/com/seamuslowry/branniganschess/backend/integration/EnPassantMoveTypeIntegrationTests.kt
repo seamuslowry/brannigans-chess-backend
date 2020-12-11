@@ -35,7 +35,7 @@ class EnPassantMoveTypeIntegrationTests(
         gameService.updateGameStatusForNextPlayer(game, GameStatus.BLACK_TURN)
 
         // move the target pawn in prep for the take
-        mockMvc.post("/moves/${game.id}") {
+        mockMvc.post("/moves/${game.uuid}") {
             contentType = MediaType.APPLICATION_JSON
             content = ObjectMapper().writeValueAsString(MoveRequest(1,2,3,2))
             accept = MediaType.APPLICATION_JSON
@@ -45,7 +45,7 @@ class EnPassantMoveTypeIntegrationTests(
         }
 
         // take with en passant
-        mockMvc.post("/moves/${game.id}") {
+        mockMvc.post("/moves/${game.uuid}") {
             contentType = MediaType.APPLICATION_JSON
             content = ObjectMapper().writeValueAsString(MoveRequest(3,3,2,2))
             accept = MediaType.APPLICATION_JSON

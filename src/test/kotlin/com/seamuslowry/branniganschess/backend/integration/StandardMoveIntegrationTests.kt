@@ -29,7 +29,7 @@ class StandardMoveIntegrationTests(
     @Test
     fun `Throws an exception on an invalid move`() {
         val game = testUtils.createFullGame()
-        mockMvc.post("/moves/${game.id}") {
+        mockMvc.post("/moves/${game.uuid}") {
             contentType = MediaType.APPLICATION_JSON
             content = ObjectMapper().writeValueAsString(MoveRequest(0,0,0,0))
             accept = MediaType.APPLICATION_JSON
@@ -44,7 +44,7 @@ class StandardMoveIntegrationTests(
         var game = testUtils.createFullGame()
         // set it to be black's turn
         gameService.updateGameStatusForNextPlayer(game, GameStatus.BLACK_TURN)
-        mockMvc.post("/moves/${game.id}") {
+        mockMvc.post("/moves/${game.uuid}") {
             contentType = MediaType.APPLICATION_JSON
             content = ObjectMapper().writeValueAsString(MoveRequest(1,0,2,0))
             accept = MediaType.APPLICATION_JSON
@@ -63,7 +63,7 @@ class StandardMoveIntegrationTests(
     @Test
     fun `moves a white piece`() {
         var game = testUtils.createFullGame()
-        mockMvc.post("/moves/${game.id}") {
+        mockMvc.post("/moves/${game.uuid}") {
             contentType = MediaType.APPLICATION_JSON
             content = ObjectMapper().writeValueAsString(MoveRequest(6,0,5,0))
             accept = MediaType.APPLICATION_JSON
@@ -87,7 +87,7 @@ class StandardMoveIntegrationTests(
         // set up a valid test by performing an invalid move through the service
         pieceService.movePiece(board[6][0]!!, 2,0)
 
-        mockMvc.post("/moves/${game.id}") {
+        mockMvc.post("/moves/${game.uuid}") {
             contentType = MediaType.APPLICATION_JSON
             content = ObjectMapper().writeValueAsString(MoveRequest(2,0,1,1))
             accept = MediaType.APPLICATION_JSON
@@ -103,7 +103,7 @@ class StandardMoveIntegrationTests(
     fun `will not let black move off its turn`() {
         val game = testUtils.createFullGame()
 
-        mockMvc.post("/moves/${game.id}") {
+        mockMvc.post("/moves/${game.uuid}") {
             contentType = MediaType.APPLICATION_JSON
             content = ObjectMapper().writeValueAsString(MoveRequest(1,0,2,0))
             accept = MediaType.APPLICATION_JSON
@@ -118,7 +118,7 @@ class StandardMoveIntegrationTests(
         val game = testUtils.createFullGame()
 
         // white move one
-        mockMvc.post("/moves/${game.id}") {
+        mockMvc.post("/moves/${game.uuid}") {
             contentType = MediaType.APPLICATION_JSON
             content = ObjectMapper().writeValueAsString(MoveRequest(6,0,5,0))
             accept = MediaType.APPLICATION_JSON
@@ -127,7 +127,7 @@ class StandardMoveIntegrationTests(
             status { isOk }
         }
 
-        mockMvc.post("/moves/${game.id}") {
+        mockMvc.post("/moves/${game.uuid}") {
             contentType = MediaType.APPLICATION_JSON
             content = ObjectMapper().writeValueAsString(MoveRequest(5,0,4,0))
             accept = MediaType.APPLICATION_JSON
