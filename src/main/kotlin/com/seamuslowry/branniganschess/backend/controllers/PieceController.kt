@@ -16,19 +16,19 @@ class PieceController(
         private val pieceService: PieceService,
         private val gameService: GameService
 ) {
-    @GetMapping("/{gameId}")
+    @GetMapping("/{gameUuid}")
     @ApiOperation("Gets all pieces for a given game", response = Piece::class, responseContainer = "List")
     @ApiResponses(
             ApiResponse(code = 200, message =  "Successfully retrieved the list of pieces."),
             ApiResponse(code = 404, message =  "The game does not exist."),
             ApiResponse(code = 500, message =  "There was a problem with the service.")
     )
-    fun getPieces(@PathVariable gameId: Long,
+    fun getPieces(@PathVariable gameUuid: String,
                   @RequestParam(name = "color", defaultValue = "") colors: List<PieceColor>,
                   @RequestParam(required = false) status: PieceStatus?
     )
             : ResponseEntity<Iterable<Piece>> {
-        val game = gameService.getById(gameId)
+        val game = gameService.getByUuid(gameUuid)
         return ResponseEntity.ok(pieceService.findAllBy(game, colors, status))
     }
 

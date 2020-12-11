@@ -19,7 +19,7 @@ class BlackPlayerSearchPiecesIntegrationTests(
     fun `Cannot see white pieces from a game`() {
         val game = testUtils.createFullGame()
 
-        mockMvc.get("/pieces/${game.id}?color=WHITE") {
+        mockMvc.get("/pieces/${game.uuid}?color=WHITE") {
             with(jwt().jwt { it.claim("sub", game.blackPlayer?.authId) })
         }.andExpect {
             status { isForbidden }
@@ -30,7 +30,7 @@ class BlackPlayerSearchPiecesIntegrationTests(
     fun `Can see black pieces from a game`() {
         val game = testUtils.createFullGame()
 
-        mockMvc.get("/pieces/${game.id}?color=BLACK") {
+        mockMvc.get("/pieces/${game.uuid}?color=BLACK") {
             with(jwt().jwt { it.claim("sub", game.blackPlayer?.authId) })
         }.andExpect {
             status { isOk }
@@ -42,7 +42,7 @@ class BlackPlayerSearchPiecesIntegrationTests(
     fun `Cannot search pieces of both colors from a game`() {
         val game = testUtils.createFullGame()
 
-        mockMvc.get("/pieces/${game.id}?color=BLACK&color=WHITE") {
+        mockMvc.get("/pieces/${game.uuid}?color=BLACK&color=WHITE") {
             with(jwt().jwt { it.claim("sub", game.blackPlayer?.authId) })
         }.andExpect {
             status { isForbidden }
@@ -53,7 +53,7 @@ class BlackPlayerSearchPiecesIntegrationTests(
     fun `Can see black taken pieces from a game`() {
         val game = testUtils.createFullGame()
 
-        mockMvc.get("/pieces/${game.id}?color=BLACK&status=TAKEN") {
+        mockMvc.get("/pieces/${game.uuid}?color=BLACK&status=TAKEN") {
             with(jwt().jwt { it.claim("sub", game.blackPlayer?.authId) })
         }.andExpect {
             status { isOk }
@@ -64,7 +64,7 @@ class BlackPlayerSearchPiecesIntegrationTests(
     fun `Can see white taken pieces from a game`() {
         val game = testUtils.createFullGame()
 
-        mockMvc.get("/pieces/${game.id}?color=WHITE&status=TAKEN") {
+        mockMvc.get("/pieces/${game.uuid}?color=WHITE&status=TAKEN") {
             with(jwt().jwt { it.claim("sub", game.blackPlayer?.authId) })
         }.andExpect {
             status { isOk }
@@ -75,7 +75,7 @@ class BlackPlayerSearchPiecesIntegrationTests(
     fun `Can see both color taken pieces from a game`() {
         val game = testUtils.createFullGame()
 
-        mockMvc.get("/pieces/${game.id}?color=WHITE&color=BLACK&status=TAKEN") {
+        mockMvc.get("/pieces/${game.uuid}?color=WHITE&color=BLACK&status=TAKEN") {
             with(jwt().jwt { it.claim("sub", game.blackPlayer?.authId) })
         }.andExpect {
             status { isOk }

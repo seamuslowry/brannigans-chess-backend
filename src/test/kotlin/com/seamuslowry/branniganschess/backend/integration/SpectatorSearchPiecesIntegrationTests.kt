@@ -23,13 +23,13 @@ class SpectatorSearchPiecesIntegrationTests(
 ) {
     @Test
     fun `Will not find pieces from a specific game without color specified`() {
-        val gameOne = gameRepository.save(Game("Piece Search I-Test Game One"))
-        val gameTwo = gameRepository.save(Game("Piece Search I-Test Game Two"))
+        val gameOne = gameRepository.save(Game("Piece Search No Color Game One"))
+        val gameTwo = gameRepository.save(Game("Piece Search No Color Game Two"))
 
         pieceService.createPiece(Pawn(PieceColor.BLACK, gameOne.id))
         pieceService.createPiece(Pawn(PieceColor.WHITE, gameTwo.id))
 
-        mockMvc.get("/pieces/${gameOne.id}") {
+        mockMvc.get("/pieces/${gameOne.uuid}") {
             with(jwt())
         }.andExpect {
             status { isOk }
@@ -39,12 +39,12 @@ class SpectatorSearchPiecesIntegrationTests(
 
     @Test
     fun `Finds pieces of neither color from a game`() {
-        val gameOne = gameRepository.save(Game("Piece Search I-Test Game One"))
+        val gameOne = gameRepository.save(Game("Piece Search Neither Color Game One"))
 
         val blackPiece = pieceService.createPiece(Pawn(PieceColor.BLACK, gameOne.id))
         val whitePiece = pieceService.createPiece(Pawn(PieceColor.WHITE, gameOne.id))
 
-        mockMvc.get("/pieces/${gameOne.id}") {
+        mockMvc.get("/pieces/${gameOne.uuid}") {
             with(jwt())
         }.andExpect {
             status { isOk }
@@ -56,12 +56,12 @@ class SpectatorSearchPiecesIntegrationTests(
 
     @Test
     fun `Finds black pieces from a game`() {
-        val gameOne = gameRepository.save(Game("Piece Search I-Test Game One"))
+        val gameOne = gameRepository.save(Game("Piece Search Spec Black Game One"))
 
         val searchPiece = pieceService.createPiece(Pawn(PieceColor.BLACK, gameOne.id))
         pieceService.createPiece(Pawn(PieceColor.WHITE, gameOne.id))
 
-        mockMvc.get("/pieces/${gameOne.id}?color=BLACK") {
+        mockMvc.get("/pieces/${gameOne.uuid}?color=BLACK") {
             with(jwt())
         }.andExpect {
             status { isOk }
@@ -72,12 +72,12 @@ class SpectatorSearchPiecesIntegrationTests(
 
     @Test
     fun `Finds white pieces from a game`() {
-        val gameOne = gameRepository.save(Game("Piece Search I-Test Game One"))
+        val gameOne = gameRepository.save(Game("Piece Search Spec White Game One"))
 
         pieceService.createPiece(Pawn(PieceColor.BLACK, gameOne.id))
         val searchPiece = pieceService.createPiece(Pawn(PieceColor.WHITE, gameOne.id))
 
-        mockMvc.get("/pieces/${gameOne.id}?color=WHITE") {
+        mockMvc.get("/pieces/${gameOne.uuid}?color=WHITE") {
             with(jwt())
         }.andExpect {
             status { isOk }
@@ -88,12 +88,12 @@ class SpectatorSearchPiecesIntegrationTests(
 
     @Test
     fun `Finds pieces of both colors from a game`() {
-        val gameOne = gameRepository.save(Game("Piece Search I-Test Game One"))
+        val gameOne = gameRepository.save(Game("Piece Search Spec Both Game One"))
 
         val blackPiece = pieceService.createPiece(Pawn(PieceColor.BLACK, gameOne.id))
         val whitePiece = pieceService.createPiece(Pawn(PieceColor.WHITE, gameOne.id))
 
-        mockMvc.get("/pieces/${gameOne.id}?color=BLACK&color=WHITE") {
+        mockMvc.get("/pieces/${gameOne.uuid}?color=BLACK&color=WHITE") {
             with(jwt())
         }.andExpect {
             status { isOk }
@@ -105,12 +105,12 @@ class SpectatorSearchPiecesIntegrationTests(
 
     @Test
     fun `Finds on taken pieces from a game without a specified color`() {
-        val gameOne = gameRepository.save(Game("Piece Search I-Test Game One"))
+        val gameOne = gameRepository.save(Game("Piece Search None Taken Game One"))
 
         pieceService.createPiece(Pawn(PieceColor.BLACK, gameOne.id, 0, 0, PieceStatus.TAKEN))
         pieceService.createPiece(Pawn(PieceColor.BLACK, gameOne.id))
 
-        mockMvc.get("/pieces/${gameOne.id}?status=TAKEN") {
+        mockMvc.get("/pieces/${gameOne.uuid}?status=TAKEN") {
             with(jwt())
         }.andExpect {
             status { isOk }
@@ -120,8 +120,8 @@ class SpectatorSearchPiecesIntegrationTests(
 
     @Test
     fun `Finds taken pieces of a specific color from a game`() {
-        val gameOne = gameRepository.save(Game("Piece Search I-Test Game One"))
-        val gameTwo = gameRepository.save(Game("Piece Search I-Test Game Two"))
+        val gameOne = gameRepository.save(Game("Piece Search Black Taken Game One"))
+        val gameTwo = gameRepository.save(Game("Piece Search Black Taken Game Two"))
 
         val searchPiece = pieceService.createPiece(Pawn(PieceColor.BLACK, gameOne.id, 0, 0, PieceStatus.TAKEN))
         // matches game and taken
@@ -131,7 +131,7 @@ class SpectatorSearchPiecesIntegrationTests(
         // matches color and taken
         pieceService.createPiece(Pawn(PieceColor.BLACK, gameTwo.id, 0, 0, PieceStatus.TAKEN))
 
-        mockMvc.get("/pieces/${gameOne.id}?color=BLACK&status=TAKEN") {
+        mockMvc.get("/pieces/${gameOne.uuid}?color=BLACK&status=TAKEN") {
             with(jwt())
         }.andExpect {
             status { isOk }

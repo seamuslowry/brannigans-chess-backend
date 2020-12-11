@@ -36,8 +36,8 @@ class PieceControllerTest(@Autowired val mockMvc: MockMvc) {
         val game = Game("uuid", id = 1L)
         val piece = Pawn(PieceColor.BLACK, game.id)
         every { pieceService.findAllBy(game, emptyList(), piece.status) } returns emptyList()
-        every { gameService.getById(game.id) } returns game
-        mockMvc.perform(get("/pieces/${game.id}?status=${piece.status}").accept(MediaType.APPLICATION_JSON))
+        every { gameService.getByUuid(game.uuid) } returns game
+        mockMvc.perform(get("/pieces/${game.uuid}?status=${piece.status}").accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk)
             .andExpect(content().contentType(MediaType.APPLICATION_JSON))
             .andExpect(jsonPath("\$").isArray)
@@ -49,8 +49,8 @@ class PieceControllerTest(@Autowired val mockMvc: MockMvc) {
         val game = Game("uuid", id = 1L)
         val piece = Pawn(PieceColor.BLACK, game.id)
         every { pieceService.findAllBy(game, listOf(PieceColor.BLACK), piece.status) } returns listOf(piece)
-        every { gameService.getById(game.id) } returns game
-        mockMvc.perform(get("/pieces/${game.id}?color=${piece.color}&status=${piece.status}").accept(MediaType.APPLICATION_JSON))
+        every { gameService.getByUuid(game.uuid) } returns game
+        mockMvc.perform(get("/pieces/${game.uuid}?color=${piece.color}&status=${piece.status}").accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk)
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("\$").isArray)
@@ -62,8 +62,8 @@ class PieceControllerTest(@Autowired val mockMvc: MockMvc) {
         val game = Game("uuid", id = 1L)
         val piece = Pawn(PieceColor.BLACK, game.id)
         every { pieceService.findAllBy(game, listOf(PieceColor.WHITE, PieceColor.BLACK), piece.status) } returns listOf(piece)
-        every { gameService.getById(game.id) } returns game
-        mockMvc.perform(get("/pieces/${game.id}?color=WHITE&color=BLACK&status=${piece.status}").accept(MediaType.APPLICATION_JSON))
+        every { gameService.getByUuid(game.uuid) } returns game
+        mockMvc.perform(get("/pieces/${game.uuid}?color=WHITE&color=BLACK&status=${piece.status}").accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk)
             .andExpect(content().contentType(MediaType.APPLICATION_JSON))
             .andExpect(jsonPath("\$").isArray)
