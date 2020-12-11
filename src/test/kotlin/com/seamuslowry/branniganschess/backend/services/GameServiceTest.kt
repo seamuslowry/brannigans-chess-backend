@@ -23,6 +23,7 @@ import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.domain.Specification
 import org.springframework.security.test.context.support.WithMockUser
 import org.springframework.test.context.junit.jupiter.SpringExtension
+import java.util.*
 
 @ExtendWith(SpringExtension::class)
 @WebMvcTest(GameService::class)
@@ -63,13 +64,23 @@ class GameServiceTest {
     }
 
     @Test
-    fun `gets a single game`() {
+    fun `gets a single game by id`() {
         val game = Game("New Game")
 
         every { gameRepository.getOne(any()) } returns game
         val newGame = service.getById(game.id)
 
-        assertEquals(game , newGame)
+        assertEquals(game, newGame)
+    }
+
+    @Test
+    fun `gets a single game by uuid`() {
+        val game = Game("New Game")
+
+        every { gameRepository.findOne(any()) } returns Optional.of(game)
+        val newGame = service.getByUuid(game.uuid)
+
+        assertEquals(game, newGame)
     }
 
     @Test
@@ -79,10 +90,10 @@ class GameServiceTest {
         val piece = Rook(PieceColor.WHITE, game.id)
         val move = Move(piece, 0, 0, 0, 1)
 
-        every { gameRepository.getOne(any()) } returns game
+        every { gameRepository.findOne(any()) } returns Optional.of(game)
         every { pieceService.findAllBy(any<Game>()) } returns listOf(piece)
         every { moveService.findAllBy(any<Game>()) } returns listOf(move)
-        val gameData = service.getAllGameData(game.id)
+        val gameData = service.getAllGameData(game.uuid)
 
         assertEquals(game, gameData.game)
         assertTrue(gameData.pieces.contains(piece))

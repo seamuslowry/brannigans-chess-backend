@@ -49,7 +49,7 @@ class AllGameDataIntegrationTests(
             status { isOk }
         }
 
-        mockMvc.get("/games/${game.id}") {
+        mockMvc.get("/games/${game.uuid}") {
             with(jwt())
         }.andExpect {
             status { isOk }
@@ -63,7 +63,7 @@ class AllGameDataIntegrationTests(
     fun `attempts to get the current game data - WHITE`() {
         val game = testUtils.createFullGame()
 
-        mockMvc.get("/games/${game.id}") {
+        mockMvc.get("/games/${game.uuid}") {
             with(jwt().jwt { it.claim("sub", game.whitePlayer?.authId) })
         }.andExpect {
             status { isForbidden }
@@ -74,7 +74,7 @@ class AllGameDataIntegrationTests(
     fun `attempts to get the current game data - BLACK`() {
         val game = testUtils.createFullGame()
 
-        mockMvc.get("/games/${game.id}") {
+        mockMvc.get("/games/${game.uuid}") {
             with(jwt().jwt { it.claim("sub", game.blackPlayer?.authId) })
         }.andExpect {
             status { isForbidden }

@@ -39,14 +39,14 @@ class GameController(
                  @PageableDefault(size = 10, sort = ["id"], direction = Sort.Direction.DESC) pageable: Pageable
     ): ResponseEntity<Page<Game>> = ResponseEntity.ok(gameService.findAllBy(statuses, pageable))
 
-    @GetMapping("/{gameId}")
+    @GetMapping("/{gameUUid}")
     @ApiOperation("Retrieves all data about the provided game")
     @ApiResponses(
         ApiResponse(code = 200, message =  "Successfully retrieved the game data."),
         ApiResponse(code = 401, message =  "You are not allowed to access all game data."),
         ApiResponse(code = 500, message =  "There was a problem with the service.")
     )
-    fun getAllData(@PathVariable gameId: Long): ResponseEntity<AllGameData> = ResponseEntity.ok(gameService.getAllGameData(gameId))
+    fun getAllData(@PathVariable gameUUid: String): ResponseEntity<AllGameData> = ResponseEntity.ok(gameService.getAllGameData(gameUUid))
 
     /**
      * When subscribing to the game status topic, send the current game.

@@ -76,11 +76,11 @@ class GameService (
      * Gets all data about the game with the given id.
      * This means the game itself, all moves, and all pieces.
      *
-     * @param gameId the id to retrieve for
+     * @param gameUuid the uuid to retrieve for
      *
      * @return the game, all its pieces, and all its moves
      */
-    fun getAllGameData(gameId: Long): AllGameData = getAllGameData(getById(gameId))
+    fun getAllGameData(gameUuid: String): AllGameData = getAllGameData(getByUuid(gameUuid))
 
     /**
      * Find all games by active or inactive.
@@ -145,6 +145,17 @@ class GameService (
      */
     fun getById(id: Long): Game {
         return gameRepository.getOne(id)
+    }
+
+    /**
+     * Get a single game by id.
+     *
+     * @param uuid the game uuid
+     *
+     * @return the [Game] with that uuid
+     */
+    fun getByUuid(uuid: String): Game {
+        return gameRepository.findOne(hasUuid(uuid)).orElseThrow()
     }
 
     /**
@@ -568,6 +579,13 @@ class GameService (
         _,
         criteriaBuilder -> criteriaBuilder.equal(root.get<Game>("status"), status)
     }
+
+    private fun hasUuid(uuid: String): Specification<Game> = Specification {
+            root,
+            _,
+            criteriaBuilder -> criteriaBuilder.equal(root.get<Game>("uuid"), uuid)
+    }
+
 
     private fun hasWhitePlayer(p: Player): Specification<Game> = Specification {
         root,
