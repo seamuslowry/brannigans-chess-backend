@@ -2,7 +2,6 @@ package com.seamuslowry.branniganschess.backend.integration
 
 import com.seamuslowry.branniganschess.backend.models.Game
 import com.seamuslowry.branniganschess.backend.models.PieceColor
-import com.seamuslowry.branniganschess.backend.models.PieceStatus
 import com.seamuslowry.branniganschess.backend.models.pieces.Pawn
 import com.seamuslowry.branniganschess.backend.repos.GameRepository
 import com.seamuslowry.branniganschess.backend.services.PieceService
@@ -23,7 +22,7 @@ class GetPiecesIntegrationTests(
 ) {
     @Test
     fun `White pieces send up game id and uuid`() {
-        val gameOne = gameRepository.save(Game("White Piece Game Fields", id=1))
+        val gameOne = gameRepository.save(Game("White Piece Game Fields"))
 
         val whitePiece = pieceService.createPiece(Pawn(PieceColor.WHITE, gameOne))
 
@@ -40,7 +39,7 @@ class GetPiecesIntegrationTests(
 
     @Test
     fun `Black pieces send up game id and uuid`() {
-        val gameOne = gameRepository.save(Game("Black Piece Game Fields", id=1))
+        val gameOne = gameRepository.save(Game("Black Piece Game Fields"))
 
         val blackPiece = pieceService.createPiece(Pawn(PieceColor.BLACK, gameOne))
 
