@@ -124,6 +124,17 @@ class PlayerServiceTest {
     }
 
     @Test
+    fun `non-existent player fails to join a game`() {
+        val authId = "games-id"
+        val player = Player(authId)
+        val game = Game()
+        every { playerRepository.findOne(any()) } returns Optional.empty()
+        every { gameService.addPlayer(any(), any(), any()) } returns game
+
+        assertThrows<EntityNotFoundException> { service.joinGame(game.uuid, player.authId, null) }
+    }
+
+    @Test
     fun `leaves a game`() {
         val authId = "games-id"
         val player = Player(authId)
