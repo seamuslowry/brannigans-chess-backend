@@ -44,7 +44,7 @@ class WebSocketStatusIntegrationTests(
         val game = gameService.createGame()
         val messages = mutableListOf<Game>()
         stompSession.subscribe(
-            "/game/status/${game.id}",
+            "/game/status/${game.uuid}",
             GameStompFrameHandler(messages))
 
         await until { messages.count() == 1 }
@@ -58,7 +58,7 @@ class WebSocketStatusIntegrationTests(
         val messages = mutableListOf<Game>()
 
         stompSession.subscribe(
-            "/game/status/${game.id}",
+            "/game/status/${game.uuid}",
             GameStompFrameHandler(messages))
 
         await until { messages.count() == 1 }

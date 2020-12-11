@@ -51,12 +51,12 @@ class GameController(
     /**
      * When subscribing to the game status topic, send the current game.
      *
-     * @param gameId the game id
+     * @param gameUuid the game uuid
      *
      * @return the game
      */
-    @SubscribeMapping("/status/{gameId}")
-    fun getCurrentStatus(@DestinationVariable gameId: Long): Game {
-        return gameService.getById(gameId)
+    @SubscribeMapping("/status/{gameUuid}")
+    fun getCurrentStatus(@DestinationVariable gameUuid: String): Game {
+        return gameService.getByUuid(gameUuid)
     }
 }
