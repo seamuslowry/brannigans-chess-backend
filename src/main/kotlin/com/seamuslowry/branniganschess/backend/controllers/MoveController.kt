@@ -32,17 +32,17 @@ class MoveController (
              @RequestBody moveRequest: MoveRequest): ResponseEntity<Move> =
             ResponseEntity.ok(gameService.move(gameId, moveRequest))
 
-    @GetMapping("/{gameId}")
+    @GetMapping("/{gameUuid}")
     @ApiOperation("Gets all moves for a given game", response = Move::class, responseContainer = "List")
     @ApiResponses(
             ApiResponse(code = 200, message =  "Successfully retrieved the list of games."),
             ApiResponse(code = 404, message =  "The game does not exist."),
             ApiResponse(code = 500, message =  "There was a problem with the service.")
     )
-    fun getMoves(@PathVariable gameId: Long,
+    fun getMoves(@PathVariable gameUuid: String,
                  @RequestParam(name = "color", defaultValue = "") colors: List<PieceColor>)
             : ResponseEntity<Iterable<Move>> {
-        val game = gameService.getById(gameId)
+        val game = gameService.getByUuid(gameUuid)
         return ResponseEntity.ok(moveService.findAllBy(game, colors))
     }
 

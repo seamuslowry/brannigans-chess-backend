@@ -19,7 +19,7 @@ class WhitePlayerSearchMovesIntegrationTests(
     fun `Cannot see black moves from a game`() {
         val game = testUtils.createFullGame()
 
-        mockMvc.get("/moves/${game.id}?color=BLACK") {
+        mockMvc.get("/moves/${game.uuid}?color=BLACK") {
             with(jwt().jwt { it.claim("sub", game.whitePlayer?.authId) })
         }.andExpect {
             status { isForbidden }
@@ -30,7 +30,7 @@ class WhitePlayerSearchMovesIntegrationTests(
     fun `Can see white moves from a game`() {
         val game = testUtils.createFullGame()
 
-        mockMvc.get("/moves/${game.id}?color=WHITE") {
+        mockMvc.get("/moves/${game.uuid}?color=WHITE") {
             with(jwt().jwt { it.claim("sub", game.whitePlayer?.authId) })
         }.andExpect {
             status { isOk }
@@ -41,7 +41,7 @@ class WhitePlayerSearchMovesIntegrationTests(
     fun `Cannot find all moves from a specific game`() {
         val game = testUtils.createFullGame()
 
-        mockMvc.get("/moves/${game.id}?color=WHITE&color=BLACK") {
+        mockMvc.get("/moves/${game.uuid}?color=WHITE&color=BLACK") {
             with(jwt().jwt { it.claim("sub", game.whitePlayer?.authId) })
         }.andExpect {
             status { isForbidden }

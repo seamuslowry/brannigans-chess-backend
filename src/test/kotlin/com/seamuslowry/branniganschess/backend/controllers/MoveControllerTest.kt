@@ -51,8 +51,8 @@ class MoveControllerTest(@Autowired val mockMvc: MockMvc) {
         val piece = Pawn(PieceColor.BLACK, game.id)
         val move = Move(piece, 0,0,0,0)
         every { moveService.findAllBy(game, listOf(piece.color)) } returns listOf(move)
-        every { gameService.getById(game.id) } returns game
-        mockMvc.perform(MockMvcRequestBuilders.get("/moves/${game.id}?color=${piece.color}").accept(MediaType.APPLICATION_JSON))
+        every { gameService.getByUuid(game.uuid) } returns game
+        mockMvc.perform(MockMvcRequestBuilders.get("/moves/${game.uuid}?color=${piece.color}").accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk)
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("\$").isArray)

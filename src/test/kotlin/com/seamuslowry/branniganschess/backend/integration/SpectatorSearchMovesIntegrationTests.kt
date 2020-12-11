@@ -30,7 +30,7 @@ class SpectatorSearchMovesIntegrationTests(
         // move white pawn up one
         gameService.move(noMatchGame.id, MoveRequest(6,0, 5, 0))
 
-        mockMvc.get("/moves/${game.id}") {
+        mockMvc.get("/moves/${game.uuid}") {
             with(jwt())
         }.andExpect {
             status { isOk }
@@ -50,7 +50,7 @@ class SpectatorSearchMovesIntegrationTests(
         // move white pawn up one
         gameService.move(noMatchGame.id, MoveRequest(6,0, 5, 0))
 
-        mockMvc.get("/moves/${game.id}?color=WHITE&color=BLACK") {
+        mockMvc.get("/moves/${game.uuid}?color=WHITE&color=BLACK") {
             with(jwt())
         }.andExpect {
             status { isOk }
@@ -68,7 +68,7 @@ class SpectatorSearchMovesIntegrationTests(
         // move black pawn one
         val blackMove = gameService.move(game.id, MoveRequest(1,0, 2, 0))
 
-        mockMvc.get("/moves/${game.id}?color=BLACK") {
+        mockMvc.get("/moves/${game.uuid}?color=BLACK") {
             with(jwt())
         }.andExpect {
             status { isOk }
@@ -87,7 +87,7 @@ class SpectatorSearchMovesIntegrationTests(
         // take black pawn with white pawn
         val whiteTake = gameService.move(game.id, MoveRequest(4,0, 3, 1))
 
-        mockMvc.get("/moves/${game.id}?color=BLACK") {
+        mockMvc.get("/moves/${game.uuid}?color=BLACK") {
             with(jwt())
         }.andExpect {
             status { isOk }
