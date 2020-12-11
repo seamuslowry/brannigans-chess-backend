@@ -19,8 +19,8 @@ class IntegrationTestUtils(
         var game = gameService.createGame()
         val playerOne =  playerService.authenticatePlayer("util-game-one-${System.nanoTime()}")
         val playerTwo =  playerService.authenticatePlayer("util-game-two-${System.nanoTime()}")
-        game = playerService.joinGame(game.id, playerOne.authId, PieceColor.WHITE)
-        game = playerService.joinGame(game.id, playerTwo.authId, PieceColor.BLACK)
+        game = playerService.joinGame(game.uuid, playerOne.authId, PieceColor.WHITE)
+        game = playerService.joinGame(game.uuid, playerTwo.authId, PieceColor.BLACK)
 
         return game
     }

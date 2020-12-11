@@ -43,7 +43,8 @@ class GameServiceTest {
     fun init () {
         every { moveService.createMove(any()) } answers { firstArg() }
         every { pieceService.getPiecesAsBoard(any()) } returns Utils.getEmptyBoard()
-        every { gameRepository.getOne(any()) } answers { Game("Generic Game", id=firstArg(), status = GameStatus.WHITE_TURN) }
+        every { gameRepository.getOne(any()) } answers { Game("Generic Game Id", id=firstArg(), status = GameStatus.WHITE_TURN) }
+        every { gameRepository.findOne(any()) } answers { Optional.of(Game("Generic Game Uuid", status = GameStatus.WHITE_TURN)) }
         every { gameRepository.save(any<Game>()) } answers { firstArg() }
         every { pieceService.findAllBy(any(), any<PieceColor>(), any(), any()) } answers { listOf(King(secondArg(), 0L, positionCol = 4, positionRow = if (secondArg<PieceColor>() === PieceColor.BLACK) 0 else 7, id=100)) }
         every { moveService.hasMoved(any()) } returns false
@@ -836,7 +837,7 @@ class GameServiceTest {
     @Test
     fun `adds a white player as requested`() {
         val player = Player("success-add-white")
-        val savedGame = service.addPlayer(1, player, PieceColor.WHITE)
+        val savedGame = service.addPlayer("1", player, PieceColor.WHITE)
 
         assertEquals(GameStatus.WAITING_FOR_BLACK, savedGame.status)
         assertEquals(player, savedGame.whitePlayer)
@@ -845,7 +846,7 @@ class GameServiceTest {
     @Test
     fun `adds a black player as requested`() {
         val player = Player("success-add-black")
-        val savedGame = service.addPlayer(1, player, PieceColor.BLACK)
+        val savedGame = service.addPlayer("1", player, PieceColor.BLACK)
 
         assertEquals(GameStatus.WAITING_FOR_WHITE, savedGame.status)
         assertEquals(player, savedGame.blackPlayer)
@@ -855,7 +856,7 @@ class GameServiceTest {
     fun `adds a white player by default`() {
         val player = Player("success-default-white")
 
-        val savedGame = service.addPlayer(1, player)
+        val savedGame = service.addPlayer("1", player)
 
         assertEquals(GameStatus.WAITING_FOR_BLACK, savedGame.status)
         assertEquals(player, savedGame.whitePlayer)
@@ -866,9 +867,9 @@ class GameServiceTest {
         val player = Player("success-default-black")
         val game = Game("white-filled-game", whitePlayer = Player("existing-white"))
 
-        every { gameRepository.getOne(any()) } returns game
+        every { gameRepository.findOne(any()) } returns Optional.of(game)
 
-        val savedGame = service.addPlayer(1, player)
+        val savedGame = service.addPlayer("1", player)
 
         assertEquals(GameStatus.WHITE_TURN, savedGame.status)
         assertEquals(player, savedGame.blackPlayer)
@@ -878,27 +879,27 @@ class GameServiceTest {
     fun `will not add to a full game`() {
         val game = Game("full-game", blackPlayer = Player("full-black"), whitePlayer = Player("full-white"))
 
-        every { gameRepository.getOne(any()) } returns game
+        every { gameRepository.findOne(any()) } returns Optional.of(game)
 
-        assertThrows<GameStateException> { service.addPlayer(1, Player("disallow-full")) }
+        assertThrows<GameStateException> { service.addPlayer("1", Player("disallow-full")) }
     }
 
     @Test
     fun `will not add a white player when white is assigned`() {
         val game = Game("white-filled-game", whitePlayer = Player("no-overwrite-white"))
 
-        every { gameRepository.getOne(any()) } returns game
+        every { gameRepository.findOne(any()) } returns Optional.of(game)
 
-        assertThrows<GameStateException> { service.addPlayer(1, Player("try-overwrite-white"), PieceColor.WHITE) }
+        assertThrows<GameStateException> { service.addPlayer("1", Player("try-overwrite-white"), PieceColor.WHITE) }
     }
 
     @Test
     fun `will not add a black player when black is assigned`() {
         val game = Game("black-filled-game", blackPlayer = Player("no-overwrite-black"))
 
-        every { gameRepository.getOne(any()) } returns game
+        every { gameRepository.findOne(any()) } returns Optional.of(game)
 
-        assertThrows<GameStateException> { service.addPlayer(1, Player("try-overwrite-black"), PieceColor.BLACK) }
+        assertThrows<GameStateException> { service.addPlayer("1", Player("try-overwrite-black"), PieceColor.BLACK) }
     }
 
     @Test
@@ -906,9 +907,9 @@ class GameServiceTest {
         val player = Player("try-swap-black")
         val game = Game("black-swap-game", whitePlayer = player)
 
-        every { gameRepository.getOne(any()) } returns game
+        every { gameRepository.findOne(any()) } returns Optional.of(game)
 
-        val savedGame = service.addPlayer(1, player, PieceColor.BLACK)
+        val savedGame = service.addPlayer("1", player, PieceColor.BLACK)
 
         assertEquals(GameStatus.WAITING_FOR_WHITE, savedGame.status)
         assertEquals(player, savedGame.blackPlayer)
@@ -919,9 +920,9 @@ class GameServiceTest {
         val player = Player("try-swap-white")
         val game = Game("white-swap-game", blackPlayer = player)
 
-        every { gameRepository.getOne(any()) } returns game
+        every { gameRepository.findOne(any()) } returns Optional.of(game)
 
-        val savedGame = service.addPlayer(1, player, PieceColor.WHITE)
+        val savedGame = service.addPlayer("1", player, PieceColor.WHITE)
 
         assertEquals(GameStatus.WAITING_FOR_BLACK, savedGame.status)
         assertEquals(player, savedGame.whitePlayer)
@@ -932,9 +933,9 @@ class GameServiceTest {
         val player = Player("try-readd")
         val game = Game("readd-game", blackPlayer = player)
 
-        every { gameRepository.getOne(any()) } returns game
+        every { gameRepository.findOne(any()) } returns Optional.of(game)
 
-        val savedGame = service.addPlayer(1, player)
+        val savedGame = service.addPlayer("1", player)
 
         assertEquals(GameStatus.WAITING_FOR_WHITE, savedGame.status)
         assertEquals(player, savedGame.blackPlayer)

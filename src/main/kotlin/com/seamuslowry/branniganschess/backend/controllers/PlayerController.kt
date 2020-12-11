@@ -63,7 +63,7 @@ class PlayerController(
     )
     fun changeName(authentication: Authentication, @RequestBody newName: ChangeNameDto): ResponseEntity<Player> = ResponseEntity.ok(playerService.changeName(authentication.name, newName.name))
 
-    @PostMapping("/join/{gameId}")
+    @PostMapping("/join/{gameUuid}")
     @ApiOperation("Adds the authenticated user to the specified game", response = Game::class)
     @ApiResponses(
         ApiResponse(code = 200, message =  "Successfully joined the game."),
@@ -71,9 +71,9 @@ class PlayerController(
         ApiResponse(code = 500, message =  "There was a problem with the service.")
     )
     fun join(authentication: Authentication,
-             @PathVariable gameId: Long,
+             @PathVariable gameUuid: String,
              @RequestParam(required = false) color: PieceColor?)
-        : ResponseEntity<Game> = ResponseEntity.ok(playerService.joinGame(gameId, authentication.name, color))
+        : ResponseEntity<Game> = ResponseEntity.ok(playerService.joinGame(gameUuid, authentication.name, color))
 
     @PostMapping("/leave/{gameId}")
     @ApiOperation("Removes the authenticated user to the specified game", response = Game::class)

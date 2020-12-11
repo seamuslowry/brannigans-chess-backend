@@ -24,7 +24,7 @@ class LeaveGameIntegrationTests(
         val player = playerService.authenticatePlayer(playerAuthId)
         val game = gameService.createGame()
 
-        mockMvc.post("/players/join/${game.id}") {
+        mockMvc.post("/players/join/${game.uuid}") {
             with(jwt().jwt { it.claim("sub", player.authId) })
         }.andExpect {
             status { isOk }
@@ -46,13 +46,13 @@ class LeaveGameIntegrationTests(
         val playerTwo = playerService.authenticatePlayer(playerTwoAuthId)
         val game = gameService.createGame()
 
-        mockMvc.post("/players/join/${game.id}") {
+        mockMvc.post("/players/join/${game.uuid}") {
             with(jwt().jwt { it.claim("sub", playerOne.authId) })
         }.andExpect {
             status { isOk }
         }
 
-        mockMvc.post("/players/join/${game.id}") {
+        mockMvc.post("/players/join/${game.uuid}") {
             with(jwt().jwt { it.claim("sub", playerTwo.authId) })
         }.andExpect {
             status { isOk }

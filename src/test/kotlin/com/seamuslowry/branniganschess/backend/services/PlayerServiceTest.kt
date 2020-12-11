@@ -117,7 +117,7 @@ class PlayerServiceTest {
         every { playerRepository.findOne(any()) } returns Optional.of(player)
         every { gameService.addPlayer(any(), any(), any()) } returns game
 
-        val newGame = service.joinGame(game.id, player.authId, null)
+        val newGame = service.joinGame(game.uuid, player.authId, null)
 
         verify(exactly = 1) { gameService.addPlayer(any(), any(), any()) }
         assertEquals(game, newGame)

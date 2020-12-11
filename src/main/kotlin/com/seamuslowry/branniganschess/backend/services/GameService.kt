@@ -231,14 +231,14 @@ class GameService (
     /**
      * Add a player to a game with an optional specified color.
      *
-     * @param gameId the id of the game
+     * @param gameUuid the uuid of the game
      * @param player the player to add
      * @param color (optional) the color the player should be
      *
      * @return the updated game
      */
-    fun addPlayer(gameId: Long, player: Player, color: PieceColor? = null): Game {
-        var game = getById(gameId)
+    fun addPlayer(gameUuid: String, player: Player, color: PieceColor? = null): Game {
+        var game = getByUuid(gameUuid)
         game = addPlayer(game, player, color)
         return updateGameForPlayerSearch(game)
     }

@@ -24,7 +24,7 @@ class JoinGameIntegrationTests(
         val player = playerService.authenticatePlayer(playerAuthId)
         val game = gameService.createGame()
 
-        mockMvc.post("/players/join/${game.id}") {
+        mockMvc.post("/players/join/${game.uuid}") {
             with(jwt().jwt { it.claim("sub", player.authId) })
         }.andExpect {
             status { isOk }
@@ -41,7 +41,7 @@ class JoinGameIntegrationTests(
         val player = playerService.authenticatePlayer(playerAuthId)
         val game = gameService.createGame()
 
-        mockMvc.post("/players/join/${game.id}?color=BLACK") {
+        mockMvc.post("/players/join/${game.uuid}?color=BLACK") {
             with(jwt().jwt { it.claim("sub", player.authId) })
         }.andExpect {
             status { isOk }
@@ -60,14 +60,14 @@ class JoinGameIntegrationTests(
         val whitePlayer = playerService.authenticatePlayer(whitePlayerAuthId)
         val game = gameService.createGame()
 
-        mockMvc.post("/players/join/${game.id}") {
+        mockMvc.post("/players/join/${game.uuid}") {
             with(jwt().jwt { it.claim("sub", whitePlayer.authId) })
         }.andExpect {
             status { isOk }
             jsonPath("status") { value(GameStatus.WAITING_FOR_BLACK.toString()) }
         }
 
-        mockMvc.post("/players/join/${game.id}") {
+        mockMvc.post("/players/join/${game.uuid}") {
             with(jwt().jwt { it.claim("sub", blackPlayer.authId) })
         }.andExpect {
             status { isOk }

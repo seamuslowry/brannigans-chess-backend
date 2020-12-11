@@ -90,9 +90,9 @@ class PlayerService (
         return getGames(player, color, statuses, pageable)
     }
 
-    fun joinGame(gameId: Long, authId: String, color: PieceColor?): Game {
+    fun joinGame(gameUuid: String, authId: String, color: PieceColor?): Game {
         val player = getByAuthId(authId)
-        return gameService.addPlayer(gameId, player, color)
+        return gameService.addPlayer(gameUuid, player, color)
     }
 
     fun leaveGame(gameId: Long, authId: String): Game {
