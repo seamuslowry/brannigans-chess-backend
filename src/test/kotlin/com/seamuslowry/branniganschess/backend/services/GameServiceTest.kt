@@ -946,9 +946,9 @@ class GameServiceTest {
         val player = Player("remove-black")
         val game = Game("remove-black-game", blackPlayer = player)
 
-        every { gameRepository.getOne(any()) } returns game
+        every { gameRepository.findOne(any()) } returns Optional.of(game)
 
-        val savedGame = service.removePlayer(1, player)
+        val savedGame = service.removePlayer("1", player)
 
         assertEquals(GameStatus.WAITING_FOR_PLAYERS, savedGame.status)
         assertNull(savedGame.blackPlayer)
@@ -959,9 +959,9 @@ class GameServiceTest {
         val player = Player("remove-white")
         val game = Game("remove-white-game", whitePlayer = player)
 
-        every { gameRepository.getOne(any()) } returns game
+        every { gameRepository.findOne(any()) } returns Optional.of(game)
 
-        val savedGame = service.removePlayer(1, player)
+        val savedGame = service.removePlayer("1", player)
 
         assertEquals(GameStatus.WAITING_FOR_PLAYERS, savedGame.status)
         assertNull(savedGame.whitePlayer)
@@ -972,8 +972,8 @@ class GameServiceTest {
         val player = Player("no-remove")
         val game = Game("no-remove-game", whitePlayer = player, blackPlayer = Player("no-remove-black"))
 
-        every { gameRepository.getOne(any()) } returns game
+        every { gameRepository.findOne(any()) } returns Optional.of(game)
 
-        assertThrows<GameStateException> { service.removePlayer(1, player) }
+        assertThrows<GameStateException> { service.removePlayer("1", player) }
     }
 }

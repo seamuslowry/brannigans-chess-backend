@@ -75,7 +75,7 @@ class PlayerController(
              @RequestParam(required = false) color: PieceColor?)
         : ResponseEntity<Game> = ResponseEntity.ok(playerService.joinGame(gameUuid, authentication.name, color))
 
-    @PostMapping("/leave/{gameId}")
+    @PostMapping("/leave/{gameUuid}")
     @ApiOperation("Removes the authenticated user to the specified game", response = Game::class)
     @ApiResponses(
         ApiResponse(code = 200, message =  "Successfully left the game."),
@@ -83,6 +83,6 @@ class PlayerController(
         ApiResponse(code = 500, message =  "There was a problem with the service.")
     )
     fun leave(authentication: Authentication,
-              @PathVariable gameId: Long)
-        : ResponseEntity<Game> = ResponseEntity.ok(playerService.leaveGame(gameId, authentication.name))
+              @PathVariable gameUuid: String)
+        : ResponseEntity<Game> = ResponseEntity.ok(playerService.leaveGame(gameUuid, authentication.name))
 }

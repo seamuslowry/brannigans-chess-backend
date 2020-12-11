@@ -246,13 +246,13 @@ class GameService (
     /**
      * Remove a player from a game
      *
-     * @param gameId the id of the game
+     * @param gameUuid the id of the game
      * @param player the player to add
      *
      * @return the updated game
      */
-    fun removePlayer(gameId: Long, player: Player): Game {
-        var game = getById(gameId)
+    fun removePlayer(gameUuid: String, player: Player): Game {
+        var game = getByUuid(gameUuid)
         game = removePlayer(game, player)
         return updateGameForPlayerSearch(game)
     }

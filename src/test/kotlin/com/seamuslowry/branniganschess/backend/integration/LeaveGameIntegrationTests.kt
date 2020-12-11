@@ -30,7 +30,7 @@ class LeaveGameIntegrationTests(
             status { isOk }
         }
 
-        mockMvc.post("/players/leave/${game.id}") {
+        mockMvc.post("/players/leave/${game.uuid}") {
             with(jwt().jwt { it.claim("sub", player.authId) })
         }.andExpect {
             status { isOk }
@@ -58,13 +58,13 @@ class LeaveGameIntegrationTests(
             status { isOk }
         }
 
-        mockMvc.post("/players/leave/${game.id}") {
+        mockMvc.post("/players/leave/${game.uuid}") {
             with(jwt().jwt { it.claim("sub", playerOne.authId) })
         }.andExpect {
             status { isConflict }
         }
 
-        mockMvc.post("/players/leave/${game.id}") {
+        mockMvc.post("/players/leave/${game.uuid}") {
             with(jwt().jwt { it.claim("sub", playerTwo.authId) })
         }.andExpect {
             status { isConflict }

@@ -95,9 +95,9 @@ class PlayerService (
         return gameService.addPlayer(gameUuid, player, color)
     }
 
-    fun leaveGame(gameId: Long, authId: String): Game {
+    fun leaveGame(gameUuid: String, authId: String): Game {
         val player = getByAuthId(authId)
-        return gameService.removePlayer(gameId, player)
+        return gameService.removePlayer(gameUuid, player)
     }
 
     private fun getByAuthId(authId: String): Player =

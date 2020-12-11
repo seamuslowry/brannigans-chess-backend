@@ -131,7 +131,7 @@ class PlayerServiceTest {
         every { playerRepository.findOne(any()) } returns Optional.of(player)
         every { gameService.removePlayer(any(), any()) } returns game
 
-        val newGame = service.leaveGame(game.id, player.authId)
+        val newGame = service.leaveGame(game.uuid, player.authId)
 
         verify(exactly = 1) { gameService.removePlayer(any(), any()) }
         assertEquals(game, newGame)
