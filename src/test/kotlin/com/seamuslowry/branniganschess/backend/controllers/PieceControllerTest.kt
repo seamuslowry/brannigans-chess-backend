@@ -34,7 +34,7 @@ class PieceControllerTest(@Autowired val mockMvc: MockMvc) {
     @Test
     fun `Searches for pieces without a color`() {
         val game = Game("uuid", id = 1L)
-        val piece = Pawn(PieceColor.BLACK, game.id)
+        val piece = Pawn(PieceColor.BLACK, game)
         every { pieceService.findAllBy(game, emptyList(), piece.status) } returns emptyList()
         every { gameService.getByUuid(game.uuid) } returns game
         mockMvc.perform(get("/pieces/${game.uuid}?status=${piece.status}").accept(MediaType.APPLICATION_JSON))
@@ -47,7 +47,7 @@ class PieceControllerTest(@Autowired val mockMvc: MockMvc) {
     @Test
     fun `Searches for pieces of a single color`() {
         val game = Game("uuid", id = 1L)
-        val piece = Pawn(PieceColor.BLACK, game.id)
+        val piece = Pawn(PieceColor.BLACK, game)
         every { pieceService.findAllBy(game, listOf(PieceColor.BLACK), piece.status) } returns listOf(piece)
         every { gameService.getByUuid(game.uuid) } returns game
         mockMvc.perform(get("/pieces/${game.uuid}?color=${piece.color}&status=${piece.status}").accept(MediaType.APPLICATION_JSON))
@@ -60,7 +60,7 @@ class PieceControllerTest(@Autowired val mockMvc: MockMvc) {
     @Test
     fun `Searches for pieces of both colors`() {
         val game = Game("uuid", id = 1L)
-        val piece = Pawn(PieceColor.BLACK, game.id)
+        val piece = Pawn(PieceColor.BLACK, game)
         every { pieceService.findAllBy(game, listOf(PieceColor.WHITE, PieceColor.BLACK), piece.status) } returns listOf(piece)
         every { gameService.getByUuid(game.uuid) } returns game
         mockMvc.perform(get("/pieces/${game.uuid}?color=WHITE&color=BLACK&status=${piece.status}").accept(MediaType.APPLICATION_JSON))
@@ -72,10 +72,11 @@ class PieceControllerTest(@Autowired val mockMvc: MockMvc) {
 
     @Test
     fun `Promotes a piece`() {
-        val piece = Queen(PieceColor.BLACK, 1L, 7, 0)
+        val game = Game("uuid")
+        val piece = Queen(PieceColor.BLACK, game, 7, 0)
 
-        every { pieceService.getById(any()) } returns Pawn(PieceColor.BLACK, 1L)
-        every { gameService.getById(any()) } returns Game("test")
+        every { pieceService.getById(any()) } returns Pawn(PieceColor.BLACK, game)
+        every { gameService.getById(any()) } returns game
         every { pieceService.promote(any(), any(), any()) } returns piece
         every { gameService.updateGameStatusForNextPlayer(any<Long>(), any()) } returns Game("Promote Game")
         mockMvc.perform(post("/pieces/promote/1/QUEEN"))

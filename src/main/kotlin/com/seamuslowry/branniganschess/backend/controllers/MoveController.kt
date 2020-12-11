@@ -53,13 +53,13 @@ class MoveController (
      *
      * When returning `null`, no message is sent.
      *
-     * @param gameId the id of the game to get the move of
+     * @param gameUuid the id of the game to get the move of
      *
      * @return the last shared move or null if there is none
      */
-    @SubscribeMapping("/moves/{gameId}")
-    fun getLastSharedMove(@DestinationVariable gameId: Long): Move? {
+    @SubscribeMapping("/moves/{gameUuid}")
+    fun getLastSharedMove(@DestinationVariable gameUuid: String): Move? {
         // does not send message with null body
-        return moveService.findSharedMoves(gameId).lastOrNull()
+        return moveService.findSharedMoves(gameUuid).lastOrNull()
     }
 }

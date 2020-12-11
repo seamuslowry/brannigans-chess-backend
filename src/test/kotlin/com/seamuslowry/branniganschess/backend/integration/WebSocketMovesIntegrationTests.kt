@@ -49,7 +49,7 @@ class WebSocketMovesIntegrationTests(
 
         val messages = mutableListOf<Move>()
         stompSession.subscribe(
-            "/game/moves/${game.id}",
+            "/game/moves/${game.uuid}",
             MoveStompFrameHandler(messages))
 
         await until { messages.count() == 1 }
@@ -77,7 +77,7 @@ class WebSocketMovesIntegrationTests(
         val messages = mutableListOf<Move>()
 
         stompSession.subscribe(
-            "/game/moves/${game.id}",
+            "/game/moves/${game.uuid}",
             MoveStompFrameHandler(messages))
 
         gameService.move(game.id, MoveRequest(6,0,4,0)) // move white pawn 2

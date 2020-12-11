@@ -46,14 +46,14 @@ class GameServiceTest {
         every { gameRepository.getOne(any()) } answers { Game("Generic Game Id", id=firstArg(), status = GameStatus.WHITE_TURN) }
         every { gameRepository.findOne(any()) } answers { Optional.of(Game("Generic Game Uuid", status = GameStatus.WHITE_TURN)) }
         every { gameRepository.save(any<Game>()) } answers { firstArg() }
-        every { pieceService.findAllBy(any(), any<PieceColor>(), any(), any()) } answers { listOf(King(secondArg(), 0L, positionCol = 4, positionRow = if (secondArg<PieceColor>() === PieceColor.BLACK) 0 else 7, id=100)) }
+        every { pieceService.findAllBy(any(), any<PieceColor>(), any(), any()) } answers { listOf(King(secondArg(), Game(""), positionCol = 4, positionRow = if (secondArg<PieceColor>() === PieceColor.BLACK) 0 else 7, id=100)) }
         every { moveService.hasMoved(any()) } returns false
     }
 
     @Test
     fun `creates a game with all the pieces`() {
         val game = Game("New Game")
-        val piece = Pawn(PieceColor.BLACK, game.id, 0, 0)
+        val piece = Pawn(PieceColor.BLACK, game, 0, 0)
         every { gameRepository.save(any<Game>()) } returns game
         every { pieceService.createPiece(any()) } returns piece
 
@@ -88,7 +88,7 @@ class GameServiceTest {
     @WithMockUser(username = "def-not-in-game")
     fun `gets all game data`() {
         val game = Game("New Game")
-        val piece = Rook(PieceColor.WHITE, game.id)
+        val piece = Rook(PieceColor.WHITE, game)
         val move = Move(piece, 0, 0, 0, 1)
 
         every { gameRepository.findOne(any()) } returns Optional.of(game)
@@ -234,7 +234,7 @@ class GameServiceTest {
     fun `throws an exception when black moves off its turn`() {
         val gameBoard = Utils.getEmptyBoard()
         val game = Game("Moving Board", status = GameStatus.WHITE_TURN)
-        val pawn = Pawn(PieceColor.BLACK, game.id, 1, 0)
+        val pawn = Pawn(PieceColor.BLACK, game, 1, 0)
         gameBoard[1][0] = pawn
 
         every { gameRepository.getOne(any()) } returns game
@@ -250,7 +250,7 @@ class GameServiceTest {
     fun `throws an exception when white moves off its turn`() {
         val gameBoard = Utils.getEmptyBoard()
         val game = Game("Moving Board", status = GameStatus.BLACK_TURN)
-        val pawn = Pawn(PieceColor.WHITE, game.id, 1, 0)
+        val pawn = Pawn(PieceColor.WHITE, game, 1, 0)
         gameBoard[1][0] = pawn
 
         every { gameRepository.getOne(any()) } returns game
@@ -266,7 +266,7 @@ class GameServiceTest {
     fun `throws an exception when black moves off its turn - white check`() {
         val gameBoard = Utils.getEmptyBoard()
         val game = Game("Moving Board", status = GameStatus.WHITE_CHECK)
-        val pawn = Pawn(PieceColor.BLACK, game.id, 1, 0)
+        val pawn = Pawn(PieceColor.BLACK, game, 1, 0)
         gameBoard[1][0] = pawn
 
         every { gameRepository.getOne(any()) } returns game
@@ -282,7 +282,7 @@ class GameServiceTest {
     fun `throws an exception when black moves off its turn - black check`() {
         val gameBoard = Utils.getEmptyBoard()
         val game = Game("Moving Board", status = GameStatus.BLACK_CHECK)
-        val pawn = Pawn(PieceColor.WHITE, game.id, 1, 0)
+        val pawn = Pawn(PieceColor.WHITE, game, 1, 0)
         gameBoard[1][0] = pawn
 
         every { gameRepository.getOne(any()) } returns game
@@ -298,7 +298,7 @@ class GameServiceTest {
     fun `throws an exception on a move that a piece cannot plausibly perform`() {
         val gameBoard = Utils.getEmptyBoard()
         val game = Game("Moving Board", status = GameStatus.BLACK_TURN)
-        val pawn = Pawn(PieceColor.BLACK, game.id, 1, 0)
+        val pawn = Pawn(PieceColor.BLACK, game, 1, 0)
         gameBoard[1][0] = pawn
 
         every { pieceService.getPiecesAsBoard(any()) } returns gameBoard
@@ -313,8 +313,8 @@ class GameServiceTest {
     fun `throws an exception when attempting to move over a tile that must be empty`() {
         val gameBoard = Utils.getEmptyBoard()
         val game = Game("Moving Board", status = GameStatus.BLACK_TURN)
-        val pawn = Pawn(PieceColor.BLACK, game.id, 1, 0)
-        val blockingPawn = Pawn(PieceColor.WHITE, game.id, 2, 0)
+        val pawn = Pawn(PieceColor.BLACK, game, 1, 0)
+        val blockingPawn = Pawn(PieceColor.WHITE, game, 2, 0)
         gameBoard[1][0] = pawn
         gameBoard[2][0] = blockingPawn
 
@@ -330,8 +330,8 @@ class GameServiceTest {
     fun `throws an exception when trying to take a piece of the same color`() {
         val gameBoard = Utils.getEmptyBoard()
         val game = Game("Moving Board", status = GameStatus.BLACK_TURN)
-        val pawn = Pawn(PieceColor.BLACK, game.id, 1, 0)
-        val targetPawn = Pawn(PieceColor.BLACK, game.id, 2, 1)
+        val pawn = Pawn(PieceColor.BLACK, game, 1, 0)
+        val targetPawn = Pawn(PieceColor.BLACK, game, 2, 1)
         gameBoard[1][0] = pawn
         gameBoard[2][1] = targetPawn
 
@@ -347,8 +347,8 @@ class GameServiceTest {
     fun `throws an exception when the king moves into check`() {
         val gameBoard = Utils.getEmptyBoard()
         val game = Game("Moving Board", status = GameStatus.WHITE_TURN)
-        val king = King(PieceColor.WHITE, game.id, 7, 4, id=89)
-        val pawn = Pawn(PieceColor.BLACK, game.id, 5, 5, id=12)
+        val king = King(PieceColor.WHITE, game, 7, 4, id=89)
+        val pawn = Pawn(PieceColor.BLACK, game, 5, 5, id=12)
         gameBoard[7][4] = king
         gameBoard[5][5] = pawn
 
@@ -367,8 +367,8 @@ class GameServiceTest {
     fun `throws an exception when the moving unrelated piece while in check`() {
         val gameBoard = Utils.getEmptyBoard()
         val game = Game("Moving Board", status = GameStatus.WHITE_TURN)
-        val king = King(PieceColor.WHITE, game.id, 6, 4)
-        val pawn = Pawn(PieceColor.BLACK, game.id, 5, 5, id=12)
+        val king = King(PieceColor.WHITE, game, 6, 4)
+        val pawn = Pawn(PieceColor.BLACK, game, 5, 5, id=12)
         gameBoard[7][4] = king
         gameBoard[5][5] = pawn
 
@@ -387,7 +387,7 @@ class GameServiceTest {
     fun `moves a piece`() {
         val gameBoard = Utils.getEmptyBoard()
         val game = Game("Moving Board", status = GameStatus.BLACK_TURN)
-        val pawn = Pawn(PieceColor.BLACK, game.id, 1, 0, id=13)
+        val pawn = Pawn(PieceColor.BLACK, game, 1, 0, id=13)
         gameBoard[1][0] = pawn
 
         every { gameRepository.getOne(any()) } returns game
@@ -403,8 +403,8 @@ class GameServiceTest {
     fun `takes a piece on a move`() {
         val gameBoard = Utils.getEmptyBoard()
         val game = Game("Moving Board", status = GameStatus.WHITE_TURN)
-        gameBoard[1][0] = Pawn(PieceColor.BLACK, game.id, 1, 0)
-        gameBoard[1][1] = Rook(PieceColor.WHITE, game.id, 1, 1)
+        gameBoard[1][0] = Pawn(PieceColor.BLACK, game, 1, 0)
+        gameBoard[1][1] = Rook(PieceColor.WHITE, game, 1, 1)
 
         every { pieceService.getPiecesAsBoard(any()) } returns gameBoard
         every { pieceService.movePiece(any(), any(), any()) } answers {firstArg()}
@@ -420,8 +420,8 @@ class GameServiceTest {
     fun `will en passant`() {
         val gameBoard = Utils.getEmptyBoard()
         val game = Game("En Passant Board", status = GameStatus.WHITE_TURN)
-        val passantTarget = Pawn(PieceColor.BLACK, game.id, 3, 2)
-        val passantAttacker = Pawn(PieceColor.WHITE, game.id, 3, 3)
+        val passantTarget = Pawn(PieceColor.BLACK, game, 3, 2)
+        val passantAttacker = Pawn(PieceColor.WHITE, game, 3, 3)
         gameBoard[3][2] = passantTarget
         gameBoard[3][3] = passantAttacker
 
@@ -441,8 +441,8 @@ class GameServiceTest {
     fun `will not en passant a non-pawn`() {
         val gameBoard = Utils.getEmptyBoard()
         val game = Game("En Passant Board", status = GameStatus.WHITE_TURN)
-        val passantTarget = Rook(PieceColor.BLACK, game.id, 3, 2)
-        val passantAttacker = Pawn(PieceColor.WHITE, game.id, 3, 3)
+        val passantTarget = Rook(PieceColor.BLACK, game, 3, 2)
+        val passantAttacker = Pawn(PieceColor.WHITE, game, 3, 3)
         gameBoard[3][2] = passantTarget
         gameBoard[3][3] = passantAttacker
 
@@ -460,8 +460,8 @@ class GameServiceTest {
     fun `will not en passant a pawn that only moved one`() {
         val gameBoard = Utils.getEmptyBoard()
         val game = Game("En Passant Board", status = GameStatus.WHITE_TURN)
-        val passantTarget = Rook(PieceColor.BLACK, game.id, 3, 2)
-        val passantAttacker = Pawn(PieceColor.WHITE, game.id, 3, 3)
+        val passantTarget = Rook(PieceColor.BLACK, game, 3, 2)
+        val passantAttacker = Pawn(PieceColor.WHITE, game, 3, 3)
         gameBoard[3][2] = passantTarget
         gameBoard[3][3] = passantAttacker
 
@@ -479,9 +479,9 @@ class GameServiceTest {
     fun `will not en passant a pawn that did not move recently`() {
         val gameBoard = Utils.getEmptyBoard()
         val game = Game("En Passant Board", status = GameStatus.WHITE_TURN)
-        val passantTarget = Rook(PieceColor.BLACK, game.id, 3, 2)
-        val passantAttacker = Pawn(PieceColor.WHITE, game.id, 3, 3)
-        val unrelatedPawn = Pawn(PieceColor.BLACK, game.id, 3, 7)
+        val passantTarget = Rook(PieceColor.BLACK, game, 3, 2)
+        val passantAttacker = Pawn(PieceColor.WHITE, game, 3, 3)
+        val unrelatedPawn = Pawn(PieceColor.BLACK, game, 3, 7)
         gameBoard[3][2] = passantTarget
         gameBoard[3][3] = passantAttacker
         gameBoard[3][7] = unrelatedPawn
@@ -500,8 +500,8 @@ class GameServiceTest {
     fun `allows the king to kill the piece keeping it in check`() {
         val gameBoard = Utils.getEmptyBoard()
         val game = Game("Check Board", status = GameStatus.WHITE_TURN)
-        val king = King(PieceColor.WHITE, game.id, 7, 4, id=95)
-        val pawn = Pawn(PieceColor.BLACK, game.id, 6, 5, id=12)
+        val king = King(PieceColor.WHITE, game, 7, 4, id=95)
+        val pawn = Pawn(PieceColor.BLACK, game, 6, 5, id=12)
         gameBoard[7][4] = king
         gameBoard[6][5] = pawn
 
@@ -520,9 +520,9 @@ class GameServiceTest {
     fun `allows a piece to move to protect the king`() {
         val gameBoard = Utils.getEmptyBoard()
         val game = Game("Check Board", status = GameStatus.WHITE_TURN)
-        val king = King(PieceColor.WHITE, game.id, 7, 4, id=99)
-        val queen = Queen(PieceColor.WHITE, game.id, 7, 3, id=90)
-        val rook = Rook(PieceColor.BLACK, game.id, 5, 4, id=12)
+        val king = King(PieceColor.WHITE, game, 7, 4, id=99)
+        val queen = Queen(PieceColor.WHITE, game, 7, 3, id=90)
+        val rook = Rook(PieceColor.BLACK, game, 5, 4, id=12)
         gameBoard[7][4] = king
         gameBoard[7][3] = queen
         gameBoard[5][4] = rook
@@ -543,7 +543,7 @@ class GameServiceTest {
     fun `will not castle while in check - WHITE`() {
         val gameBoard = Utils.getEmptyBoard()
         val game = Game("Check Board", status = GameStatus.WHITE_CHECK)
-        val king = King(PieceColor.WHITE, game.id, 7, 4, id=98)
+        val king = King(PieceColor.WHITE, game, 7, 4, id=98)
         gameBoard[7][4] = king
 
         every { pieceService.getPiecesAsBoard(any()) } returns gameBoard
@@ -559,7 +559,7 @@ class GameServiceTest {
     fun `will not castle while in check - BLACK`() {
         val gameBoard = Utils.getEmptyBoard()
         val game = Game("Check Board", status = GameStatus.BLACK_CHECK)
-        val king = King(PieceColor.BLACK, game.id, 0, 4, id=102)
+        val king = King(PieceColor.BLACK, game, 0, 4, id=102)
         gameBoard[0][4] = king
 
         every { pieceService.getPiecesAsBoard(any()) } returns gameBoard
@@ -575,7 +575,7 @@ class GameServiceTest {
     fun `will not castle if king has already moved`() {
         val gameBoard = Utils.getEmptyBoard()
         val game = Game("Castle Board", status = GameStatus.BLACK_TURN)
-        val king = King(PieceColor.BLACK, game.id, 0, 4, id=105)
+        val king = King(PieceColor.BLACK, game, 0, 4, id=105)
         gameBoard[0][4] = king
 
         every { pieceService.getPiecesAsBoard(any()) } returns gameBoard
@@ -591,8 +591,8 @@ class GameServiceTest {
     fun `will not castle if rook has already moved`() {
         val gameBoard = Utils.getEmptyBoard()
         val game = Game("Castle Board", status = GameStatus.BLACK_TURN)
-        val king = King(PieceColor.BLACK, game.id, 0, 4, id=106)
-        val rook = Rook(PieceColor.BLACK, game.id, 0, 7, id=107)
+        val king = King(PieceColor.BLACK, game, 0, 4, id=106)
+        val rook = Rook(PieceColor.BLACK, game, 0, 7, id=107)
         gameBoard[0][4] = king
         gameBoard[0][7] = rook
 
@@ -610,8 +610,8 @@ class GameServiceTest {
     fun `will not castle if rook cannot be found`() {
         val gameBoard = Utils.getEmptyBoard()
         val game = Game("Castle Board", status = GameStatus.BLACK_TURN)
-        val king = King(PieceColor.BLACK, game.id, 0, 4, id=108)
-        val rook = Rook(PieceColor.BLACK, game.id, 1, 7, id=109)
+        val king = King(PieceColor.BLACK, game, 0, 4, id=108)
+        val rook = Rook(PieceColor.BLACK, game, 1, 7, id=109)
         gameBoard[0][4] = king
         gameBoard[1][7] = rook
 
@@ -628,9 +628,9 @@ class GameServiceTest {
     fun `will not castle if intervening tile is occupied`() {
         val gameBoard = Utils.getEmptyBoard()
         val game = Game("Castle Board", status = GameStatus.BLACK_TURN)
-        val king = King(PieceColor.BLACK, game.id, 0, 4, id=110)
-        val rook = Rook(PieceColor.BLACK, game.id, 0, 7, id=111)
-        val bishop = Bishop(PieceColor.BLACK, game.id, 0, 5, id=112)
+        val king = King(PieceColor.BLACK, game, 0, 4, id=110)
+        val rook = Rook(PieceColor.BLACK, game, 0, 7, id=111)
+        val bishop = Bishop(PieceColor.BLACK, game, 0, 5, id=112)
         gameBoard[0][4] = king
         gameBoard[0][5] = bishop
         gameBoard[0][7] = rook
@@ -648,9 +648,9 @@ class GameServiceTest {
     fun `will not castle if intervening tile would be in check`() {
         val gameBoard = Utils.getEmptyBoard()
         val game = Game("Castle Board", status = GameStatus.WHITE_TURN)
-        val king = King(PieceColor.WHITE, game.id, 7, 4, id=110)
-        val rook = Rook(PieceColor.WHITE, game.id, 7, 7, id=111)
-        val whiteRook = Rook(PieceColor.BLACK, game.id, 4, 5, id=112)
+        val king = King(PieceColor.WHITE, game, 7, 4, id=110)
+        val rook = Rook(PieceColor.WHITE, game, 7, 7, id=111)
+        val whiteRook = Rook(PieceColor.BLACK, game, 4, 5, id=112)
         gameBoard[7][4] = king
         gameBoard[4][5] = whiteRook
         gameBoard[7][7] = rook
@@ -668,8 +668,8 @@ class GameServiceTest {
     fun `king side castles`() {
         val gameBoard = Utils.getEmptyBoard()
         val game = Game("Castle Board", status = GameStatus.BLACK_TURN)
-        val king = King(PieceColor.BLACK, game.id, 0, 4, id=110)
-        val rook = Rook(PieceColor.BLACK, game.id, 0, 7, id=111)
+        val king = King(PieceColor.BLACK, game, 0, 4, id=110)
+        val rook = Rook(PieceColor.BLACK, game, 0, 7, id=111)
         gameBoard[0][4] = king
         gameBoard[0][7] = rook
 
@@ -690,8 +690,8 @@ class GameServiceTest {
     fun `queen side castles`() {
         val gameBoard = Utils.getEmptyBoard()
         val game = Game("Castle Board", status = GameStatus.BLACK_TURN)
-        val king = King(PieceColor.BLACK, game.id, 0, 4, id=110)
-        val rook = Rook(PieceColor.BLACK, game.id, 0, 0, id=111)
+        val king = King(PieceColor.BLACK, game, 0, 4, id=110)
+        val rook = Rook(PieceColor.BLACK, game, 0, 0, id=111)
         gameBoard[0][4] = king
         gameBoard[0][0] = rook
 
@@ -712,9 +712,9 @@ class GameServiceTest {
     fun `finds a white checkmate`() {
         val board = Utils.getEmptyBoard()
         val game = Game("White Checkmate Board")
-        val king = King(PieceColor.BLACK, game.id, 0, 0, id=1)
-        val rookOne = Rook(PieceColor.WHITE, game.id, 1, 6, id=2)
-        val rookTwo = Rook(PieceColor.WHITE, game.id, 0, 7, id=3)
+        val king = King(PieceColor.BLACK, game, 0, 0, id=1)
+        val rookOne = Rook(PieceColor.WHITE, game, 1, 6, id=2)
+        val rookTwo = Rook(PieceColor.WHITE, game, 0, 7, id=3)
 
         board[0][0] = king
         board[1][6] = rookOne
@@ -735,9 +735,9 @@ class GameServiceTest {
     fun `finds a black checkmate`() {
         val board = Utils.getEmptyBoard()
         val game = Game("Black Checkmate Board")
-        val king = King(PieceColor.WHITE, game.id, 0, 0, id=1)
-        val rookOne = Rook(PieceColor.BLACK, game.id, 1, 6, id=2)
-        val rookTwo = Rook(PieceColor.BLACK, game.id, 0, 7, id=3)
+        val king = King(PieceColor.WHITE, game, 0, 0, id=1)
+        val rookOne = Rook(PieceColor.BLACK, game, 1, 6, id=2)
+        val rookTwo = Rook(PieceColor.BLACK, game, 0, 7, id=3)
 
         board[0][0] = king
         board[1][6] = rookOne
@@ -758,9 +758,9 @@ class GameServiceTest {
     fun `finds a stalemate`() {
         val gameBoard = Utils.getEmptyBoard()
         val game = Game("Stalemate Board")
-        val king = King(PieceColor.BLACK, game.id, 0, 0, id=1)
-        val rookOne = Rook(PieceColor.WHITE, game.id, 1, 6, id=2)
-        val rookTwo = Rook(PieceColor.WHITE, game.id, 2, 1, id=3)
+        val king = King(PieceColor.BLACK, game, 0, 0, id=1)
+        val rookOne = Rook(PieceColor.WHITE, game, 1, 6, id=2)
+        val rookTwo = Rook(PieceColor.WHITE, game, 2, 1, id=3)
         gameBoard[0][0] = king
         gameBoard[1][6] = rookOne
         gameBoard[2][1] = rookTwo
@@ -779,8 +779,8 @@ class GameServiceTest {
     fun `finds a promotion state - WHITE`() {
         val gameBoard = Utils.getEmptyBoard()
         val game = Game("Promotion Board")
-        val pawn = Pawn(PieceColor.WHITE, game.id, 0, 1, id=2)
-        val king = King(PieceColor.BLACK, game.id, 7, 0, id=1)
+        val pawn = Pawn(PieceColor.WHITE, game, 0, 1, id=2)
+        val king = King(PieceColor.BLACK, game, 7, 0, id=1)
         gameBoard[0][1] = pawn
         gameBoard[7][0] = king
 
@@ -798,8 +798,8 @@ class GameServiceTest {
     fun `finds a promotion state - BLACK`() {
         val gameBoard = Utils.getEmptyBoard()
         val game = Game("Promotion Board")
-        val pawn = Pawn(PieceColor.BLACK, game.id, 7, 1, id=2)
-        val king = King(PieceColor.WHITE, game.id, 0, 0, id=1)
+        val pawn = Pawn(PieceColor.BLACK, game, 7, 1, id=2)
+        val king = King(PieceColor.WHITE, game, 0, 0, id=1)
         gameBoard[7][1] = pawn
         gameBoard[0][0] = king
 
@@ -817,9 +817,9 @@ class GameServiceTest {
     fun `updates to a stalemate`() {
         val gameBoard = Utils.getEmptyBoard()
         val game = Game("Stalemate Board")
-        val king = King(PieceColor.BLACK, game.id, 0, 0, id=1)
-        val rookOne = Rook(PieceColor.WHITE, game.id, 1, 6, id=2)
-        val rookTwo = Rook(PieceColor.WHITE, game.id, 2, 1, id=3)
+        val king = King(PieceColor.BLACK, game, 0, 0, id=1)
+        val rookOne = Rook(PieceColor.WHITE, game, 1, 6, id=2)
+        val rookTwo = Rook(PieceColor.WHITE, game, 2, 1, id=3)
         gameBoard[0][0] = king
         gameBoard[1][6] = rookOne
         gameBoard[2][1] = rookTwo

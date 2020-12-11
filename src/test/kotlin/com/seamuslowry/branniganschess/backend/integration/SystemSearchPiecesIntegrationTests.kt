@@ -23,9 +23,9 @@ class SystemSearchPiecesIntegrationTests(
     fun `Finds a color king in a game`() {
         val gameOne = gameRepository.save(Game("Piece Search I-Test Game One"))
 
-        pieceService.createPiece(Pawn(PieceColor.BLACK, gameOne.id))
-        pieceService.createPiece(Pawn(PieceColor.WHITE, gameOne.id))
-        val searchPiece = pieceService.createPiece(King(PieceColor.BLACK, gameOne.id))
+        pieceService.createPiece(Pawn(PieceColor.BLACK, gameOne))
+        pieceService.createPiece(Pawn(PieceColor.WHITE, gameOne))
+        val searchPiece = pieceService.createPiece(King(PieceColor.BLACK, gameOne))
 
         val foundPieces = pieceService.findAllBy(gameOne.id, searchPiece.color, type = searchPiece.type)
 

@@ -25,7 +25,7 @@ class SystemSearchMovesIntegrationTests(
         // take black pawn with white pawn
         val whiteTake = gameService.move(game.id, MoveRequest(4,0, 3, 1))
 
-        val result = moveService.findSharedMoves(game.id)
+        val result = moveService.findSharedMoves(game.uuid)
 
         assertEquals(1, result.count())
         assertEquals(whiteTake.id, result.first().id)

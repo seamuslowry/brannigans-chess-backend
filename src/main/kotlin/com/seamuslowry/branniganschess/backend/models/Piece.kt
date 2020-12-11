@@ -1,9 +1,11 @@
 package com.seamuslowry.branniganschess.backend.models
 
+import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
 import com.seamuslowry.branniganschess.backend.models.pieces.*
 import com.seamuslowry.branniganschess.backend.utils.Utils
+import net.minidev.json.annotate.JsonIgnore
 import javax.persistence.*
 import kotlin.math.abs
 import kotlin.math.max
@@ -29,7 +31,9 @@ abstract class Piece (
         open val type: PieceType,
         @Enumerated(EnumType.STRING)
         open val color: PieceColor,
-        open val gameId: Long,
+        @ManyToOne
+        @JsonIgnore
+        open val game: Game,
         open var positionRow: Int = 0,
         open var positionCol: Int = 0,
         @Enumerated(EnumType.STRING)
@@ -60,4 +64,10 @@ abstract class Piece (
 
         return set
     }
+
+    @JsonProperty("gameId")
+    fun gameId() = game.id
+
+    @JsonProperty("gameUuid")
+    fun gameUuid() = game.uuid
 }

@@ -28,7 +28,7 @@ class MoveServiceTest {
 
     @Test
     fun `creates a move`() {
-        val piece = Pawn( PieceColor.BLACK, 1L, 0, 0)
+        val piece = Pawn( PieceColor.BLACK, Game(""), 0, 0)
         val move = Move(
                 piece,
                 0,
@@ -67,7 +67,7 @@ class MoveServiceTest {
 
     @Test
     fun `searches for moves by multiple colors`() {
-        val piece = Pawn( PieceColor.BLACK, 1L, 0, 0)
+        val piece = Pawn( PieceColor.BLACK, Game(""), 0, 0)
         val move = Move(piece, 0,0,0,0)
         every { moveRepository.findAll(any<Specification<Move>>()) } returns listOf(move)
 
@@ -79,7 +79,7 @@ class MoveServiceTest {
 
     @Test
     fun `searches for a specific color of moves`() {
-        val piece = Pawn( PieceColor.BLACK, 1L, 0, 0)
+        val piece = Pawn( PieceColor.BLACK, Game(""), 0, 0)
         val move = Move(piece, 0,0,0,0)
         every { moveRepository.findAll(any<Specification<Move>>()) } returns listOf(move)
 
@@ -91,11 +91,11 @@ class MoveServiceTest {
 
     @Test
     fun `searches for shared moves`() {
-        val piece = Pawn( PieceColor.BLACK, 1L, 0, 0)
+        val piece = Pawn( PieceColor.BLACK, Game(""), 0, 0)
         val move = Move(piece, 0,0,0,0)
         every { moveRepository.findAll(any<Specification<Move>>()) } returns listOf(move)
 
-        val foundPieces = service.findSharedMoves(1)
+        val foundPieces = service.findSharedMoves("1")
 
         verify(exactly = 1) { moveRepository.findAll(any<Specification<Move>>()) }
         assertEquals(1 , foundPieces.count())
@@ -103,7 +103,7 @@ class MoveServiceTest {
 
     @Test
     fun `searches for the last move`() {
-        val piece = Pawn( PieceColor.BLACK, 1L, 0, 0)
+        val piece = Pawn( PieceColor.BLACK, Game(""), 0, 0)
         val moveOne = Move(piece, 0,0,1,0)
         val moveTwo = Move(piece, 1,0,2,0)
         every { moveRepository.findAll(any<Specification<Move>>()) } returns listOf(moveOne, moveTwo)
@@ -126,7 +126,7 @@ class MoveServiceTest {
 
     @Test
     fun `checks if a piece has moved`() {
-        val piece = Pawn( PieceColor.BLACK, 1L, 0, 0)
+        val piece = Pawn( PieceColor.BLACK, Game(""), 0, 0)
         val move = Move(piece, 0,0,1,0)
         every { moveRepository.findAll(any<Specification<Move>>()) } returns listOf(move)
 

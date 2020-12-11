@@ -70,12 +70,12 @@ class MoveService (
     /**
      * Find all moved that are shared between players in a game
      *
-     * @param gameId the id move's game
+     * @param gameUuid the moves' game's uuid
      *
      * @return a list of shared moves
      */
-    fun findSharedMoves(gameId: Long): Iterable<Move> {
-        val spec: Specification<Move> = Specification.where(inGame(gameId).and((isTake())))!!
+    fun findSharedMoves(gameUuid: String): Iterable<Move> {
+        val spec: Specification<Move> = Specification.where(inGame(gameUuid).and((isTake())))!!
         return moveRepository.findAll(spec)
     }
 
@@ -100,10 +100,16 @@ class MoveService (
      */
     fun hasMoved(piece: Piece): Boolean = moveRepository.findAll(Specification.where(fromPiece(piece))).isNotEmpty()
 
-    private fun inGame(id: Long): Specification<Move> = Specification {
+    private fun inGame(uuid: String): Specification<Move> = Specification {
         root,
         _,
-        criteriaBuilder -> criteriaBuilder.equal(root.get<Piece>("movingPiece").get<Long>("gameId"), id)
+        criteriaBuilder -> criteriaBuilder.equal(root.get<Piece>("movingPiece").get<Game>("game").get<String>("uuid"), uuid)
+    }
+
+    private fun inGame(id: Long): Specification<Move> = Specification {
+            root,
+            _,
+            criteriaBuilder -> criteriaBuilder.equal(root.get<Piece>("movingPiece").get<Game>("game").get<String>("id"), id)
     }
 
     private fun fromColor(color: PieceColor?): Specification<Move> = Specification {

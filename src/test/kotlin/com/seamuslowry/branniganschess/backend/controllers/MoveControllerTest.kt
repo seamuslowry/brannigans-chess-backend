@@ -33,7 +33,7 @@ class MoveControllerTest(@Autowired val mockMvc: MockMvc) {
 
     @Test
     fun `Handles a move request`() {
-        val piece = Pawn(PieceColor.BLACK, 1L)
+        val piece = Pawn(PieceColor.BLACK, Game("uuid"))
         val move =  Move(piece, 0,0,0,0)
 
         val moveRequest = ObjectMapper().writeValueAsString(MoveRequest(0,0,0,0))
@@ -48,7 +48,7 @@ class MoveControllerTest(@Autowired val mockMvc: MockMvc) {
     @Test
     fun `Searches for moves`() {
         val game = Game("uuid", id=1L)
-        val piece = Pawn(PieceColor.BLACK, game.id)
+        val piece = Pawn(PieceColor.BLACK, game)
         val move = Move(piece, 0,0,0,0)
         every { moveService.findAllBy(game, listOf(piece.color)) } returns listOf(move)
         every { gameService.getByUuid(game.uuid) } returns game

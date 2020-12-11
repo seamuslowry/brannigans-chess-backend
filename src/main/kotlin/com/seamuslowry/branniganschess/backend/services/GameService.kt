@@ -34,40 +34,40 @@ class GameService (
 
         // create all the pieces
         // black side
-        pieceService.createPiece(Rook(PieceColor.BLACK, newGame.id, 0, 0))
-        pieceService.createPiece(Knight(PieceColor.BLACK, newGame.id, 0, 1))
-        pieceService.createPiece(Bishop(PieceColor.BLACK, newGame.id, 0, 2))
-        pieceService.createPiece(Queen(PieceColor.BLACK, newGame.id, 0, 3))
-        pieceService.createPiece(King(PieceColor.BLACK, newGame.id, 0, 4))
-        pieceService.createPiece(Bishop(PieceColor.BLACK, newGame.id, 0, 5))
-        pieceService.createPiece(Knight(PieceColor.BLACK, newGame.id, 0, 6))
-        pieceService.createPiece(Rook(PieceColor.BLACK, newGame.id, 0, 7))
-        pieceService.createPiece(Pawn(PieceColor.BLACK, newGame.id, 1, 0))
-        pieceService.createPiece(Pawn(PieceColor.BLACK, newGame.id, 1, 1))
-        pieceService.createPiece(Pawn(PieceColor.BLACK, newGame.id, 1, 2))
-        pieceService.createPiece(Pawn(PieceColor.BLACK, newGame.id, 1, 3))
-        pieceService.createPiece(Pawn(PieceColor.BLACK, newGame.id, 1, 4))
-        pieceService.createPiece(Pawn(PieceColor.BLACK, newGame.id, 1, 5))
-        pieceService.createPiece(Pawn(PieceColor.BLACK, newGame.id, 1, 6))
-        pieceService.createPiece(Pawn(PieceColor.BLACK, newGame.id, 1, 7))
+        pieceService.createPiece(Rook(PieceColor.BLACK, newGame, 0, 0))
+        pieceService.createPiece(Knight(PieceColor.BLACK, newGame, 0, 1))
+        pieceService.createPiece(Bishop(PieceColor.BLACK, newGame, 0, 2))
+        pieceService.createPiece(Queen(PieceColor.BLACK, newGame, 0, 3))
+        pieceService.createPiece(King(PieceColor.BLACK, newGame, 0, 4))
+        pieceService.createPiece(Bishop(PieceColor.BLACK, newGame, 0, 5))
+        pieceService.createPiece(Knight(PieceColor.BLACK, newGame, 0, 6))
+        pieceService.createPiece(Rook(PieceColor.BLACK, newGame, 0, 7))
+        pieceService.createPiece(Pawn(PieceColor.BLACK, newGame, 1, 0))
+        pieceService.createPiece(Pawn(PieceColor.BLACK, newGame, 1, 1))
+        pieceService.createPiece(Pawn(PieceColor.BLACK, newGame, 1, 2))
+        pieceService.createPiece(Pawn(PieceColor.BLACK, newGame, 1, 3))
+        pieceService.createPiece(Pawn(PieceColor.BLACK, newGame, 1, 4))
+        pieceService.createPiece(Pawn(PieceColor.BLACK, newGame, 1, 5))
+        pieceService.createPiece(Pawn(PieceColor.BLACK, newGame, 1, 6))
+        pieceService.createPiece(Pawn(PieceColor.BLACK, newGame, 1, 7))
 
         // white side
-        pieceService.createPiece(Rook(PieceColor.WHITE, newGame.id, 7, 0))
-        pieceService.createPiece(Knight(PieceColor.WHITE, newGame.id, 7, 1))
-        pieceService.createPiece(Bishop(PieceColor.WHITE, newGame.id, 7, 2))
-        pieceService.createPiece(Queen(PieceColor.WHITE, newGame.id, 7, 3))
-        pieceService.createPiece(King(PieceColor.WHITE, newGame.id, 7, 4))
-        pieceService.createPiece(Bishop(PieceColor.WHITE, newGame.id, 7, 5))
-        pieceService.createPiece(Knight(PieceColor.WHITE, newGame.id, 7, 6))
-        pieceService.createPiece(Rook(PieceColor.WHITE, newGame.id, 7, 7))
-        pieceService.createPiece(Pawn(PieceColor.WHITE, newGame.id, 6, 0))
-        pieceService.createPiece(Pawn(PieceColor.WHITE, newGame.id, 6, 1))
-        pieceService.createPiece(Pawn(PieceColor.WHITE, newGame.id, 6, 2))
-        pieceService.createPiece(Pawn(PieceColor.WHITE, newGame.id, 6, 3))
-        pieceService.createPiece(Pawn(PieceColor.WHITE, newGame.id, 6, 4))
-        pieceService.createPiece(Pawn(PieceColor.WHITE, newGame.id, 6, 5))
-        pieceService.createPiece(Pawn(PieceColor.WHITE, newGame.id, 6, 6))
-        pieceService.createPiece(Pawn(PieceColor.WHITE, newGame.id, 6, 7))
+        pieceService.createPiece(Rook(PieceColor.WHITE, newGame, 7, 0))
+        pieceService.createPiece(Knight(PieceColor.WHITE, newGame, 7, 1))
+        pieceService.createPiece(Bishop(PieceColor.WHITE, newGame, 7, 2))
+        pieceService.createPiece(Queen(PieceColor.WHITE, newGame, 7, 3))
+        pieceService.createPiece(King(PieceColor.WHITE, newGame, 7, 4))
+        pieceService.createPiece(Bishop(PieceColor.WHITE, newGame, 7, 5))
+        pieceService.createPiece(Knight(PieceColor.WHITE, newGame, 7, 6))
+        pieceService.createPiece(Rook(PieceColor.WHITE, newGame, 7, 7))
+        pieceService.createPiece(Pawn(PieceColor.WHITE, newGame, 6, 0))
+        pieceService.createPiece(Pawn(PieceColor.WHITE, newGame, 6, 1))
+        pieceService.createPiece(Pawn(PieceColor.WHITE, newGame, 6, 2))
+        pieceService.createPiece(Pawn(PieceColor.WHITE, newGame, 6, 3))
+        pieceService.createPiece(Pawn(PieceColor.WHITE, newGame, 6, 4))
+        pieceService.createPiece(Pawn(PieceColor.WHITE, newGame, 6, 5))
+        pieceService.createPiece(Pawn(PieceColor.WHITE, newGame, 6, 6))
+        pieceService.createPiece(Pawn(PieceColor.WHITE, newGame, 6, 7))
 
         return newGame
     }
@@ -336,7 +336,7 @@ class GameService (
             if (passantTarget !is Pawn) return null
             if (passantTarget.color == movingPiece.color) return null
 
-            val lastMove = moveService.findLastMove(movingPiece.gameId)
+            val lastMove = moveService.findLastMove(movingPiece.game.id)
             if (lastMove?.movingPiece?.id != passantTarget.id) return null
             if (abs(lastMove.dstRow.minus(lastMove.srcRow)) != 2) return null
 

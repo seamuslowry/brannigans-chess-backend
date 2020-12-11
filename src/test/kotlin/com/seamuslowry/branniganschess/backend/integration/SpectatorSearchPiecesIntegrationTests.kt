@@ -26,8 +26,8 @@ class SpectatorSearchPiecesIntegrationTests(
         val gameOne = gameRepository.save(Game("Piece Search No Color Game One"))
         val gameTwo = gameRepository.save(Game("Piece Search No Color Game Two"))
 
-        pieceService.createPiece(Pawn(PieceColor.BLACK, gameOne.id))
-        pieceService.createPiece(Pawn(PieceColor.WHITE, gameTwo.id))
+        pieceService.createPiece(Pawn(PieceColor.BLACK, gameOne))
+        pieceService.createPiece(Pawn(PieceColor.WHITE, gameTwo))
 
         mockMvc.get("/pieces/${gameOne.uuid}") {
             with(jwt())
@@ -41,8 +41,8 @@ class SpectatorSearchPiecesIntegrationTests(
     fun `Finds pieces of neither color from a game`() {
         val gameOne = gameRepository.save(Game("Piece Search Neither Color Game One"))
 
-        val blackPiece = pieceService.createPiece(Pawn(PieceColor.BLACK, gameOne.id))
-        val whitePiece = pieceService.createPiece(Pawn(PieceColor.WHITE, gameOne.id))
+        val blackPiece = pieceService.createPiece(Pawn(PieceColor.BLACK, gameOne))
+        val whitePiece = pieceService.createPiece(Pawn(PieceColor.WHITE, gameOne))
 
         mockMvc.get("/pieces/${gameOne.uuid}") {
             with(jwt())
@@ -58,8 +58,8 @@ class SpectatorSearchPiecesIntegrationTests(
     fun `Finds black pieces from a game`() {
         val gameOne = gameRepository.save(Game("Piece Search Spec Black Game One"))
 
-        val searchPiece = pieceService.createPiece(Pawn(PieceColor.BLACK, gameOne.id))
-        pieceService.createPiece(Pawn(PieceColor.WHITE, gameOne.id))
+        val searchPiece = pieceService.createPiece(Pawn(PieceColor.BLACK, gameOne))
+        pieceService.createPiece(Pawn(PieceColor.WHITE, gameOne))
 
         mockMvc.get("/pieces/${gameOne.uuid}?color=BLACK") {
             with(jwt())
@@ -74,8 +74,8 @@ class SpectatorSearchPiecesIntegrationTests(
     fun `Finds white pieces from a game`() {
         val gameOne = gameRepository.save(Game("Piece Search Spec White Game One"))
 
-        pieceService.createPiece(Pawn(PieceColor.BLACK, gameOne.id))
-        val searchPiece = pieceService.createPiece(Pawn(PieceColor.WHITE, gameOne.id))
+        pieceService.createPiece(Pawn(PieceColor.BLACK, gameOne))
+        val searchPiece = pieceService.createPiece(Pawn(PieceColor.WHITE, gameOne))
 
         mockMvc.get("/pieces/${gameOne.uuid}?color=WHITE") {
             with(jwt())
@@ -90,8 +90,8 @@ class SpectatorSearchPiecesIntegrationTests(
     fun `Finds pieces of both colors from a game`() {
         val gameOne = gameRepository.save(Game("Piece Search Spec Both Game One"))
 
-        val blackPiece = pieceService.createPiece(Pawn(PieceColor.BLACK, gameOne.id))
-        val whitePiece = pieceService.createPiece(Pawn(PieceColor.WHITE, gameOne.id))
+        val blackPiece = pieceService.createPiece(Pawn(PieceColor.BLACK, gameOne))
+        val whitePiece = pieceService.createPiece(Pawn(PieceColor.WHITE, gameOne))
 
         mockMvc.get("/pieces/${gameOne.uuid}?color=BLACK&color=WHITE") {
             with(jwt())
@@ -107,8 +107,8 @@ class SpectatorSearchPiecesIntegrationTests(
     fun `Finds on taken pieces from a game without a specified color`() {
         val gameOne = gameRepository.save(Game("Piece Search None Taken Game One"))
 
-        pieceService.createPiece(Pawn(PieceColor.BLACK, gameOne.id, 0, 0, PieceStatus.TAKEN))
-        pieceService.createPiece(Pawn(PieceColor.BLACK, gameOne.id))
+        pieceService.createPiece(Pawn(PieceColor.BLACK, gameOne, 0, 0, PieceStatus.TAKEN))
+        pieceService.createPiece(Pawn(PieceColor.BLACK, gameOne))
 
         mockMvc.get("/pieces/${gameOne.uuid}?status=TAKEN") {
             with(jwt())
@@ -123,13 +123,13 @@ class SpectatorSearchPiecesIntegrationTests(
         val gameOne = gameRepository.save(Game("Piece Search Black Taken Game One"))
         val gameTwo = gameRepository.save(Game("Piece Search Black Taken Game Two"))
 
-        val searchPiece = pieceService.createPiece(Pawn(PieceColor.BLACK, gameOne.id, 0, 0, PieceStatus.TAKEN))
+        val searchPiece = pieceService.createPiece(Pawn(PieceColor.BLACK, gameOne, 0, 0, PieceStatus.TAKEN))
         // matches game and taken
-        pieceService.createPiece(Pawn(PieceColor.WHITE, gameOne.id, 0, 0, PieceStatus.TAKEN))
+        pieceService.createPiece(Pawn(PieceColor.WHITE, gameOne, 0, 0, PieceStatus.TAKEN))
         // matches game and color
-        pieceService.createPiece(Pawn(PieceColor.BLACK, gameOne.id, 0, 0, PieceStatus.ACTIVE))
+        pieceService.createPiece(Pawn(PieceColor.BLACK, gameOne, 0, 0, PieceStatus.ACTIVE))
         // matches color and taken
-        pieceService.createPiece(Pawn(PieceColor.BLACK, gameTwo.id, 0, 0, PieceStatus.TAKEN))
+        pieceService.createPiece(Pawn(PieceColor.BLACK, gameTwo, 0, 0, PieceStatus.TAKEN))
 
         mockMvc.get("/pieces/${gameOne.uuid}?color=BLACK&status=TAKEN") {
             with(jwt())
