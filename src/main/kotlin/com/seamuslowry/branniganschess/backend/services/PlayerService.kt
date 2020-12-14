@@ -63,8 +63,8 @@ class PlayerService (
         return PlayerStatInfo(
             gameService.countPlayerGames(player, PieceColor.WHITE, Constants.allStatuses), // all white games
             gameService.countPlayerGames(player, PieceColor.BLACK, Constants.allStatuses), // all black games
-            gameService.countPlayerGames(player, PieceColor.WHITE, listOf(GameStatus.WHITE_CHECKMATE)), // all white wins
-            gameService.countPlayerGames(player, PieceColor.BLACK, listOf(GameStatus.BLACK_CHECKMATE)), // all black wins
+            gameService.countPlayerGames(player, PieceColor.WHITE, listOf(GameStatus.WHITE_VICTORY)), // all white wins
+            gameService.countPlayerGames(player, PieceColor.BLACK, listOf(GameStatus.BLACK_VICTORY)), // all black wins
             gameService.countPlayerGames(player, PieceColor.WHITE, listOf(GameStatus.STALEMATE)), // all white stalemates
             gameService.countPlayerGames(player, PieceColor.BLACK, listOf(GameStatus.STALEMATE)) // all black stalemates
         )

@@ -716,7 +716,7 @@ class GameServiceTest {
 
         val newStatus = service.getGameStatusForNextPlayer(game, PieceColor.BLACK)
 
-        assertEquals(GameStatus.WHITE_CHECKMATE, newStatus)
+        assertEquals(GameStatus.WHITE_VICTORY, newStatus)
     }
 
     @Test
@@ -739,7 +739,7 @@ class GameServiceTest {
 
         val newStatus = service.getGameStatusForNextPlayer(game, PieceColor.WHITE)
 
-        assertEquals(GameStatus.BLACK_CHECKMATE, newStatus)
+        assertEquals(GameStatus.BLACK_VICTORY, newStatus)
     }
 
     @Test

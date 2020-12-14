@@ -196,7 +196,7 @@ class GameService (
 
         return when {
             inCheck && hasValidMove -> if (opposingColor == PieceColor.BLACK) GameStatus.BLACK_CHECK else GameStatus.WHITE_CHECK
-            inCheck && !hasValidMove -> if (opposingColor == PieceColor.BLACK) GameStatus.WHITE_CHECKMATE else GameStatus.BLACK_CHECKMATE
+            inCheck && !hasValidMove -> if (opposingColor == PieceColor.BLACK) GameStatus.WHITE_VICTORY else GameStatus.BLACK_VICTORY
             !inCheck && !hasValidMove -> GameStatus.STALEMATE
             promotable -> if (opposingColor == PieceColor.BLACK) GameStatus.WHITE_PROMOTION else GameStatus.BLACK_PROMOTION
             else -> if (opposingColor == PieceColor.BLACK) GameStatus.BLACK_TURN else GameStatus.WHITE_TURN
