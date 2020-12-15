@@ -63,8 +63,8 @@ class PlayerService (
         return PlayerStatInfo(
             gameService.countPlayerGames(player, PieceColor.WHITE, Constants.allStatuses), // all white games
             gameService.countPlayerGames(player, PieceColor.BLACK, Constants.allStatuses), // all black games
-            gameService.countPlayerGames(player, PieceColor.WHITE, listOf(GameStatus.WHITE_CHECKMATE)), // all white wins
-            gameService.countPlayerGames(player, PieceColor.BLACK, listOf(GameStatus.BLACK_CHECKMATE)), // all black wins
+            gameService.countPlayerGames(player, PieceColor.WHITE, listOf(GameStatus.WHITE_VICTORY)), // all white wins
+            gameService.countPlayerGames(player, PieceColor.BLACK, listOf(GameStatus.BLACK_VICTORY)), // all black wins
             gameService.countPlayerGames(player, PieceColor.WHITE, listOf(GameStatus.STALEMATE)), // all white stalemates
             gameService.countPlayerGames(player, PieceColor.BLACK, listOf(GameStatus.STALEMATE)) // all black stalemates
         )
@@ -90,14 +90,44 @@ class PlayerService (
         return getGames(player, color, statuses, pageable)
     }
 
+    /**
+     * Has a player join a game.
+     *
+     * @param gameId the id of the game to join
+     * @param authId the auth id of the player that will join
+     * @param color option color to join as; will pick an available color if not provided
+     *
+     * @return the updated game
+     */
     fun joinGame(gameId: Long, authId: String, color: PieceColor?): Game {
         val player = getByAuthId(authId)
         return gameService.addPlayer(gameId, player, color)
     }
 
+    /**
+     * Has a player leave a game.
+     *
+     * @param gameId the id of the game to leave
+     * @param authId the auth id of the player that will join
+     *
+     * @return the updated game
+     */
     fun leaveGame(gameId: Long, authId: String): Game {
         val player = getByAuthId(authId)
         return gameService.removePlayer(gameId, player)
+    }
+
+    /**
+     * Has a player resign a game.
+     *
+     * @param gameId the id of the game to join
+     * @param authId the auth id of the player that will join
+     *
+     * @return the updated game
+     */
+    fun resignGame(gameId: Long, authId: String): Game {
+        val player = getByAuthId(authId)
+        return gameService.resignPlayer(gameId, player)
     }
 
     private fun getByAuthId(authId: String): Player =

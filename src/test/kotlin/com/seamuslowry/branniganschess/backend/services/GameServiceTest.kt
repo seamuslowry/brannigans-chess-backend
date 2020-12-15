@@ -716,7 +716,7 @@ class GameServiceTest {
 
         val newStatus = service.getGameStatusForNextPlayer(game, PieceColor.BLACK)
 
-        assertEquals(GameStatus.WHITE_CHECKMATE, newStatus)
+        assertEquals(GameStatus.WHITE_VICTORY, newStatus)
     }
 
     @Test
@@ -739,7 +739,7 @@ class GameServiceTest {
 
         val newStatus = service.getGameStatusForNextPlayer(game, PieceColor.WHITE)
 
-        assertEquals(GameStatus.BLACK_CHECKMATE, newStatus)
+        assertEquals(GameStatus.BLACK_VICTORY, newStatus)
     }
 
     @Test
@@ -820,6 +820,50 @@ class GameServiceTest {
         val savedGame = service.updateGameStatusForNextPlayer(game.id, PieceColor.BLACK)
 
         assertEquals(GameStatus.STALEMATE, savedGame.status)
+    }
+
+    @Test
+    fun `resigns the white player as requested`() {
+        val player = Player("resigns-white")
+        val game = Game("resign-white-game", whitePlayer = player)
+
+        every { gameRepository.getOne(any()) } returns game
+
+        val savedGame = service.resignPlayer(1, player)
+
+        assertEquals(GameStatus.BLACK_VICTORY, savedGame.status)
+    }
+
+    @Test
+    fun `resigns the black player as requested`() {
+        val player = Player("resigns-black")
+        val game = Game("resign-black-game", blackPlayer = player)
+
+        every { gameRepository.getOne(any()) } returns game
+
+        val savedGame = service.resignPlayer(1, player)
+
+        assertEquals(GameStatus.WHITE_VICTORY, savedGame.status)
+    }
+
+    @Test
+    fun `will not resign an unrelated player`() {
+        val player = Player("resigns-none")
+        val game = Game("resign-none-game")
+
+        every { gameRepository.getOne(any()) } returns game
+
+        assertThrows<GameStateException> { service.resignPlayer(1, player) }
+    }
+
+    @Test
+    fun `will not resign a completed game`() {
+        val player = Player("resigns-complete")
+        val game = Game("resign-complete-game", status = GameStatus.BLACK_VICTORY, blackPlayer = player)
+
+        every { gameRepository.getOne(any()) } returns game
+
+        assertThrows<GameStateException> { service.resignPlayer(1, player) }
     }
 
     @Test

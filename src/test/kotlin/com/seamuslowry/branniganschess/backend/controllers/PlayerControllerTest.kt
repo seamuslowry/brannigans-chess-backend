@@ -112,4 +112,17 @@ class PlayerControllerTest(@Autowired val mockMvc: MockMvc) {
             status { isOk }
         }
     }
+
+    @Test
+    fun `resigns a game`() {
+        val game = Game("Player Controller Resign Game")
+
+        every { playerService.resignGame(any(), any()) } returns game
+
+        mockMvc.post("/players/resign/1") {
+            with(jwt())
+        }.andExpect {
+            status { isOk }
+        }
+    }
 }

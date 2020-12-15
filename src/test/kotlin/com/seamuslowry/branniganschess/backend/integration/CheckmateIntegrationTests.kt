@@ -53,7 +53,7 @@ class CheckmateIntegrationTests(
 
         game = gameRepository.getOne(game.id)
 
-        assertEquals(GameStatus.WHITE_CHECKMATE, game.status)
+        assertEquals(GameStatus.WHITE_VICTORY, game.status)
     }
 
     @Test
@@ -86,6 +86,6 @@ class CheckmateIntegrationTests(
 
         game = gameRepository.getOne(game.id)
 
-        assertEquals(GameStatus.BLACK_CHECKMATE, game.status)
+        assertEquals(GameStatus.BLACK_VICTORY, game.status)
     }
 }

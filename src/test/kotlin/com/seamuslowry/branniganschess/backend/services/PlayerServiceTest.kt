@@ -124,6 +124,16 @@ class PlayerServiceTest {
     }
 
     @Test
+    fun `non-existent player cannot join a game`() {
+        val authId = "games-id"
+        val game = Game()
+        every { playerRepository.findOne(any()) } returns Optional.empty()
+        every { gameService.addPlayer(any(), any(), any()) } returns game
+
+        assertThrows<EntityNotFoundException> { service.joinGame(game.id, authId, null) }
+    }
+
+    @Test
     fun `leaves a game`() {
         val authId = "games-id"
         val player = Player(authId)
@@ -134,6 +144,20 @@ class PlayerServiceTest {
         val newGame = service.leaveGame(game.id, player.authId)
 
         verify(exactly = 1) { gameService.removePlayer(any(), any()) }
+        assertEquals(game, newGame)
+    }
+
+    @Test
+    fun `resigns a game`() {
+        val authId = "games-id"
+        val player = Player(authId)
+        val game = Game()
+        every { playerRepository.findOne(any()) } returns Optional.of(player)
+        every { gameService.resignPlayer(any(), any()) } returns game
+
+        val newGame = service.resignGame(game.id, player.authId)
+
+        verify(exactly = 1) { gameService.resignPlayer(any(), any()) }
         assertEquals(game, newGame)
     }
 }

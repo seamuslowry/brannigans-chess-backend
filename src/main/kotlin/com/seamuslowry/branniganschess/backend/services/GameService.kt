@@ -196,7 +196,7 @@ class GameService (
 
         return when {
             inCheck && hasValidMove -> if (opposingColor == PieceColor.BLACK) GameStatus.BLACK_CHECK else GameStatus.WHITE_CHECK
-            inCheck && !hasValidMove -> if (opposingColor == PieceColor.BLACK) GameStatus.WHITE_CHECKMATE else GameStatus.BLACK_CHECKMATE
+            inCheck && !hasValidMove -> if (opposingColor == PieceColor.BLACK) GameStatus.WHITE_VICTORY else GameStatus.BLACK_VICTORY
             !inCheck && !hasValidMove -> GameStatus.STALEMATE
             promotable -> if (opposingColor == PieceColor.BLACK) GameStatus.WHITE_PROMOTION else GameStatus.BLACK_PROMOTION
             else -> if (opposingColor == PieceColor.BLACK) GameStatus.BLACK_TURN else GameStatus.WHITE_TURN
@@ -246,6 +246,20 @@ class GameService (
         return updateGameForPlayerSearch(game)
     }
 
+    /**
+     * Handle the provided player's resignation
+     *
+     * @param gameId the id of the game
+     * @param player the player to add
+     *
+     * @return the updated game
+     */
+    fun resignPlayer(gameId: Long, player: Player): Game {
+        val game = getById(gameId)
+        return resignPlayer(game, player)
+    }
+
+    @PreAuthorize("authentication.name == #player.authId")
     private fun removePlayer(game: Game, player: Player): Game {
         if (game.whitePlayer != null && game.blackPlayer != null) throw GameStateException("Players cannot leave the game now")
 
@@ -255,6 +269,7 @@ class GameService (
         return game
     }
 
+    @PreAuthorize("authentication.name == #player.authId")
     private fun addPlayer(game: Game, player: Player, color: PieceColor?): Game {
         if (color == null && game.isPlayer(player.authId)) return game
 
@@ -269,6 +284,17 @@ class GameService (
         if (assignColor == PieceColor.WHITE) newGame.whitePlayer = player
 
         return newGame
+    }
+
+    @PreAuthorize("authentication.name == #player.authId")
+    private fun resignPlayer(game: Game, player: Player): Game {
+        val newStatus = when {
+            game.status in Constants.inactiveStatuses -> throw GameStateException("We both know you should resign, Kif, but this game is already over.")
+            game.isBlack(player.authId) -> GameStatus.WHITE_VICTORY
+            game.isWhite(player.authId) -> GameStatus.BLACK_VICTORY
+            else -> throw GameStateException("Resign a game you're in, Kif.")
+        }
+        return updateGameStatusForNextPlayer(game, newStatus)
     }
 
     private fun move(game: Game, moveRequest: MoveRequest): Move {
