@@ -90,6 +90,7 @@ class PlayerController(
     @ApiOperation("Resigns the authenticated user from the specified game", response = Game::class)
     @ApiResponses(
         ApiResponse(code = 200, message =  "Successfully resigned the game."),
+        ApiResponse(code = 409, message =  "Cannot resign the game."),
         ApiResponse(code = 500, message =  "There was a problem with the service.")
     )
     fun resign(authentication: Authentication,
