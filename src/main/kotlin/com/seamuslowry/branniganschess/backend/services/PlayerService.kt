@@ -100,6 +100,11 @@ class PlayerService (
         return gameService.removePlayer(gameId, player)
     }
 
+    fun resignGame(gameId: Long, authId: String): Game {
+        val player = getByAuthId(authId)
+        return gameService.resignPlayer(gameId, player)
+    }
+
     private fun getByAuthId(authId: String): Player =
         playerRepository.findOne(Specification.where(withAuthId(authId))).orElse(null)
             ?: throw EntityNotFoundException("No player with that authorization ID")

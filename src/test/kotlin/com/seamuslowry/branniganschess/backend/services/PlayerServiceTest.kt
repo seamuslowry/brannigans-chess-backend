@@ -136,4 +136,18 @@ class PlayerServiceTest {
         verify(exactly = 1) { gameService.removePlayer(any(), any()) }
         assertEquals(game, newGame)
     }
+
+    @Test
+    fun `resigns a game`() {
+        val authId = "games-id"
+        val player = Player(authId)
+        val game = Game()
+        every { playerRepository.findOne(any()) } returns Optional.of(player)
+        every { gameService.resignPlayer(any(), any()) } returns game
+
+        val newGame = service.resignGame(game.id, player.authId)
+
+        verify(exactly = 1) { gameService.resignPlayer(any(), any()) }
+        assertEquals(game, newGame)
+    }
 }

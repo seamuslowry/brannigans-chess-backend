@@ -823,6 +823,44 @@ class GameServiceTest {
     }
 
     @Test
+    fun `resigns the white player as requested`() {
+        val player = Player("resigns-white")
+        val game = Game("resign-white-game", whitePlayer = player)
+
+        every { gameRepository.getOne(any()) } returns game
+
+        val savedGame = service.resignPlayer(1, player)
+
+        assertEquals(GameStatus.BLACK_VICTORY, savedGame.status)
+    }
+
+    @Test
+    fun `resigns the black player as requested`() {
+        val player = Player("resigns-black")
+        val game = Game("resign-black-game", blackPlayer = player)
+
+        every { gameRepository.getOne(any()) } returns game
+
+        val savedGame = service.resignPlayer(1, player)
+
+        assertEquals(GameStatus.WHITE_VICTORY, savedGame.status)
+    }
+
+    @Test
+    fun `will not resign an unrelated player`() {
+        val player = Player("resigns-none")
+        val game = Game("resign-none-game")
+
+        every { gameRepository.getOne(any()) } returns game
+
+        val savedGame = service.resignPlayer(1, player)
+
+        assertEquals(game.status, savedGame.status)
+        assertNotEquals(GameStatus.BLACK_VICTORY, savedGame.status)
+        assertNotEquals(GameStatus.WHITE_VICTORY, savedGame.status)
+    }
+
+    @Test
     fun `adds a white player as requested`() {
         val player = Player("success-add-white")
         val savedGame = service.addPlayer(1, player, PieceColor.WHITE)

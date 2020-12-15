@@ -85,4 +85,14 @@ class PlayerController(
     fun leave(authentication: Authentication,
               @PathVariable gameId: Long)
         : ResponseEntity<Game> = ResponseEntity.ok(playerService.leaveGame(gameId, authentication.name))
+
+    @PostMapping("/resign/{gameId}")
+    @ApiOperation("Resigns the authenticated user from the specified game", response = Game::class)
+    @ApiResponses(
+        ApiResponse(code = 200, message =  "Successfully resigned the game."),
+        ApiResponse(code = 500, message =  "There was a problem with the service.")
+    )
+    fun resign(authentication: Authentication,
+        @PathVariable gameId: Long)
+        : ResponseEntity<Game> = ResponseEntity.ok(playerService.resignGame(gameId, authentication.name))
 }
