@@ -853,11 +853,17 @@ class GameServiceTest {
 
         every { gameRepository.getOne(any()) } returns game
 
-        val savedGame = service.resignPlayer(1, player)
+        assertThrows<GameStateException> { service.resignPlayer(1, player) }
+    }
 
-        assertEquals(game.status, savedGame.status)
-        assertNotEquals(GameStatus.BLACK_VICTORY, savedGame.status)
-        assertNotEquals(GameStatus.WHITE_VICTORY, savedGame.status)
+    @Test
+    fun `will not resign a completed game`() {
+        val player = Player("resigns-complete")
+        val game = Game("resign-complete-game", status = GameStatus.BLACK_VICTORY, blackPlayer = player)
+
+        every { gameRepository.getOne(any()) } returns game
+
+        assertThrows<GameStateException> { service.resignPlayer(1, player) }
     }
 
     @Test

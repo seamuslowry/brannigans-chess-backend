@@ -52,8 +52,25 @@ class ResignGameIntegrationTests(
         mockMvc.post("/players/resign/${game.id}") {
             with(jwt().jwt { it.claim("sub", player.authId) })
         }.andExpect {
+            status { isConflict }
+        }
+    }
+
+    @Test
+    fun `cannot resign a game that's over`() {
+        val game = testUtils.createFullGame()
+
+        mockMvc.post("/players/resign/${game.id}") {
+            with(jwt().jwt { it.claim("sub", game.whitePlayer?.authId) })
+        }.andExpect {
             status { isOk }
-            jsonPath("status") { value(GameStatus.WHITE_TURN.toString()) }
+            jsonPath("status") { value(GameStatus.BLACK_VICTORY.toString()) }
+        }
+
+        mockMvc.post("/players/resign/${game.id}") {
+            with(jwt().jwt { it.claim("sub", game.blackPlayer?.authId) })
+        }.andExpect {
+            status { isConflict }
         }
     }
 }

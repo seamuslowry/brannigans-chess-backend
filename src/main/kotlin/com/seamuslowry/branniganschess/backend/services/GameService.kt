@@ -287,9 +287,10 @@ class GameService (
     @PreAuthorize("authentication.name == #player.authId")
     private fun resignPlayer(game: Game, player: Player): Game {
         val newStatus = when {
+            game.status in Constants.inactiveStatuses -> throw GameStateException("We both know you should resign, Kif, but this game is already over.")
             game.isBlack(player.authId) -> GameStatus.WHITE_VICTORY
             game.isWhite(player.authId) -> GameStatus.BLACK_VICTORY
-            else -> return game
+            else -> throw GameStateException("Resign a game you're in, Kif.")
         }
         return updateGameStatusForNextPlayer(game, newStatus)
     }
