@@ -259,6 +259,7 @@ class GameService (
         return resignPlayer(game, player)
     }
 
+    @PreAuthorize("authentication.name == #player.authId")
     private fun removePlayer(game: Game, player: Player): Game {
         if (game.whitePlayer != null && game.blackPlayer != null) throw GameStateException("Players cannot leave the game now")
 
@@ -268,6 +269,7 @@ class GameService (
         return game
     }
 
+    @PreAuthorize("authentication.name == #player.authId")
     private fun addPlayer(game: Game, player: Player, color: PieceColor?): Game {
         if (color == null && game.isPlayer(player.authId)) return game
 
