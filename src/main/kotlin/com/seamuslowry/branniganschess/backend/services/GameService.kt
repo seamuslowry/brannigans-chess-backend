@@ -194,10 +194,14 @@ class GameService (
 
         val promotable = opposingPieces.any { it is Pawn && it.promotable() }
 
+        val check = inCheck && hasValidMove
+        val mate = inCheck && !hasValidMove
+        val stalemate = !inCheck && !hasValidMove
+
         return when {
-            inCheck && hasValidMove -> if (opposingColor == PieceColor.BLACK) GameStatus.BLACK_CHECK else GameStatus.WHITE_CHECK
-            inCheck && !hasValidMove -> if (opposingColor == PieceColor.BLACK) GameStatus.WHITE_VICTORY else GameStatus.BLACK_VICTORY
-            !inCheck && !hasValidMove -> GameStatus.STALEMATE
+            check -> if (opposingColor == PieceColor.BLACK) GameStatus.BLACK_CHECK else GameStatus.WHITE_CHECK
+            mate -> if (opposingColor == PieceColor.BLACK) GameStatus.WHITE_VICTORY else GameStatus.BLACK_VICTORY
+            stalemate -> GameStatus.STALEMATE
             promotable -> if (opposingColor == PieceColor.BLACK) GameStatus.WHITE_PROMOTION else GameStatus.BLACK_PROMOTION
             else -> if (opposingColor == PieceColor.BLACK) GameStatus.BLACK_TURN else GameStatus.WHITE_TURN
         }
