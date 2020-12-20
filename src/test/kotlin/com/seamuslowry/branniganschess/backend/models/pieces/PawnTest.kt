@@ -10,6 +10,13 @@ import org.springframework.test.context.junit.jupiter.SpringExtension
 @ExtendWith(SpringExtension::class)
 class PawnTest {
     @Test
+    fun `BLACK - cannot move more than two spaces from the start`() {
+        val piece = Pawn(PieceColor.BLACK, 1L, 1, 0)
+
+        assertFalse(piece.canMove(Position(4,0)))
+    }
+
+    @Test
     fun `BLACK - can move two spaces from the start`() {
         val piece = Pawn(PieceColor.BLACK, 1L, 1, 0)
 
@@ -39,6 +46,13 @@ class PawnTest {
     }
 
     @Test
+    fun `BLACK - cannot move backwards`() {
+        val piece = Pawn(PieceColor.BLACK, 1L, 4, 0)
+
+        assertFalse(piece.canMove(Position(3,0)))
+    }
+
+    @Test
     fun `BLACK - cannot move at the end of the board`() {
         val piece = Pawn(PieceColor.BLACK, 1L, 7, 0)
 
@@ -51,6 +65,21 @@ class PawnTest {
 
         assertTrue(piece.canCapture(Position(3,3)))
         assertTrue(piece.canCapture(Position(3,1)))
+    }
+
+    @Test
+    fun `BLACK - cannot move on diagonals`() {
+        val piece = Pawn(PieceColor.BLACK, 1L, 2, 2)
+
+        assertFalse(piece.canMove(Position(3,3)))
+        assertFalse(piece.canMove(Position(3,1)))
+    }
+
+    @Test
+    fun `WHITE - cannot move more than two spaces from the start`() {
+        val piece = Pawn(PieceColor.WHITE, 1L, 6, 0)
+
+        assertFalse(piece.canMove(Position(3,0)))
     }
 
     @Test
@@ -83,6 +112,13 @@ class PawnTest {
     }
 
     @Test
+    fun `WHITE - cannot move backwards`() {
+        val piece = Pawn(PieceColor.WHITE, 1L, 4, 0)
+
+        assertFalse(piece.canMove(Position(5,0)))
+    }
+
+    @Test
     fun `WHITE - cannot move at the end of the board`() {
         val piece = Pawn(PieceColor.WHITE, 1L, 0, 0)
 
@@ -95,6 +131,14 @@ class PawnTest {
 
         assertTrue(piece.canCapture(Position(5,3)))
         assertTrue(piece.canCapture(Position(5,1)))
+    }
+
+    @Test
+    fun `WHITE - cannot move on diagonals`() {
+        val piece = Pawn(PieceColor.WHITE, 1L, 6, 2)
+
+        assertFalse(piece.canMove(Position(5,3)))
+        assertFalse(piece.canMove(Position(5,1)))
     }
 
     @Test
