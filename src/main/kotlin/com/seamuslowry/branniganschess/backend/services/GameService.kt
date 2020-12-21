@@ -559,10 +559,13 @@ class GameService (
     }
 
     private fun updateGameForPlayerSearch(game: Game): Game {
+        val hasBlackPlayer = game.blackPlayer != null
+        val hasWhitePlayer = game.whitePlayer != null
+
         game.status = when {
-            game.blackPlayer != null && game.whitePlayer == null -> GameStatus.WAITING_FOR_WHITE
-            game.whitePlayer != null && game.blackPlayer == null -> GameStatus.WAITING_FOR_BLACK
-            game.whitePlayer != null && game.blackPlayer != null -> GameStatus.WHITE_TURN
+            hasWhitePlayer && hasBlackPlayer -> GameStatus.WHITE_TURN
+            hasBlackPlayer -> GameStatus.WAITING_FOR_WHITE
+            hasWhitePlayer -> GameStatus.WAITING_FOR_BLACK
             else -> GameStatus.WAITING_FOR_PLAYERS
         }
 
