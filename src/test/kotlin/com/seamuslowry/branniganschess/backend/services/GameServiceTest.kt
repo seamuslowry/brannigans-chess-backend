@@ -608,6 +608,7 @@ class GameServiceTest {
         every { pieceService.movePiece(any(), any(), any()) } answers {firstArg()}
         every { pieceService.findAllBy(any(), PieceColor.BLACK, any(), PieceType.KING) } returns listOf(king)
         every { pieceService.findAllBy(any(), PieceColor.WHITE, any(), any()) } returns emptyList()
+        every { gameRepository.getOne(any()) } returns game
         every { moveService.hasMoved(king) } returns true
 
         assertThrows<ChessRuleException> { service.move(1, MoveRequest(0,4,0,6)) }
@@ -628,6 +629,7 @@ class GameServiceTest {
         every { pieceService.findAllBy(any(), PieceColor.WHITE, any(), any()) } returns emptyList()
         every { moveService.hasMoved(king) } returns false
         every { moveService.hasMoved(rook) } returns true
+        every { gameRepository.getOne(any()) } returns game
 
         assertThrows<ChessRuleException> { service.move(1, MoveRequest(0,4,0,6)) }
     }
@@ -645,6 +647,7 @@ class GameServiceTest {
         every { pieceService.movePiece(any(), any(), any()) } answers {firstArg()}
         every { pieceService.findAllBy(any(), PieceColor.BLACK, any(), PieceType.KING) } returns listOf(king)
         every { pieceService.findAllBy(any(), PieceColor.WHITE, any(), any()) } returns emptyList()
+        every { gameRepository.getOne(any()) } returns game
         every { moveService.hasMoved(king) } returns false
 
         assertThrows<ChessRuleException> { service.move(1, MoveRequest(0,4,0,6)) }
@@ -666,6 +669,7 @@ class GameServiceTest {
         every { pieceService.findAllBy(any(), PieceColor.BLACK, any(), PieceType.KING) } returns listOf(king)
         every { pieceService.findAllBy(any(), PieceColor.WHITE, any(), any()) } returns emptyList()
         every { moveService.hasMoved(any()) } returns false
+        every { gameRepository.getOne(any()) } returns game
 
         assertThrows<ChessRuleException> { service.move(1, MoveRequest(0,4,0,6)) }
     }
@@ -686,6 +690,7 @@ class GameServiceTest {
         every { pieceService.findAllBy(any(), PieceColor.WHITE, any(), PieceType.KING) } returns listOf(king)
         every { pieceService.findAllBy(any(), PieceColor.BLACK, any(), any()) } returns listOf(whiteRook)
         every { moveService.hasMoved(any()) } returns false
+        every { gameRepository.getOne(any()) } returns game
 
         assertThrows<ChessRuleException> { service.move(1, MoveRequest(7,4,7,6)) }
     }
