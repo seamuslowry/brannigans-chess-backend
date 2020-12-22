@@ -468,7 +468,7 @@ class GameService (
         copiedBoard[move.dstRow][move.dstCol] = move.movingPiece
 
         val takenLocation = move.takenPiece?.position()
-        takenLocation?.let { copiedBoard[it.row][it.col] == null }
+        takenLocation?.let { copiedBoard[it.row][it.col] = null }
 
         if (move.moveType == MoveType.EN_PASSANT) copiedBoard[move.srcRow][move.dstCol] = null
         if (move.moveType == MoveType.KING_SIDE_CASTLE) {
@@ -494,9 +494,8 @@ class GameService (
             }
         }
 
-        if (move.moveType == MoveType.EN_PASSANT) {
-            newPieces = newPieces.filter { !(it.positionCol == move.dstCol && it.positionRow == move.srcRow) }
-        }
+        // en passant specific behavior is handled by the taken piece filter above
+
         // castle checks are NOT necessary here; method used only to evaluate if moving player is in check
         // placement of castle is not relevant as the player would be in check beforehand if it were
 

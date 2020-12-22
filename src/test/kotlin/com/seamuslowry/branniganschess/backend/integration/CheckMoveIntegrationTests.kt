@@ -319,4 +319,49 @@ class CheckMoveIntegrationTests(
 
         assertEquals(GameStatus.WHITE_CHECK, game.status)
     }
+
+    @Test
+    fun `can en passant to take king out of check`() {
+        var game = testUtils.createFullGame()
+        val board = pieceService.getPiecesAsBoard(game.id)
+
+        // set up a valid test by performing an invalid moves through the service
+        // move white pawn into a position where it could en passant
+        pieceService.movePiece(board[6][4]!!, 3,4)
+        // move white king directly behind the pawn
+        pieceService.movePiece(board[7][4]!!, 4,4)
+
+        // set it to be black's turn
+        gameService.updateGameStatusForNextPlayer(game, GameStatus.BLACK_TURN)
+        // move the target pawn in prep for the take
+        mockMvc.post("/moves/${game.id}") {
+            contentType = MediaType.APPLICATION_JSON
+            content = ObjectMapper().writeValueAsString(MoveRequest(1,3,3,3))
+            accept = MediaType.APPLICATION_JSON
+            with(jwt())
+        }.andExpect {
+            status { isOk }
+        }
+
+        game = gameRepository.getOne(game.id)
+
+        assertEquals(GameStatus.WHITE_CHECK, game.status)
+
+        // take with en passant
+        mockMvc.post("/moves/${game.id}") {
+            contentType = MediaType.APPLICATION_JSON
+            content = ObjectMapper().writeValueAsString(MoveRequest(3,4,2,3))
+            accept = MediaType.APPLICATION_JSON
+            with(jwt())
+        }.andExpect {
+            status { isOk }
+            jsonPath("movingPiece") { isNotEmpty }
+            jsonPath("takenPiece") { isNotEmpty }
+        }
+
+        game = gameRepository.getOne(game.id)
+
+        assertEquals(GameStatus.BLACK_TURN, game.status)
+    }
+
 }
