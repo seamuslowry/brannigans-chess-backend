@@ -19,6 +19,7 @@ import org.springframework.data.repository.findByIdOrNull
 import org.springframework.security.test.context.support.WithMockUser
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import java.util.*
+import javax.persistence.EntityNotFoundException
 import kotlin.NoSuchElementException
 
 @ExtendWith(SpringExtension::class)
@@ -182,6 +183,15 @@ class PieceServiceTest {
         val foundPiece = service.getPieceAt(gameId, 4, 4)
 
         assertEquals(piece, foundPiece)
+    }
+
+    @Test
+    fun `throw when cannot find a piece by location`() {
+        val gameId = 1L
+
+        every { pieceRepository.findAll( any<Specification<Piece>>()) } returns emptyList()
+
+        assertThrows<EntityNotFoundException> { service.getPieceAt(gameId, 4, 4) }
     }
 
     @Test

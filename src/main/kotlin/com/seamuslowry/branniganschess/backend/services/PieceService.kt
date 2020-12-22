@@ -8,6 +8,7 @@ import com.seamuslowry.branniganschess.backend.utils.Utils
 import org.springframework.data.jpa.domain.Specification
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.stereotype.Service
+import javax.persistence.EntityNotFoundException
 
 @Service
 class PieceService (
@@ -162,9 +163,11 @@ class PieceService (
      * @param row the row to search
      * @param col the col to search
      *
-     * @return the piece at that location; null if no piece is there
+     * @throws EntityNotFoundException
+     *
+     * @return the piece at that location
      */
-    fun getPieceAt(gameId: Long, row: Int, col: Int): Piece? {
+    fun getPieceAt(gameId: Long, row: Int, col: Int): Piece {
         val spec: Specification<Piece> = Specification
                 .where(inGame(gameId))!!
                 .and(inRow(row))!!
@@ -172,6 +175,7 @@ class PieceService (
                 .and(isStatus(PieceStatus.ACTIVE))!!
 
         return pieceRepository.findAll(spec).firstOrNull()
+            ?: throw EntityNotFoundException("Could not find piece at ($row, $col)")
     }
 
     /**

@@ -443,11 +443,11 @@ class GameService (
         val savedMovingPiece = pieceService.movePiece(move.movingPiece, move.dstRow, move.dstCol)
         if (move.moveType == MoveType.KING_SIDE_CASTLE) {
             val castle = pieceService.getPieceAt(game.id, move.srcRow, move.dstCol + 1)
-            castle?.let { pieceService.movePiece(castle, move.srcRow, move.dstCol - 1) }
+            pieceService.movePiece(castle, move.srcRow, move.dstCol - 1)
         }
         if (move.moveType == MoveType.QUEEN_SIDE_CASTLE) {
             val castle = pieceService.getPieceAt(game.id, move.srcRow, move.dstCol - 2)
-            castle?.let { pieceService.movePiece(castle, move.srcRow, move.dstCol + 1) }
+            pieceService.movePiece(castle, move.srcRow, move.dstCol + 1)
         }
 
         return moveService.createMove(Move(
