@@ -445,10 +445,29 @@ class GameServiceTest {
     }
 
     @Test
+    fun `will not en passant a friendly-pawn`() {
+        val gameBoard = Utils.getEmptyBoard()
+        val game = Game("En Passant Board", status = GameStatus.WHITE_TURN)
+        val passantTarget = Pawn(PieceColor.WHITE, game.id, 3, 2)
+        val passantAttacker = Pawn(PieceColor.WHITE, game.id, 3, 3)
+        gameBoard[3][2] = passantTarget
+        gameBoard[3][3] = passantAttacker
+
+        every { pieceService.getPiecesAsBoard(any()) } returns gameBoard
+        every { pieceService.movePiece(any(), any(), any()) } answers {firstArg()}
+        every { pieceService.takePiece(any()) } answers {firstArg()}
+        every { moveService.findLastMove(any()) } returns Move(passantTarget, 1,2,3,2)
+
+        assertThrows<ChessRuleException> {
+            service.move(1, MoveRequest(3,3,2,2))
+        }
+    }
+
+    @Test
     fun `will not en passant a pawn that only moved one`() {
         val gameBoard = Utils.getEmptyBoard()
         val game = Game("En Passant Board", status = GameStatus.WHITE_TURN)
-        val passantTarget = Rook(PieceColor.BLACK, game.id, 3, 2)
+        val passantTarget = Pawn(PieceColor.BLACK, game.id, 3, 2)
         val passantAttacker = Pawn(PieceColor.WHITE, game.id, 3, 3)
         gameBoard[3][2] = passantTarget
         gameBoard[3][3] = passantAttacker
@@ -467,9 +486,9 @@ class GameServiceTest {
     fun `will not en passant a pawn that did not move recently`() {
         val gameBoard = Utils.getEmptyBoard()
         val game = Game("En Passant Board", status = GameStatus.WHITE_TURN)
-        val passantTarget = Rook(PieceColor.BLACK, game.id, 3, 2)
+        val passantTarget = Pawn(PieceColor.BLACK, game.id, 3, 2, id = 1)
         val passantAttacker = Pawn(PieceColor.WHITE, game.id, 3, 3)
-        val unrelatedPawn = Pawn(PieceColor.BLACK, game.id, 3, 7)
+        val unrelatedPawn = Pawn(PieceColor.BLACK, game.id, 3, 7, id = 2)
         gameBoard[3][2] = passantTarget
         gameBoard[3][3] = passantAttacker
         gameBoard[3][7] = unrelatedPawn
@@ -478,6 +497,25 @@ class GameServiceTest {
         every { pieceService.movePiece(any(), any(), any()) } answers {firstArg()}
         every { pieceService.takePiece(any()) } answers {firstArg()}
         every { moveService.findLastMove(any()) } returns Move(unrelatedPawn, 1,7,3,7)
+
+        assertThrows<ChessRuleException> {
+            service.move(1, MoveRequest(3,3,2,2))
+        }
+    }
+
+    @Test
+    fun `will not en passant a pawn that did not move at all`() {
+        val gameBoard = Utils.getEmptyBoard()
+        val game = Game("En Passant Board", status = GameStatus.WHITE_TURN)
+        val passantTarget = Pawn(PieceColor.BLACK, game.id, 3, 2)
+        val passantAttacker = Pawn(PieceColor.WHITE, game.id, 3, 3)
+        gameBoard[3][2] = passantTarget
+        gameBoard[3][3] = passantAttacker
+
+        every { pieceService.getPiecesAsBoard(any()) } returns gameBoard
+        every { pieceService.movePiece(any(), any(), any()) } answers {firstArg()}
+        every { pieceService.takePiece(any()) } answers {firstArg()}
+        every { moveService.findLastMove(any()) } returns null
 
         assertThrows<ChessRuleException> {
             service.move(1, MoveRequest(3,3,2,2))
@@ -570,6 +608,7 @@ class GameServiceTest {
         every { pieceService.movePiece(any(), any(), any()) } answers {firstArg()}
         every { pieceService.findAllBy(any(), PieceColor.BLACK, any(), PieceType.KING) } returns listOf(king)
         every { pieceService.findAllBy(any(), PieceColor.WHITE, any(), any()) } returns emptyList()
+        every { gameRepository.getOne(any()) } returns game
         every { moveService.hasMoved(king) } returns true
 
         assertThrows<ChessRuleException> { service.move(1, MoveRequest(0,4,0,6)) }
@@ -590,6 +629,7 @@ class GameServiceTest {
         every { pieceService.findAllBy(any(), PieceColor.WHITE, any(), any()) } returns emptyList()
         every { moveService.hasMoved(king) } returns false
         every { moveService.hasMoved(rook) } returns true
+        every { gameRepository.getOne(any()) } returns game
 
         assertThrows<ChessRuleException> { service.move(1, MoveRequest(0,4,0,6)) }
     }
@@ -607,6 +647,7 @@ class GameServiceTest {
         every { pieceService.movePiece(any(), any(), any()) } answers {firstArg()}
         every { pieceService.findAllBy(any(), PieceColor.BLACK, any(), PieceType.KING) } returns listOf(king)
         every { pieceService.findAllBy(any(), PieceColor.WHITE, any(), any()) } returns emptyList()
+        every { gameRepository.getOne(any()) } returns game
         every { moveService.hasMoved(king) } returns false
 
         assertThrows<ChessRuleException> { service.move(1, MoveRequest(0,4,0,6)) }
@@ -628,6 +669,7 @@ class GameServiceTest {
         every { pieceService.findAllBy(any(), PieceColor.BLACK, any(), PieceType.KING) } returns listOf(king)
         every { pieceService.findAllBy(any(), PieceColor.WHITE, any(), any()) } returns emptyList()
         every { moveService.hasMoved(any()) } returns false
+        every { gameRepository.getOne(any()) } returns game
 
         assertThrows<ChessRuleException> { service.move(1, MoveRequest(0,4,0,6)) }
     }
@@ -648,6 +690,7 @@ class GameServiceTest {
         every { pieceService.findAllBy(any(), PieceColor.WHITE, any(), PieceType.KING) } returns listOf(king)
         every { pieceService.findAllBy(any(), PieceColor.BLACK, any(), any()) } returns listOf(whiteRook)
         every { moveService.hasMoved(any()) } returns false
+        every { gameRepository.getOne(any()) } returns game
 
         assertThrows<ChessRuleException> { service.move(1, MoveRequest(7,4,7,6)) }
     }

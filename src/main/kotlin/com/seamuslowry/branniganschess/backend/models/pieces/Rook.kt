@@ -36,6 +36,4 @@ class Rook(
 
         return row == dst.row || col == dst.col
     }
-
-    override fun canCapture(dst: Position): Boolean = canMove(dst)
 }

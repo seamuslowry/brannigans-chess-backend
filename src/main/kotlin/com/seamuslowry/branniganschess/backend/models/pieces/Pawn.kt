@@ -44,7 +44,7 @@ class Pawn(
     }
 
     override fun canCapture(dst: Position): Boolean {
-        if (!super.canCapture(dst)) return false
+        if (!super.canMove(dst)) return false
         val (row, col) = position()
         val direction = direction()
 

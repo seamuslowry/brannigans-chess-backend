@@ -6,6 +6,7 @@ plugins {
 	kotlin("jvm") version "1.3.72"
 	kotlin("plugin.spring") version "1.3.72"
 	kotlin("plugin.jpa") version "1.3.72"
+	jacoco
 }
 
 group = "com.seamuslowry.branniganschess"
@@ -41,6 +42,36 @@ dependencies {
 	testImplementation("org.awaitility:awaitility-kotlin:4.0.0")
 	testImplementation("org.springframework.security:spring-security-test:5.2.2.RELEASE")
 
+}
+
+jacoco {
+	toolVersion = "0.8.6"
+}
+
+fun Build_gradle.excludeTestFiles(): FileTree {
+	return sourceSets.main.get().output.asFileTree.matching {
+		exclude("**/*ApplicationKt.class")
+	}
+}
+
+tasks.jacocoTestReport {
+	reports {
+		xml.isEnabled = true
+		csv.isEnabled = true
+		html.isEnabled = true
+	}
+	classDirectories.setFrom(excludeTestFiles())
+}
+
+tasks.test {
+	finalizedBy(tasks.jacocoTestReport)
+	useJUnitPlatform {
+		includeEngines("junit-jupiter", "spek2")
+	}
+
+	testLogging {
+		events("passed", "failed", "skipped")
+	}
 }
 
 tasks.withType<Test> {

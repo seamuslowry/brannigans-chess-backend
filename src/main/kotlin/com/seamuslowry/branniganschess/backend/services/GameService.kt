@@ -194,10 +194,14 @@ class GameService (
 
         val promotable = opposingPieces.any { it is Pawn && it.promotable() }
 
+        val check = inCheck && hasValidMove
+        val mate = inCheck && !hasValidMove
+        val stalemate = !inCheck && !hasValidMove
+
         return when {
-            inCheck && hasValidMove -> if (opposingColor == PieceColor.BLACK) GameStatus.BLACK_CHECK else GameStatus.WHITE_CHECK
-            inCheck && !hasValidMove -> if (opposingColor == PieceColor.BLACK) GameStatus.WHITE_VICTORY else GameStatus.BLACK_VICTORY
-            !inCheck && !hasValidMove -> GameStatus.STALEMATE
+            check -> if (opposingColor == PieceColor.BLACK) GameStatus.BLACK_CHECK else GameStatus.WHITE_CHECK
+            mate -> if (opposingColor == PieceColor.BLACK) GameStatus.WHITE_VICTORY else GameStatus.BLACK_VICTORY
+            stalemate -> GameStatus.STALEMATE
             promotable -> if (opposingColor == PieceColor.BLACK) GameStatus.WHITE_PROMOTION else GameStatus.BLACK_PROMOTION
             else -> if (opposingColor == PieceColor.BLACK) GameStatus.BLACK_TURN else GameStatus.WHITE_TURN
         }
@@ -351,8 +355,8 @@ class GameService (
             if (passantTarget !is Pawn) return null
             if (passantTarget.color == movingPiece.color) return null
 
-            val lastMove = moveService.findLastMove(movingPiece.gameId)
-            if (lastMove?.movingPiece?.id != passantTarget.id) return null
+            val lastMove = moveService.findLastMove(movingPiece.gameId) ?: return null
+            if (lastMove.movingPiece.id != passantTarget.id) return null
             if (abs(lastMove.dstRow.minus(lastMove.srcRow)) != 2) return null
 
             return Move(
@@ -439,11 +443,11 @@ class GameService (
         val savedMovingPiece = pieceService.movePiece(move.movingPiece, move.dstRow, move.dstCol)
         if (move.moveType == MoveType.KING_SIDE_CASTLE) {
             val castle = pieceService.getPieceAt(game.id, move.srcRow, move.dstCol + 1)
-            castle?.let { pieceService.movePiece(castle, move.srcRow, move.dstCol - 1) }
+            pieceService.movePiece(castle, move.srcRow, move.dstCol - 1)
         }
         if (move.moveType == MoveType.QUEEN_SIDE_CASTLE) {
             val castle = pieceService.getPieceAt(game.id, move.srcRow, move.dstCol - 2)
-            castle?.let { pieceService.movePiece(castle, move.srcRow, move.dstCol + 1) }
+            pieceService.movePiece(castle, move.srcRow, move.dstCol + 1)
         }
 
         return moveService.createMove(Move(
@@ -464,7 +468,7 @@ class GameService (
         copiedBoard[move.dstRow][move.dstCol] = move.movingPiece
 
         val takenLocation = move.takenPiece?.position()
-        takenLocation?.let { copiedBoard[it.row][it.col] == null }
+        takenLocation?.let { copiedBoard[it.row][it.col] = null }
 
         if (move.moveType == MoveType.EN_PASSANT) copiedBoard[move.srcRow][move.dstCol] = null
         if (move.moveType == MoveType.KING_SIDE_CASTLE) {
@@ -490,9 +494,8 @@ class GameService (
             }
         }
 
-        if (move.moveType == MoveType.EN_PASSANT) {
-            newPieces = newPieces.filter { !(it.positionCol == move.dstCol && it.positionRow == move.srcRow) }
-        }
+        // en passant specific behavior is handled by the taken piece filter above
+
         // castle checks are NOT necessary here; method used only to evaluate if moving player is in check
         // placement of castle is not relevant as the player would be in check beforehand if it were
 
@@ -555,10 +558,13 @@ class GameService (
     }
 
     private fun updateGameForPlayerSearch(game: Game): Game {
+        val hasBlackPlayer = game.blackPlayer != null
+        val hasWhitePlayer = game.whitePlayer != null
+
         game.status = when {
-            game.blackPlayer != null && game.whitePlayer == null -> GameStatus.WAITING_FOR_WHITE
-            game.whitePlayer != null && game.blackPlayer == null -> GameStatus.WAITING_FOR_BLACK
-            game.whitePlayer != null && game.blackPlayer != null -> GameStatus.WHITE_TURN
+            hasWhitePlayer && hasBlackPlayer -> GameStatus.WHITE_TURN
+            hasBlackPlayer -> GameStatus.WAITING_FOR_WHITE
+            hasWhitePlayer -> GameStatus.WAITING_FOR_BLACK
             else -> GameStatus.WAITING_FOR_PLAYERS
         }
 

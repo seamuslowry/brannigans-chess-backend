@@ -136,7 +136,7 @@ class PlayerService (
 
     private fun getById(id: Long): Player =
         playerRepository.findById(id).orElse(null)
-            ?: throw EntityNotFoundException("No player with that authorization ID")
+            ?: throw EntityNotFoundException("No player with that ID")
 
     private fun getGames(player: Player, color: PieceColor?, statuses: Iterable<GameStatus>, pageable: Pageable) = gameService.findPlayerGames(player, color, statuses, pageable)
 

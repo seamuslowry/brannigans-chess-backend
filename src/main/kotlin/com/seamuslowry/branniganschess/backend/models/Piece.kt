@@ -30,13 +30,13 @@ abstract class Piece (
         @Enumerated(EnumType.STRING)
         open val color: PieceColor,
         open val gameId: Long,
-        open var positionRow: Int = 0,
-        open var positionCol: Int = 0,
+        open var positionRow: Int,
+        open var positionCol: Int,
         @Enumerated(EnumType.STRING)
-        open var status: PieceStatus = PieceStatus.ACTIVE,
+        open var status: PieceStatus,
         @Id
         @GeneratedValue(strategy = GenerationType.IDENTITY)
-        open var id: Long = -1
+        open var id: Long
 ) {
     // need copy but cannot use data class
     abstract fun copy(): Piece
@@ -44,7 +44,7 @@ abstract class Piece (
     open fun isImmovable() = status != PieceStatus.ACTIVE
     open fun position() = Position(positionRow, positionCol)
     open fun canMove(dst: Position) = !isImmovable() && Utils.tileOnBoard(dst.row, dst.col)
-    open fun canCapture(dst: Position) = !isImmovable() && Utils.tileOnBoard(dst.row, dst.col)
+    open fun canCapture(dst: Position) = canMove(dst)
     open fun requiresEmpty(dst: Position): Set<Position> {
         val set = HashSet<Position>()
         val (row, col) = position()

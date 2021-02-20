@@ -40,7 +40,7 @@ class SystemSearchPiecesIntegrationTests(
         val foundPiece = pieceService.getPieceAt(gameOne.id, 0,7)
 
         Assertions.assertTrue(foundPiece is Rook)
-        Assertions.assertEquals(0, foundPiece?.positionRow)
-        Assertions.assertEquals(7, foundPiece?.positionCol)
+        Assertions.assertEquals(0, foundPiece.positionRow)
+        Assertions.assertEquals(7, foundPiece.positionCol)
     }
 }

@@ -43,8 +43,6 @@ class King(
         return setOf(0, 1).containsAll(setOf(rowDiff,colDiff))
     }
 
-    override fun canCapture(dst: Position): Boolean = canMove(dst)
-
     private fun startingRow() = if (color == PieceColor.BLACK) 0 else 7
 
     fun kingSideCastleRequest() = Position(startingRow(), 6)

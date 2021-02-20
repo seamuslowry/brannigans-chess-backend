@@ -40,6 +40,4 @@ class Bishop(
 
         return rowDiff == colDiff
     }
-
-    override fun canCapture(dst: Position): Boolean = canMove(dst)
 }

@@ -1,3 +1,5 @@
+[![codecov](https://codecov.io/gh/seamuslowry/brannigans-chess-backend/branch/main/graph/badge.svg?token=4VLU6PJ0ZL)](https://codecov.io/gh/seamuslowry/brannigans-chess-backend)
+
 # Brannigan's Chess
 
 "In the game of chess, you can never let your adversary see your pieces." -Zapp Brannigan
