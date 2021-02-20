@@ -1,0 +1,14 @@
+name: Coverage CI
+
+on:
+  push:
+    branches:
+      - "**"
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - run: ./gradlew test
+      - run: bash <(curl -s https://codecov.io/bash)
