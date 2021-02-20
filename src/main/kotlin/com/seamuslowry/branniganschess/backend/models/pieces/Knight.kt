@@ -43,7 +43,5 @@ class Knight(
         return setOf(rowDiff,colDiff) == setOf(1,2)
     }
 
-    override fun canCapture(dst: Position): Boolean = canMove(dst)
-
     override fun requiresEmpty(dst: Position): Set<Position> = emptySet()
 }

@@ -44,6 +44,4 @@ class Queen(
 
         return row == dst.row || col == dst.col || rowDiff == colDiff
     }
-
-    override fun canCapture(dst: Position): Boolean = canMove(dst)
 }
