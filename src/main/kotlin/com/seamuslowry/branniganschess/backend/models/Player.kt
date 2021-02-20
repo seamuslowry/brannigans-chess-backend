@@ -12,5 +12,5 @@ class Player (
         val imageUrl: String = "",
         @Id
         @GeneratedValue(strategy = GenerationType.IDENTITY)
-        var id: Long = -1
+        val id: Long = -1
 )
