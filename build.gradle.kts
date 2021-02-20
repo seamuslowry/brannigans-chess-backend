@@ -48,12 +48,19 @@ jacoco {
 	toolVersion = "0.8.6"
 }
 
+fun Build_gradle.excludeTestFiles(): FileTree {
+	return sourceSets.main.get().output.asFileTree.matching {
+		exclude("**/*ApplicationKt.class")
+	}
+}
+
 tasks.jacocoTestReport {
 	reports {
 		xml.isEnabled = true
 		csv.isEnabled = true
 		html.isEnabled = true
 	}
+	classDirectories.setFrom(excludeTestFiles())
 }
 
 tasks.test {
