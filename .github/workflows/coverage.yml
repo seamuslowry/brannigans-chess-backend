@@ -10,5 +10,5 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-      - run: ./gradlew test
+      - run: ./gradlew clean build test
       - run: bash <(curl -s https://codecov.io/bash)
