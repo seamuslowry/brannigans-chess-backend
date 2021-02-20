@@ -13,5 +13,5 @@ jobs:
       - uses: actions/setup-java@v1
         with:
           java-version: 11
-      - run: ./gradlew clean build test
+      - run: ./gradlew clean test
       - run: bash <(curl -s https://codecov.io/bash)
