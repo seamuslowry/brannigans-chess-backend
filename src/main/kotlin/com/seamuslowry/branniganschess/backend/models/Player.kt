@@ -9,7 +9,8 @@ import javax.persistence.Id
 class Player (
         val authId: String,
         var name: String = "",
-        var imageUrl: String = "",
+        val imageUrl: String = "",
         @Id
-        @GeneratedValue(strategy = GenerationType.IDENTITY) var id: Long = -1
+        @GeneratedValue(strategy = GenerationType.IDENTITY)
+        var id: Long = -1
 )
