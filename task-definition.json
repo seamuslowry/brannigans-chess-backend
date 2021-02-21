@@ -24,8 +24,21 @@
       ],
       "command": null,
       "linuxParameters": null,
-      "cpu": 1024,
-      "environment": [],
+      "cpu": 512,
+      "environment": [
+        {
+          "name": "CHESS_ACCESS_CONTROL_ALLOW_ORIGIN",
+          "value": "https://www.branniganschess.com,https://branniganschess.com,https://backend.branniganschess.com"
+        },
+        {
+          "name": "SPRING_PROFILES_ACTIVE",
+          "value": "clean"
+        },
+        {
+          "name": "BRANNIGANS_CHESS_DB_NAME",
+          "value": "brannigan"
+        }
+      ],
       "resourceRequirements": null,
       "ulimits": null,
       "dnsServers": null,
@@ -43,7 +56,7 @@
       ],
       "dockerSecurityOptions": null,
       "memory": null,
-      "memoryReservation": 2048,
+      "memoryReservation": 1024,
       "volumesFrom": [],
       "stopTimeout": null,
       "image": "085076848110.dkr.ecr.us-east-2.amazonaws.com/brannigans-chess/backend:fecb232a2b6b861b32bc78ab54376d3f7113abc9",
@@ -67,7 +80,7 @@
     }
   ],
   "placementConstraints": [],
-  "memory": "2048",
+  "memory": "1024",
   "taskRoleArn": null,
   "family": "brannigans-chess-backend-task-definition",
   "pidMode": null,
@@ -75,7 +88,7 @@
     "FARGATE"
   ],
   "networkMode": "awsvpc",
-  "cpu": "1024",
+  "cpu": "512",
   "inferenceAccelerators": null,
   "proxyConfiguration": null,
   "volumes": []
