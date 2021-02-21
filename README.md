@@ -11,4 +11,4 @@
 - You should now see the service exposed on `localhost:8080`. Swagger for testing can be used on `localhost:8080/swagger-ui.html`
 
 ## Goal
-This is a chess app in which each player can only see their own pieces. Taken pieces will be visible to both players.
+This is designed as a chess app in which each player can only see their own pieces. Taken pieces are visible to both players.
