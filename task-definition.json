@@ -31,10 +31,6 @@
           "value": "https://www.branniganschess.com,https://branniganschess.com,https://backend.branniganschess.com"
         },
         {
-          "name": "SPRING_PROFILES_ACTIVE",
-          "value": "clean"
-        },
-        {
           "name": "BRANNIGANS_CHESS_DB_NAME",
           "value": "brannigan"
         }
