@@ -10,7 +10,7 @@ plugins {
 }
 
 group = "com.seamuslowry.branniganschess"
-version = "1.0.0"
+version = "1.0.10"
 java.sourceCompatibility = JavaVersion.VERSION_11
 
 repositories {
