@@ -20,9 +20,17 @@ class SwaggerConfig {
     @Bean
     fun apiDocket(): Docket {
         return Docket(DocumentationType.SWAGGER_2)
+                .securityContexts(listOf(securityContext()))
+                .securitySchemes(listOf(apiKey()))
                 .select()
                 .apis(RequestHandlerSelectors.withClassAnnotation(RestController::class.java))
                 .paths(PathSelectors.any())
                 .build()
     }
+
+    private fun apiKey() = ApiKey("JWT", HttpHeaders.AUTHORIZATION, "header")
+
+    private fun securityContext(): SecurityContext = SecurityContext.builder().securityReferences(defaultAuth()).build()
+
+    private fun defaultAuth() = listOf(SecurityReference("JWT", arrayOf(AuthorizationScope("global", "accessEverything"))))
 }
