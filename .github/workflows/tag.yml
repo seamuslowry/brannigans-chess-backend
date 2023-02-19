@@ -1,9 +1,7 @@
 name: Tag
 
 on:
-  push:
-    branches:
-      - main
+  - push
 
 jobs:
   tag-new-version:
